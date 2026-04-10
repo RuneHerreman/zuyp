@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -36,15 +37,15 @@ fun HangoutCard(
     hangout: Hangout,
     modifier: Modifier = Modifier
 ) {
-    val formattedDate = remember(hangout.date) {
+    val formattedDate =
         hangout.date.format(DateTimeFormatter.ofPattern("MMM d yyyy", Locale.getDefault()))
-    }
 
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+            contentColor = MaterialTheme.colorScheme.onSurface
         )
     ) {
         Row(
@@ -68,7 +69,10 @@ fun HangoutCard(
 
                 InfoRow(icon = Icons.Filled.CalendarToday, text = formattedDate)
                 InfoRow(icon = Icons.Filled.LocationOn, text = hangout.location)
-                InfoRow(icon = Icons.Filled.Group, text = "${hangout.attendees.size} going")
+                InfoRow(
+                    icon = Icons.Filled.Group,
+                    text = "${if (hangout.attendees.isEmpty()) "No" else hangout.attendees.size} going"
+                )
             }
 
             CreatorAvatar(name = hangout.creator.name)
@@ -78,7 +82,7 @@ fun HangoutCard(
 
 @Composable
 private fun InfoRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     text: String
 ) {
     Row(
