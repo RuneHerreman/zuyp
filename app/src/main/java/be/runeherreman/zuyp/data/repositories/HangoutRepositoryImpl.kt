@@ -1,9 +1,11 @@
 package be.runeherreman.zuyp.data.repositories
 
 import be.runeherreman.zuyp.data.fake.data.FakeDataSource
+import be.runeherreman.zuyp.data.fake.dto.HangoutDto
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import java.util.UUID
 import javax.inject.Inject
 
@@ -11,32 +13,26 @@ class HangoutRepositoryImpl @Inject constructor(
     private val fakeDataSource: FakeDataSource
 ): HangoutRepository {
     override fun getHangouts(): Flow<List<Hangout>> {
-        return fakeDataSource.getHangouts().map { dto ->
-            Hangout(
-                id = dto.id,
-                title = dto.title,
-                description = dto.description,
-                location = dto.location,
-                date = dto.date,
-                attendees = dto.attendees,
-                creator = dto.creator,
-                private = dto.private
-            )
-        } as Flow<List<Hangout>>
+        return flowOf(fakeDataSource.getHangouts().map { it.toDomain() })
     }
 
     override suspend fun getHangoutById(id: UUID): Hangout? {
-        return fakeDataSource.getHangoutById(id)?.let { dto ->
-            Hangout(
-                id = dto.id,
-                title = dto.title,
-                description = dto.description,
-                location = dto.location,
-                date = dto.date,
-                attendees = dto.attendees,
-                creator = dto.creator,
-                private = dto.private
-            )
-        }
+        return fakeDataSource
+            .getHangouts()
+            .firstOrNull { it.id == id }
+            ?.toDomain()
     }
+}
+
+private fun HangoutDto.toDomain(): Hangout {
+    return Hangout(
+        id = id,
+        title = title,
+        description = description,
+        location = location,
+        date = date,
+        attendees = attendees,
+        creator = creator,
+        private = private
+    )
 }
