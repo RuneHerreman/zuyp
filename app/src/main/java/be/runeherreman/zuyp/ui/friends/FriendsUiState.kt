@@ -1,4 +1,5 @@
 package be.runeherreman.zuyp.ui.friends
 
-class FriendsUiState {
-}
+data class FriendsUiState (
+    val something: String = ""
+)

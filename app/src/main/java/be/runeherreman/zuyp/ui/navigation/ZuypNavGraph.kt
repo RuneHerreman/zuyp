@@ -2,53 +2,62 @@ package be.runeherreman.zuyp.ui.navigation
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import be.runeherreman.zuyp.ui.discover.DiscoverScreen
+import be.runeherreman.zuyp.ui.discover.DiscoverViewModel
+import be.runeherreman.zuyp.ui.friends.FriendsScreen
+import be.runeherreman.zuyp.ui.friends.FriendsViewModel
+import be.runeherreman.zuyp.ui.home.HomeScreen
+import be.runeherreman.zuyp.ui.home.HomeViewModel
+import be.runeherreman.zuyp.ui.profile.ProfileScreen
+import be.runeherreman.zuyp.ui.profile.ProfileViewModel
 
 @Composable
 fun ZuypNavGraph(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
-    // Add view models here
-    // ex.     homeViewModel: HomeViewModel = viewModel(),
+    navController: NavHostController = rememberNavController(),
+    homeViewModel: HomeViewModel = viewModel(),
+    discoverViewModel: DiscoverViewModel = viewModel(),
+    friendsViewModel: FriendsViewModel = viewModel(),
+    profileViewModel: ProfileViewModel = viewModel(),
 ) {
-    // Add UiState here
-    // ex.     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+    val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+    val discoverUiState by discoverViewModel.uiState.collectAsStateWithLifecycle()
+    val friendsUiState by friendsViewModel.uiState.collectAsStateWithLifecycle()
+    val profileUiState by profileViewModel.uiState.collectAsStateWithLifecycle()
+
 
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route,
         modifier = modifier
     ) {
-        // Add composables here
-        // ----- EXAMPLE -----
-//        composable(Screen.Home.route) {
-//            HomeScreen(
-//                uiState = homeUiState,
-//                onEmailChanged = {
-//                    homeViewModel.onEmailChanged(it)
-//                },
-//                onOrderDessertClick = { navController.navigate(Screen.Desserts.route) },
-//                onSubscribeClick = {
-//                    homeViewModel.onSubscribeClicked()
-//                }
-//            )
-//        }
-
         composable(Screen.Home.route) {
-            Text(text = "Home Screen")
+            HomeScreen(
+                uiState = homeUiState
+            )
         }
         composable(Screen.Discover.route) {
-            Text(text = "Discover Screen")
+            DiscoverScreen(
+                uiState = discoverUiState
+            )
         }
         composable(Screen.Friends.route) {
-            Text(text = "Friends Screen")
+            FriendsScreen(
+                uiState = friendsUiState
+            )
         }
         composable(Screen.Profile.route) {
-            Text(text = "Profile Screen")
+            ProfileScreen(
+                uiState = profileUiState
+            )
         }
     }
 }

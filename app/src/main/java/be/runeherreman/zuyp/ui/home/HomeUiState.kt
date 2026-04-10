@@ -1,4 +1,5 @@
 package be.runeherreman.zuyp.ui.home
 
-class HomeUiState {
-}
+data class HomeUiState (
+    val something: String = ""
+)

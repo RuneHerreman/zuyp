@@ -1,4 +1,5 @@
 package be.runeherreman.zuyp.ui.discover
 
-class DiscoverUiState {
-}
+data class DiscoverUiState (
+    val something: String = ""
+)

@@ -1,4 +1,11 @@
 package be.runeherreman.zuyp.ui.discover
 
-class DiscoverScreen {
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+
+@Composable
+fun DiscoverScreen(
+    uiState: DiscoverUiState,
+    modifier: Modifier = Modifier
+) {
 }

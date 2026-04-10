@@ -1,4 +1,5 @@
 package be.runeherreman.zuyp.ui.profile
 
-class ProfileUiState {
-}
+data class ProfileUiState (
+    val something: String = ""
+)

@@ -1,2 +1,16 @@
-.env
+.DS_Store
+node_modules
+.tmp
+npm-debug.log
+local.properties
+.gradle
+.idea/other.xml
+.idea/studiobot.xml
+.idea/deploymentTargetSelector.xml
+.idea/assetWizardSettings.xml
+build/
+captures/
+*.iml
+*.log
 /.idea/
+.gradle/
