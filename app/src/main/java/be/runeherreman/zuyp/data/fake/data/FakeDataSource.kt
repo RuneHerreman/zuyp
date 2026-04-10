@@ -1,14 +1,15 @@
 package be.runeherreman.zuyp.data.fake.data
 
 import be.runeherreman.zuyp.data.fake.dto.HangoutDto
-import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.Date
 import java.util.UUID
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class FakeDataSource() {
+@Singleton
+class FakeDataSource @Inject constructor() {
     fun getHangouts(): List<HangoutDto>{
         return listOf<HangoutDto>(
             HangoutDto(

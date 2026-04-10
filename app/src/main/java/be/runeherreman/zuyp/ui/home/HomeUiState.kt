@@ -1,5 +1,7 @@
 package be.runeherreman.zuyp.ui.home
 
+import be.runeherreman.zuyp.domain.model.Hangout
+
 data class HomeUiState (
-    val something: String = ""
+    val hangouts: List<Hangout> = emptyList()
 )
