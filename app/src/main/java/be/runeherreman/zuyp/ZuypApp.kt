@@ -2,11 +2,11 @@ package be.runeherreman.zuyp
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -17,15 +17,15 @@ import be.runeherreman.zuyp.ui.theme.ZuypTheme
 
 @Composable
 fun ZuypApp() {
-    val context = LocalContext.current
-
     ZuypTheme {
         val navController = rememberNavController()
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
         Scaffold(
-            modifier = Modifier.Companion.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground,
             bottomBar = {
                 ZuypBottomBar(
                     navController = navController,
@@ -35,10 +35,9 @@ fun ZuypApp() {
         ) { innerPadding ->
             ZuypNavGraph(
                 navController = navController,
-                modifier = Modifier.Companion.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding)
             )
         }
-
     }
 }
 

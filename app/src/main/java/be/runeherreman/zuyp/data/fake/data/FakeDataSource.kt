@@ -91,6 +91,76 @@ class FakeDataSource @Inject constructor() {
                     "bram.verdonck@gmail.com"
                 ),
                 false
+            ),
+            HangoutDto(
+                UUID.randomUUID(),
+                "Tropical TD",
+                "",
+                "VUB BSG",
+                LocalDateTime.of(2026, 3, 24, 20, 0),
+                emptyList(),
+                User(
+                    UUID.randomUUID(),
+                    "Mila Janssens",
+                    LocalDate.of(2004, 2, 11),
+                    "mila.janssens@gmail.com"
+                ),
+                true
+            ),
+            HangoutDto(
+                UUID.randomUUID(),
+                "Patersgat Silme",
+                "",
+                "Patersgat",
+                LocalDateTime.of(2026, 4, 9, 19, 30),
+                emptyList(),
+                User(
+                    UUID.randomUUID(),
+                    "Mila Janssens",
+                    LocalDate.of(2004, 2, 11),
+                    "mila.janssens@gmail.com"
+                ),
+                true
+            ),
+            HangoutDto(
+                UUID.randomUUID(),
+                "No other choice - Movie Night",
+                "",
+                "Cinema Lumiere Brugge",
+                LocalDateTime.of(2026, 4, 19, 19, 30),
+                listOf(
+                    User(
+                        UUID.randomUUID(),
+                        "Mila Janssens",
+                        LocalDate.of(2004, 2, 11),
+                        "mila.janssens@gmail.com"
+                    ),
+                    User(
+                        UUID.randomUUID(),
+                        "Ruben Claeys",
+                        LocalDate.of(2002, 5, 7),
+                        "ruben.claeys@gmail.com"
+                    ),
+                    User(
+                        UUID.randomUUID(),
+                        "Lotte Van Damme",
+                        LocalDate.of(2004, 3, 14),
+                        "lotte.vandamme@gmail.com"
+                    ),
+                    User(
+                        UUID.randomUUID(),
+                        "Noor De Wilde",
+                        LocalDate.of(2005, 10, 22),
+                        "noor.dewilde@gmail.com"
+                    )
+                ),
+                User(
+                    UUID.randomUUID(),
+                    "Mila Janssens",
+                    LocalDate.of(2004, 2, 11),
+                    "mila.janssens@gmail.com"
+                ),
+                true
             )
         )
     }

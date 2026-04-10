@@ -13,7 +13,12 @@ class HangoutRepositoryImpl @Inject constructor(
     private val fakeDataSource: FakeDataSource
 ): HangoutRepository {
     override fun getHangouts(): Flow<List<Hangout>> {
-        return flowOf(fakeDataSource.getHangouts().map { it.toDomain() })
+        return flowOf(
+            fakeDataSource
+                .getHangouts()
+                .sortedBy { it.date }
+                .map { it.toDomain() }
+        )
     }
 
     override suspend fun getHangoutById(id: UUID): Hangout? {

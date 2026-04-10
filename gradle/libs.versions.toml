@@ -47,6 +47,7 @@ datastoreCore = "1.2.1"
 datastorePreferencesCore = "1.2.1"
 room3CommonJvm = "3.0.0-alpha02"
 roomKtx = "2.8.4"
+uiTextGoogleFonts = "1.10.6"
 
 [libraries]
 # Core
@@ -101,6 +102,7 @@ rabbitmq-amqp-client = { group = "com.rabbitmq", name = "amqp-client", version.r
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
