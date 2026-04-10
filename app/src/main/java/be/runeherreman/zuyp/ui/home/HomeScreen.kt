@@ -1,7 +1,6 @@
 package be.runeherreman.zuyp.ui.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,15 +25,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.ui.home.components.HangoutCard
 
 
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLocationClick: (Hangout) -> Unit = { _ -> }
 ) {
-    // Column ensures elements are placed vertically
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -63,7 +64,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             uiState.hangouts.forEach {
-                HangoutCard(hangout = it)
+                HangoutCard(hangout = it, onLocationClick = onLocationClick)
             }
         }
 
@@ -84,8 +85,12 @@ fun ZuypEmergencyButton(
     FilledTonalButton(
         onClick = onClick,
         modifier = modifier,
-        shape = RoundedCornerShape(8.dp)
-    ) {
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer
+        )
+        ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically

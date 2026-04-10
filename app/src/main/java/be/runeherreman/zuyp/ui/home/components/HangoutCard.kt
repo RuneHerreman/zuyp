@@ -1,6 +1,7 @@
 package be.runeherreman.zuyp.ui.home.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,7 +36,8 @@ import java.util.Locale
 @Composable
 fun HangoutCard(
     hangout: Hangout,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLocationClick: (Hangout) -> Unit = { _ -> }
 ) {
     val formattedDate =
         hangout.date.format(DateTimeFormatter.ofPattern("MMM d yyyy", Locale.getDefault()))
@@ -68,7 +70,12 @@ fun HangoutCard(
                 )
 
                 InfoRow(icon = Icons.Filled.CalendarToday, text = formattedDate)
-                InfoRow(icon = Icons.Filled.LocationOn, text = hangout.location)
+                InfoRow(
+                    icon = Icons.Filled.LocationOn,
+                    text = hangout.locationName,
+                    onClick = { onLocationClick(hangout) }
+                )
+
                 InfoRow(
                     icon = Icons.Filled.Group,
                     text = "${if (hangout.attendees.isEmpty()) "No" else hangout.attendees.size} going"
@@ -83,9 +90,15 @@ fun HangoutCard(
 @Composable
 private fun InfoRow(
     icon: ImageVector,
-    text: String
+    text: String,
+    onClick: (() -> Unit)? = null
 ) {
     Row(
+        modifier = if (onClick != null) {
+            Modifier.clickable(onClick = onClick)
+        } else {
+            Modifier
+        },
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

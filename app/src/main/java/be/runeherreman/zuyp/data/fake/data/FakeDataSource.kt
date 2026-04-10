@@ -17,6 +17,8 @@ class FakeDataSource @Inject constructor() {
                 "Onlynumbers, Vladimir Couchemar",
                 "",
                 "Kompass Klub Gent",
+                51.0378,
+                3.7042,
                 LocalDateTime.now(),
                 listOf(
                     User(
@@ -63,6 +65,8 @@ class FakeDataSource @Inject constructor() {
                 "Kroegentoch Brugge",
                 "",
                 "The Monk Brugge",
+                51.2105,
+                3.2223,
                 LocalDateTime.now(),
                 listOf(
                     User(
@@ -97,6 +101,8 @@ class FakeDataSource @Inject constructor() {
                 "Tropical TD",
                 "",
                 "VUB BSG",
+                50.8224,
+                4.3948,
                 LocalDateTime.of(2026, 3, 24, 20, 0),
                 emptyList(),
                 User(
@@ -112,6 +118,8 @@ class FakeDataSource @Inject constructor() {
                 "Patersgat Silme",
                 "",
                 "Patersgat",
+                51.2093,
+                3.2247,
                 LocalDateTime.of(2026, 4, 9, 19, 30),
                 emptyList(),
                 User(
@@ -127,6 +135,8 @@ class FakeDataSource @Inject constructor() {
                 "No other choice - Movie Night",
                 "",
                 "Cinema Lumiere Brugge",
+                51.2114,
+                3.2272,
                 LocalDateTime.of(2026, 4, 19, 19, 30),
                 listOf(
                     User(

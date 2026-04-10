@@ -1,9 +1,9 @@
 package be.runeherreman.zuyp.ui.navigation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -28,6 +28,7 @@ fun ZuypNavGraph(
     friendsViewModel: FriendsViewModel = viewModel(),
     profileViewModel: ProfileViewModel = viewModel(),
 ) {
+    val context = LocalContext.current
     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val discoverUiState by discoverViewModel.uiState.collectAsStateWithLifecycle()
     val friendsUiState by friendsViewModel.uiState.collectAsStateWithLifecycle()
@@ -41,7 +42,10 @@ fun ZuypNavGraph(
     ) {
         composable(Screen.Home.route) {
             HomeScreen(
-                uiState = homeUiState
+                uiState = homeUiState,
+                onLocationClick = { hangout ->
+                    homeViewModel.openMapsForHangout(hangout, context)
+                }
             )
         }
         composable(Screen.Discover.route) {
