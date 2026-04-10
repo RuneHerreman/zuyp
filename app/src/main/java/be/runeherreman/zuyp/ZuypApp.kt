@@ -7,6 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import be.runeherreman.zuyp.ui.navigation.ZuypBottomBar
@@ -38,4 +40,15 @@ fun ZuypApp() {
         }
 
     }
+}
+
+@Preview(
+    showBackground = true,
+    showSystemUi = true,
+    device = Devices.PIXEL_7
+)
+
+@Composable
+fun ZuypAppPreview() {
+    ZuypApp()
 }

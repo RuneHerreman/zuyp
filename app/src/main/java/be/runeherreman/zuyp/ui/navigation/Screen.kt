@@ -15,9 +15,9 @@ sealed class Screen(
     val icon: ImageVector
 ) {
     data object Home: Screen("home", R.string.home_label, Icons.Filled.Home)
-    data object Discover: Screen("home", R.string.home_label, Icons.Filled.LocationOn)
-    data object Friends: Screen("home", R.string.home_label, Icons.Filled.Groups)
-    data object Profile: Screen("home", R.string.home_label, Icons.Filled.Person)
+    data object Discover: Screen("discover", R.string.discover_label, Icons.Filled.LocationOn)
+    data object Friends: Screen("friends", R.string.friends_label, Icons.Filled.Groups)
+    data object Profile: Screen("profile", R.string.profile_label, Icons.Filled.Person)
 }
 
 val screens = listOf(

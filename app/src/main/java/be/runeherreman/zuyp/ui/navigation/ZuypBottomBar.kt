@@ -1,6 +1,6 @@
 package be.runeherreman.zuyp.ui.navigation
 
-import android.R
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
@@ -14,9 +14,8 @@ import androidx.navigation.NavHostController
 fun ZuypBottomBar(
     navController: NavHostController,
     currentDestination: NavDestination?,
-
 ) {
-    NavigationBar{
+    NavigationBar {
         screens.forEach { screen ->
             NavigationBarItem(
                 selected = currentDestination?.hierarchy?.any {
@@ -24,13 +23,19 @@ fun ZuypBottomBar(
                 } == true,
                 onClick = {
                     navController.navigate(screen.route) {
-                        popUpTo(navController.graph.startDestinationId)
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
                         launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 label = { Text(stringResource(id = screen.labelResourceId)) },
                 icon = {
-                    screen.icon
+                    Icon(
+                        imageVector = screen.icon,
+                        contentDescription = null
+                    )
                 }
             )
         }
