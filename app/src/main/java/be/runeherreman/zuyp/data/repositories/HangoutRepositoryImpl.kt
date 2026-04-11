@@ -1,45 +1,51 @@
 package be.runeherreman.zuyp.data.repositories
 
-import be.runeherreman.zuyp.data.fake.data.FakeDataSource
-import be.runeherreman.zuyp.data.fake.dto.HangoutDto
+import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
+import be.runeherreman.zuyp.data.local.room.entity.HangoutWithDetails
+import be.runeherreman.zuyp.data.local.room.entity.UserEntity
 import be.runeherreman.zuyp.domain.model.Hangout
+import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flow
 import java.util.UUID
 import javax.inject.Inject
 
 class HangoutRepositoryImpl @Inject constructor(
-    private val fakeDataSource: FakeDataSource
+    private val hangoutDao: HangoutDao
 ): HangoutRepository {
+
     override fun getHangouts(): Flow<List<Hangout>> {
-        return flowOf(
-            fakeDataSource
-                .getHangouts()
-                .sortedBy { it.date }
-                .map { it.toDomain() }
-        )
+        return flow {
+            emit(hangoutDao.getAll().map(HangoutWithDetails::toDomain))
+        }
     }
 
     override suspend fun getHangoutById(id: UUID): Hangout? {
-        return fakeDataSource
-            .getHangouts()
-            .firstOrNull { it.id == id }
-            ?.toDomain()
+        return hangoutDao.getById(id)?.toDomain()
     }
 }
 
-private fun HangoutDto.toDomain(): Hangout {
+private fun HangoutWithDetails.toDomain(): Hangout {
     return Hangout(
+        id = hangout.id,
+        title = hangout.title,
+        description = hangout.description,
+        locationName = hangout.locationName,
+        latitude = hangout.latitude,
+        longitude = hangout.longitude,
+        date = hangout.date,
+        attendees = attendees.map(UserEntity::toDomain),
+        creator = creator.toDomain(),
+        private = hangout.private
+    )
+}
+
+private fun UserEntity.toDomain(): User {
+    return User(
         id = id,
-        title = title,
-        description = description,
-        locationName = locationName,
-        latitude = latitude,
-        longitude = longitude,
-        date = date,
-        attendees = attendees,
-        creator = creator,
-        private = private
+        name = name,
+        birthdate = birthdate,
+        email = email
     )
 }
