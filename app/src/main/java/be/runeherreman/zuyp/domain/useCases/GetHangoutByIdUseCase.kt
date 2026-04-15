@@ -2,13 +2,13 @@ package be.runeherreman.zuyp.domain.useCases
 
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
-import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 import javax.inject.Inject
 
-class GetHangoutsUseCase @Inject constructor(
+class GetHangoutByIdUseCase @Inject constructor(
     private val hangoutRepository: HangoutRepository
 ) {
-    suspend operator fun invoke(): Flow<List<Hangout>> {
-        return hangoutRepository.getHangouts()
+    suspend operator fun invoke(id: String): Hangout? {
+        return hangoutRepository.getHangoutById(UUID.fromString(id))
     }
 }

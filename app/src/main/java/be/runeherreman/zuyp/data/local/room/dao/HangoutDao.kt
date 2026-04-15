@@ -41,4 +41,13 @@ interface HangoutDao {
 
     @Query("DELETE FROM hangouts WHERE id = :id")
     suspend fun deleteById(id: UUID)
+
+    @Query("DELETE FROM hangouts_users")
+    suspend fun deleteAllAttendees()
+
+    @Query("DELETE FROM hangouts")
+    suspend fun deleteAllHangouts()
+
+    @Query("DELETE FROM users")
+    suspend fun deleteAllUsers()
 }

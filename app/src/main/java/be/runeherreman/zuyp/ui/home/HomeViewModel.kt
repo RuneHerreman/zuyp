@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.core.net.toUri
+import androidx.navigation.NavHostController
 import be.runeherreman.zuyp.domain.model.Hangout
+import be.runeherreman.zuyp.ui.navigation.Screen
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -48,5 +50,12 @@ class HomeViewModel @Inject constructor(
         val chooser = Intent.createChooser(mapIntent, "Navigate to ${hangout.title}")
 
         context.startActivity(chooser)
+    }
+
+    fun onHangoutClick(hangout: Hangout, navController: NavHostController) {
+        navController.navigate(
+            Screen.Hangout.route
+                .replace("{hangoutId}", "${hangout.id}")
+        )
     }
 }

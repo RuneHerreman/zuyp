@@ -33,7 +33,8 @@ import be.runeherreman.zuyp.ui.home.components.HangoutCard
 fun HomeScreen(
     uiState: HomeUiState,
     modifier: Modifier = Modifier,
-    onLocationClick: (Hangout) -> Unit = { _ -> }
+    onLocationClick: (Hangout) -> Unit = { _ -> },
+    onHangoutClick: (Hangout) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -42,19 +43,19 @@ fun HomeScreen(
             .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-
-        Row(
+        Column (
             modifier = Modifier.fillMaxWidth().padding(top=16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
+
         ) {
             Text(
                 text = "Upcoming\nEvents",
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary
             )
-            ZuypEmergencyButton()
+            ZuypEmergencyButton(
+                modifier = Modifier.align(Alignment.End)
+            )
         }
 
 
@@ -64,7 +65,12 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             uiState.hangouts.forEach {
-                HangoutCard(hangout = it, onLocationClick = onLocationClick)
+                HangoutCard(
+                    hangout = it,
+                    onLocationClick = onLocationClick,
+                    phrases = uiState.phrases,
+                    onClick = onHangoutClick
+                )
             }
         }
 

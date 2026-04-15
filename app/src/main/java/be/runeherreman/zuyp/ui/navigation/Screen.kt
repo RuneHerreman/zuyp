@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.TagFaces
 import androidx.compose.ui.graphics.vector.ImageVector
 import be.runeherreman.zuyp.R
 
@@ -15,6 +16,7 @@ sealed class Screen(
     val icon: ImageVector
 ) {
     data object Home: Screen("home", R.string.home_label, Icons.Filled.Home)
+    data object Hangout: Screen("hangout/{hangoutId}", R.string.home_label, Icons.Filled.Home)
     data object Discover: Screen("discover", R.string.discover_label, Icons.Filled.LocationOn)
     data object Friends: Screen("friends", R.string.friends_label, Icons.Filled.Groups)
     data object Profile: Screen("profile", R.string.profile_label, Icons.Filled.Person)
@@ -24,5 +26,5 @@ val screens = listOf(
     Screen.Home,
     Screen.Discover,
     Screen.Friends,
-    Screen.Profile
+    Screen.Profile,
 )

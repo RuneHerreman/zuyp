@@ -32,17 +32,29 @@ import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.domain.model.Hangout
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlin.random.Random
 
 @Composable
 fun HangoutCard(
     hangout: Hangout,
+    phrases: List<String>,
     modifier: Modifier = Modifier,
-    onLocationClick: (Hangout) -> Unit = { _ -> }
+    onLocationClick: (Hangout) -> Unit = { _ -> },
+    onClick: (Hangout) -> Unit = {}
 ) {
     val formattedDate =
         hangout.date.format(DateTimeFormatter.ofPattern("MMM d yyyy", Locale.getDefault()))
+    
+    val attendeeText = remember(hangout.attendees) {
+        if (hangout.attendees.isEmpty()) {
+            phrases.random()
+        } else {
+            "${hangout.attendees.size} going"
+        }
+    }
 
     Card(
+        onClick = { onClick(hangout) },
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(
@@ -78,7 +90,7 @@ fun HangoutCard(
 
                 InfoRow(
                     icon = Icons.Filled.Group,
-                    text = "${if (hangout.attendees.isEmpty()) "No" else hangout.attendees.size} going"
+                    text = attendeeText
                 )
             }
 

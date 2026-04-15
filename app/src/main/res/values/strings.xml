@@ -4,4 +4,5 @@
     <string name="discover_label">Discover</string>
     <string name="friends_label">Friends</string>
     <string name="profile_label">Profile</string>
+    <string name="hangout_label">Hangout</string>
 </resources>
