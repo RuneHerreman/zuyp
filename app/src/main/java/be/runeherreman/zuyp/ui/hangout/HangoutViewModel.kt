@@ -158,9 +158,9 @@ class HangoutViewModel @Inject constructor(
                 rain > 1.0 && temperature < 15 -> "Wear sweater, rain protection"
                 rain > 1.0 && temperature >= 20 -> "T-shirt w/ light rain jacket"
                 rain > 1.0 -> "Bring umbrella / light rain jacket"
-                temperature < 5 -> "Dress warmly w/ winter jacket"
+                temperature < 7 -> "Dress warmly w/ winter jacket"
                 temperature < 15 -> "Wear a sweater"
-                temperature < 20 -> "Wear a light jacket"
+                temperature < 22 -> "Wear a light jacket"
                 else -> "T-shirt and shorts"
             }
             
