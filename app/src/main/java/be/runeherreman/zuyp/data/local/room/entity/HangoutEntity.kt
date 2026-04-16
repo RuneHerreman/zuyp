@@ -13,7 +13,8 @@ data class HangoutEntity (
     val locationName: String,
     val latitude: Double,
     val longitude: Double,
-    val date: LocalDateTime,
+    val startDate: LocalDateTime,
+    val endDate: LocalDateTime,
     val creatorId: UUID,
     val private: Boolean
 )

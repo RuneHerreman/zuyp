@@ -46,7 +46,8 @@ class DatabaseSeeder @Inject constructor(
                 locationName = hangout.locationName,
                 latitude = hangout.latitude,
                 longitude = hangout.longitude,
-                date = hangout.date,
+                startDate = hangout.startDate,
+                endDate = hangout.endDate,
                 creatorId = userIdByEmail.getValue(hangout.creator.email.normalizedEmailKey()),
                 private = hangout.private
             )

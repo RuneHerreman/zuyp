@@ -34,7 +34,8 @@ private fun HangoutWithDetails.toDomain(): Hangout {
         locationName = hangout.locationName,
         latitude = hangout.latitude,
         longitude = hangout.longitude,
-        date = hangout.date,
+        startDate = hangout.startDate,
+        endDate = hangout.endDate,
         attendees = attendees.map(UserEntity::toDomain),
         creator = creator.toDomain(),
         private = hangout.private

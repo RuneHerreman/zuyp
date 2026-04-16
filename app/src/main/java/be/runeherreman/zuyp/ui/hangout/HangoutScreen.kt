@@ -95,11 +95,12 @@ fun HangoutHeader(hangout: Hangout, uiState: HangoutUiState) {
 
     Spacer(modifier = Modifier.height(8.dp))
 
-    val formatter = DateTimeFormatter.ofPattern("MMM d yyyy - 'from' HH'h'mm")
+    val dateFormatter = DateTimeFormatter.ofPattern("MMM d yyyy")
+    val timeFormatter = DateTimeFormatter.ofPattern("HH'h'mm")
 
     InfoRow(
         icon = Icons.Default.CalendarToday,
-        text = hangout.date.format(formatter)
+        text = "${hangout.startDate.format(dateFormatter)} - from ${hangout.startDate.format(timeFormatter)} to ${hangout.endDate.format(timeFormatter)}"
     )
     Spacer(modifier = Modifier.height(4.dp))
     InfoRow(
@@ -108,7 +109,7 @@ fun HangoutHeader(hangout: Hangout, uiState: HangoutUiState) {
     )
     Spacer(modifier = Modifier.height(4.dp))
     InfoRow(
-        icon = Icons.Default.DeviceThermostat,
+        icon = uiState.weatherIcon,
         text = uiState.weatherPrediction
     )
 }

@@ -43,7 +43,7 @@ fun HangoutCard(
     onClick: (Hangout) -> Unit = {}
 ) {
     val formattedDate =
-        hangout.date.format(DateTimeFormatter.ofPattern("MMM d yyyy", Locale.getDefault()))
+        hangout.startDate.format(DateTimeFormatter.ofPattern("MMM d yyyy", Locale.getDefault()))
     
     val attendeeText = remember(hangout.attendees) {
         if (hangout.attendees.isEmpty()) {

@@ -19,6 +19,7 @@ object FakeSeedingData {
                 51.0378,
                 3.7042,
                 LocalDateTime.now(),
+                LocalDateTime.now().plusHours(2),
                 listOf(FakeUsers.userJan, FakeUsers.userKoen, FakeUsers.userLotte, FakeUsers.userMilan, FakeUsers.userNora),
                 FakeUsers.userJan,
                 false
@@ -31,6 +32,7 @@ object FakeSeedingData {
                 51.2105,
                 3.2223,
                 LocalDateTime.now(),
+                LocalDateTime.now().plusHours(2),
                 listOf(FakeUsers.userBram, FakeUsers.userElise, FakeUsers.userTibo),
                 FakeUsers.userBram,
                 false
@@ -43,6 +45,7 @@ object FakeSeedingData {
                 50.8224,
                 4.3948,
                 LocalDateTime.of(2026, 3, 24, 20, 0),
+                LocalDateTime.of(2026, 3, 25, 4, 0),
                 emptyList(),
                 FakeUsers.userMila,
                 true
@@ -55,6 +58,7 @@ object FakeSeedingData {
                 51.2093,
                 3.2247,
                 LocalDateTime.of(2026, 4, 9, 19, 30),
+                LocalDateTime.of(2026, 4, 10, 1, 30),
                 emptyList(),
                 FakeUsers.userMila,
                 true
@@ -67,6 +71,7 @@ object FakeSeedingData {
                 51.2114,
                 3.2272,
                 LocalDateTime.of(2026, 4, 19, 19, 30),
+                LocalDateTime.of(2026, 4, 19, 22, 30),
                 listOf(FakeUsers.userMila, FakeUsers.userRuben, FakeUsers.userLotte, FakeUsers.userNoor),
                 FakeUsers.userMila,
                 true
@@ -79,6 +84,7 @@ object FakeSeedingData {
                 50.8500,
                 4.3632,
                 LocalDateTime.of(2026, 4, 18, 23, 0),
+                LocalDateTime.of(2026, 4, 19, 5, 0),
                 listOf(FakeUsers.userSanne, FakeUsers.userDaan, FakeUsers.userThijs, FakeUsers.userRyan),
                 FakeUsers.userDaan,
                 false
@@ -91,6 +97,7 @@ object FakeSeedingData {
                 49.6833,
                 5.8000,
                 LocalDateTime.of(2026, 4, 20, 22, 0),
+                LocalDateTime.of(2026, 4, 21, 4, 0),
                 listOf(FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva, FakeUsers.userFelix, FakeUsers.userZoe),
                 FakeUsers.userLuna,
                 false
@@ -103,6 +110,7 @@ object FakeSeedingData {
                 50.8798,
                 4.7005,
                 LocalDateTime.of(2026, 4, 17, 20, 0),
+                LocalDateTime.of(2026, 4, 18, 2, 0),
                 listOf(FakeUsers.userJoren, FakeUsers.userIsabella, FakeUsers.userSebastian, FakeUsers.userNatasja),
                 FakeUsers.userJoren,
                 true
@@ -115,6 +123,7 @@ object FakeSeedingData {
                 51.2194,
                 4.4024,
                 LocalDateTime.of(2026, 4, 16, 19, 0),
+                LocalDateTime.of(2026, 4, 16, 23, 0),
                 listOf(FakeUsers.userThijs, FakeUsers.userStéphanie, FakeUsers.userMarkus),
                 FakeUsers.userThijs,
                 false
@@ -127,6 +136,7 @@ object FakeSeedingData {
                 51.0378,
                 3.7042,
                 LocalDateTime.of(2026, 4, 25, 23, 30),
+                LocalDateTime.of(2026, 4, 26, 5, 30),
                 listOf(FakeUsers.userCamille, FakeUsers.userVictoria, FakeUsers.userDieter, FakeUsers.userLea, FakeUsers.userRyan),
                 FakeUsers.userCamille,
                 false
@@ -139,6 +149,7 @@ object FakeSeedingData {
                 50.8548,
                 4.3457,
                 LocalDateTime.of(2026, 4, 19, 21, 0),
+                LocalDateTime.of(2026, 4, 20, 3, 0),
                 listOf(FakeUsers.userSophie, FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars),
                 FakeUsers.userSophie,
                 true
@@ -151,6 +162,7 @@ object FakeSeedingData {
                 51.0356,
                 3.7161,
                 LocalDateTime.of(2026, 4, 21, 20, 0),
+                LocalDateTime.of(2026, 4, 22, 2, 0),
                 listOf(FakeUsers.userAnna, FakeUsers.userTom, FakeUsers.userEmilie),
                 FakeUsers.userTom,
                 false
@@ -163,6 +175,7 @@ object FakeSeedingData {
                 51.2183,
                 4.4141,
                 LocalDateTime.of(2026, 5, 1, 14, 0),
+                LocalDateTime.of(2026, 5, 1, 22, 0),
                 listOf(FakeUsers.userPhilip, FakeUsers.userClaire, FakeUsers.userSven, FakeUsers.userBeat, FakeUsers.userLena),
                 FakeUsers.userPhilip,
                 false
@@ -175,6 +188,7 @@ object FakeSeedingData {
                 50.8500,
                 4.3632,
                 LocalDateTime.of(2026, 4, 23, 23, 0),
+                LocalDateTime.of(2026, 4, 24, 5, 0),
                 listOf(FakeUsers.userJulian, FakeUsers.userSienna, FakeUsers.userAlex),
                 FakeUsers.userJulian,
                 false
@@ -187,6 +201,7 @@ object FakeSeedingData {
                 50.8798,
                 4.7005,
                 LocalDateTime.of(2026, 4, 22, 19, 0),
+                LocalDateTime.of(2026, 4, 23, 1, 0),
                 listOf(FakeUsers.userOliver, FakeUsers.userMaya, FakeUsers.userLuc, FakeUsers.userAnne),
                 FakeUsers.userOliver,
                 true
@@ -199,6 +214,7 @@ object FakeSeedingData {
                 50.8487,
                 4.3572,
                 LocalDateTime.of(2026, 4, 20, 19, 30),
+                LocalDateTime.of(2026, 4, 21, 1, 30),
                 listOf(FakeUsers.userDavid, FakeUsers.userFlorence),
                 FakeUsers.userDavid,
                 false
@@ -211,6 +227,7 @@ object FakeSeedingData {
                 49.6833,
                 5.8000,
                 LocalDateTime.of(2026, 4, 26, 22, 0),
+                LocalDateTime.of(2026, 4, 27, 4, 0),
                 listOf(FakeUsers.userNico, FakeUsers.userGrace, FakeUsers.userChris, FakeUsers.userMaria),
                 FakeUsers.userNico,
                 false
@@ -223,6 +240,7 @@ object FakeSeedingData {
                 51.2194,
                 4.4024,
                 LocalDateTime.of(2026, 4, 18, 21, 0),
+                LocalDateTime.of(2026, 4, 19, 2, 0),
                 listOf(FakeUsers.userSteve, FakeUsers.userJessica, FakeUsers.userPaul, FakeUsers.userRosa),
                 FakeUsers.userSteve,
                 true
@@ -235,6 +253,7 @@ object FakeSeedingData {
                 51.0378,
                 3.7042,
                 LocalDateTime.of(2026, 4, 27, 23, 0),
+                LocalDateTime.of(2026, 4, 28, 5, 0),
                 listOf(FakeUsers.userSanne, FakeUsers.userDaan, FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva),
                 FakeUsers.userDaan,
                 false
@@ -247,6 +266,7 @@ object FakeSeedingData {
                 51.0519,
                 3.7176,
                 LocalDateTime.of(2026, 4, 19, 19, 0),
+                LocalDateTime.of(2026, 4, 19, 22, 0),
                 listOf(FakeUsers.userFelix, FakeUsers.userZoe, FakeUsers.userJoren),
                 FakeUsers.userFelix,
                 false
@@ -259,6 +279,7 @@ object FakeSeedingData {
                 50.8224,
                 4.3948,
                 LocalDateTime.of(2026, 4, 24, 18, 0),
+                LocalDateTime.of(2026, 4, 25, 2, 0),
                 listOf(FakeUsers.userIsabella, FakeUsers.userSebastian, FakeUsers.userNatasja, FakeUsers.userThijs),
                 FakeUsers.userIsabella,
                 true
@@ -271,6 +292,7 @@ object FakeSeedingData {
                 50.8798,
                 4.7005,
                 LocalDateTime.of(2026, 4, 21, 19, 30),
+                LocalDateTime.of(2026, 4, 22, 1, 30),
                 listOf(FakeUsers.userStéphanie, FakeUsers.userMarkus, FakeUsers.userCamille, FakeUsers.userVictoria),
                 FakeUsers.userMarkus,
                 false
@@ -283,6 +305,7 @@ object FakeSeedingData {
                 50.8500,
                 4.3600,
                 LocalDateTime.of(2026, 4, 23, 20, 0),
+                LocalDateTime.of(2026, 4, 24, 2, 0),
                 listOf(FakeUsers.userDieter, FakeUsers.userLea, FakeUsers.userRyan, FakeUsers.userSophie),
                 FakeUsers.userRyan,
                 true
@@ -295,6 +318,7 @@ object FakeSeedingData {
                 51.3557,
                 3.2796,
                 LocalDateTime.of(2026, 5, 2, 15, 0),
+                LocalDateTime.of(2026, 5, 2, 22, 0),
                 listOf(FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars, FakeUsers.userAnna, FakeUsers.userTom),
                 FakeUsers.userQuentin,
                 false
@@ -307,6 +331,7 @@ object FakeSeedingData {
                 51.0432,
                 3.7299,
                 LocalDateTime.of(2026, 4, 25, 23, 0),
+                LocalDateTime.of(2026, 4, 26, 5, 0),
                 listOf(FakeUsers.userEmilie, FakeUsers.userPhilip, FakeUsers.userClaire),
                 FakeUsers.userEmilie,
                 false
@@ -319,6 +344,7 @@ object FakeSeedingData {
                 50.8798,
                 4.7005,
                 LocalDateTime.of(2026, 4, 28, 20, 0),
+                LocalDateTime.of(2026, 4, 29, 2, 0),
                 listOf(FakeUsers.userSven, FakeUsers.userBeat, FakeUsers.userLena),
                 FakeUsers.userBeat,
                 true
@@ -331,6 +357,7 @@ object FakeSeedingData {
                 51.2105,
                 3.2223,
                 LocalDateTime.of(2026, 4, 22, 18, 0),
+                LocalDateTime.of(2026, 4, 23, 0, 0),
                 listOf(FakeUsers.userJulian, FakeUsers.userSienna, FakeUsers.userAlex, FakeUsers.userOliver),
                 FakeUsers.userJulian,
                 false
@@ -343,6 +370,7 @@ object FakeSeedingData {
                 51.2135,
                 4.4005,
                 LocalDateTime.of(2026, 5, 3, 14, 0),
+                LocalDateTime.of(2026, 5, 3, 22, 0),
                 listOf(FakeUsers.userMaya, FakeUsers.userLuc, FakeUsers.userAnne, FakeUsers.userDavid),
                 FakeUsers.userMaya,
                 false
@@ -355,6 +383,7 @@ object FakeSeedingData {
                 50.8500,
                 4.3632,
                 LocalDateTime.of(2026, 4, 24, 23, 30),
+                LocalDateTime.of(2026, 4, 25, 5, 30),
                 listOf(FakeUsers.userFlorence, FakeUsers.userNico, FakeUsers.userGrace),
                 FakeUsers.userFlorence,
                 false
@@ -367,6 +396,7 @@ object FakeSeedingData {
                 51.0432,
                 3.7299,
                 LocalDateTime.of(2026, 4, 29, 21, 0),
+                LocalDateTime.of(2026, 4, 30, 3, 0),
                 listOf(FakeUsers.userChris, FakeUsers.userMaria, FakeUsers.userSteve, FakeUsers.userJessica),
                 FakeUsers.userChris,
                 true
@@ -379,6 +409,7 @@ object FakeSeedingData {
                 49.6833,
                 5.8000,
                 LocalDateTime.of(2026, 4, 28, 22, 0),
+                LocalDateTime.of(2026, 4, 29, 4, 0),
                 listOf(FakeUsers.userPaul, FakeUsers.userRosa, FakeUsers.userSanne),
                 FakeUsers.userPaul,
                 false
@@ -391,6 +422,7 @@ object FakeSeedingData {
                 51.0088,
                 3.7153,
                 LocalDateTime.of(2026, 4, 20, 16, 0),
+                LocalDateTime.of(2026, 4, 20, 22, 0),
                 listOf(FakeUsers.userDaan, FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva, FakeUsers.userFelix, FakeUsers.userZoe),
                 FakeUsers.userZoe,
                 false
@@ -403,6 +435,7 @@ object FakeSeedingData {
                 51.0378,
                 3.7042,
                 LocalDateTime.of(2026, 4, 30, 23, 0),
+                LocalDateTime.of(2026, 5, 1, 5, 0),
                 listOf(FakeUsers.userJoren, FakeUsers.userIsabella, FakeUsers.userSebastian),
                 FakeUsers.userJoren,
                 false
@@ -415,6 +448,7 @@ object FakeSeedingData {
                 51.2247,
                 2.9267,
                 LocalDateTime.of(2026, 5, 4, 16, 0),
+                LocalDateTime.of(2026, 5, 5, 0, 0),
                 listOf(FakeUsers.userNatasja, FakeUsers.userThijs, FakeUsers.userStéphanie, FakeUsers.userMarkus, FakeUsers.userCamille),
                 FakeUsers.userNatasja,
                 false
@@ -427,6 +461,7 @@ object FakeSeedingData {
                 50.8548,
                 4.3457,
                 LocalDateTime.of(2026, 4, 25, 3, 0),
+                LocalDateTime.of(2026, 4, 25, 8, 0),
                 listOf(FakeUsers.userVictoria, FakeUsers.userDieter, FakeUsers.userLea),
                 FakeUsers.userVictoria,
                 true
@@ -439,6 +474,7 @@ object FakeSeedingData {
                 50.8224,
                 4.3948,
                 LocalDateTime.of(2026, 5, 10, 14, 0),
+                LocalDateTime.of(2026, 5, 10, 22, 0),
                 listOf(FakeUsers.userRyan, FakeUsers.userSophie, FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars),
                 FakeUsers.userEva,
                 false
@@ -451,6 +487,7 @@ object FakeSeedingData {
                 51.2194,
                 4.4024,
                 LocalDateTime.of(2026, 4, 26, 19, 0),
+                LocalDateTime.of(2026, 4, 27, 1, 0),
                 listOf(FakeUsers.userAnna, FakeUsers.userTom, FakeUsers.userEmilie, FakeUsers.userPhilip),
                 FakeUsers.userAnna,
                 false
@@ -463,6 +500,7 @@ object FakeSeedingData {
                 50.8798,
                 4.7005,
                 LocalDateTime.of(2026, 4, 27, 5, 0),
+                LocalDateTime.of(2026, 4, 27, 10, 0),
                 listOf(FakeUsers.userClaire, FakeUsers.userSven, FakeUsers.userBeat),
                 FakeUsers.userClaire,
                 true
@@ -470,4 +508,3 @@ object FakeSeedingData {
         )
     }
 }
-

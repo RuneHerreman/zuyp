@@ -11,7 +11,8 @@ data class Hangout(
     val locationName: String,
     val latitude: Double,
     val longitude: Double,
-    val date: LocalDateTime,
+    val startDate: LocalDateTime,
+    val endDate: LocalDateTime,
     val attendees: List<User>,
     val creator: User,
     val private: Boolean

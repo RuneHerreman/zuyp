@@ -21,7 +21,8 @@ class HangoutRepositoryFakeDataImpl @Inject constructor(
                 locationName = dto.locationName,
                 latitude = dto.latitude,
                 longitude = dto.longitude,
-                date = dto.date,
+                startDate = dto.startDate,
+                endDate = dto.endDate,
                 attendees = dto.attendees,
                 creator = dto.creator,
                 private = dto.private
@@ -40,7 +41,8 @@ class HangoutRepositoryFakeDataImpl @Inject constructor(
                 locationName = dto.locationName,
                 latitude = dto.latitude,
                 longitude = dto.longitude,
-                date = dto.date,
+                startDate = dto.startDate,
+                endDate = dto.endDate,
                 attendees = dto.attendees,
                 creator = dto.creator,
                 private = dto.private

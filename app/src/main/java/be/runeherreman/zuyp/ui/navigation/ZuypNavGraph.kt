@@ -1,15 +1,16 @@
 package be.runeherreman.zuyp.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import be.runeherreman.zuyp.ui.discover.DiscoverScreen
 import be.runeherreman.zuyp.ui.discover.DiscoverViewModel
 import be.runeherreman.zuyp.ui.friends.FriendsScreen
@@ -37,7 +38,6 @@ fun ZuypNavGraph(
     val friendsUiState by friendsViewModel.uiState.collectAsStateWithLifecycle()
     val profileUiState by profileViewModel.uiState.collectAsStateWithLifecycle()
     val hangoutUiState by hangoutViewModel.uiState.collectAsStateWithLifecycle()
-
 
     NavHost(
         navController = navController,
@@ -71,7 +71,12 @@ fun ZuypNavGraph(
 
         composable(Screen.Hangout.route) { backStackEntry ->
             val hangoutId = backStackEntry.arguments?.getString("hangoutId")!!
-            hangoutViewModel.loadHangout(hangoutId)
+
+            LaunchedEffect(hangoutId) {
+                hangoutViewModel.loadHangout(hangoutId)
+                hangoutViewModel.loadWeather(hangoutId)
+            }
+
             HangoutScreen(
                 uiState = hangoutUiState,
                 onBackClick = { navController.popBackStack() },
