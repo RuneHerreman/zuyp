@@ -2,11 +2,8 @@ package be.runeherreman.zuyp.ui.hangout
 
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
-import be.runeherreman.zuyp.domain.model.Weather
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
-import java.util.Date
 import java.util.UUID
 
 data class HangoutUiState(
@@ -29,6 +26,6 @@ data class HangoutUiState(
         "koen.koreman@gmail.com"
     ),
     val friendShipMapping: Map<UUID, Boolean> = emptyMap(),
-    val weather: Weather? = null,
-    val isLoadingWeather: Boolean = false
+    val weatherPrediction: String = "",
+    val isLoadingWeather: Boolean = true,
 )

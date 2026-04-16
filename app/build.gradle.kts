@@ -19,6 +19,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        buildConfigField("String", "WEATHER_API_BASE_URL", "\"${project.findProperty("WEATHER_API_BASE_URL")}\"")
     }
 
     buildTypes {

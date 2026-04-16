@@ -1,8 +1,6 @@
 package be.runeherreman.zuyp.di
 
-import be.runeherreman.zuyp.data.repositories.HangoutRepositoryFakeDataImpl
 import be.runeherreman.zuyp.data.repositories.HangoutRepositoryRoomImpl
-import be.runeherreman.zuyp.data.repositories.UserRepositoryFakeDataImpl
 import be.runeherreman.zuyp.data.repositories.UserRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.WeatherRepositoryImpl
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
