@@ -25,24 +25,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.sp
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import coil.compose.AsyncImage
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 @Composable
 fun HangoutScreen(
     uiState: HangoutUiState,
     onBackClick: () -> Unit = {},
+    onFriendClick: (UUID) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -58,7 +60,10 @@ fun HangoutScreen(
             PrivateBadge()
         }
 
-        HangoutHeader(hangout = uiState.hangout)
+        HangoutHeader(
+            hangout = uiState.hangout,
+            uiState = uiState
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -66,7 +71,10 @@ fun HangoutScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        AttendeesSection(attendees = uiState.hangout.attendees)
+        AttendeesSection(
+            attendees = uiState.hangout.attendees, friendShips = uiState.friendShipMapping,
+            toggleFriendClick = { onFriendClick(it) }
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -75,7 +83,7 @@ fun HangoutScreen(
 }
 
 @Composable
-fun HangoutHeader(hangout: Hangout) {
+fun HangoutHeader(hangout: Hangout, uiState: HangoutUiState) {
     Text(
         text = hangout.title,
         style = MaterialTheme.typography.displaySmall,
@@ -87,7 +95,7 @@ fun HangoutHeader(hangout: Hangout) {
     Spacer(modifier = Modifier.height(8.dp))
 
     val formatter = DateTimeFormatter.ofPattern("MMM d yyyy - 'from' HH'h'mm")
-    
+
     InfoRow(
         icon = Icons.Default.CalendarToday,
         text = hangout.date.format(formatter)
@@ -100,12 +108,12 @@ fun HangoutHeader(hangout: Hangout) {
     Spacer(modifier = Modifier.height(4.dp))
     InfoRow(
         icon = Icons.Default.DeviceThermostat,
-        text = "15°C and cloudy - wear raincoat / take umbrella"
+        text = uiState.weatherPrediction
     )
 }
 
 @Composable
-fun InfoRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+fun InfoRow(icon: ImageVector, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.width(8.dp))
@@ -151,7 +159,11 @@ fun ActionButtons() {
 }
 
 @Composable
-fun AttendeesSection(attendees: List<User>) {
+fun AttendeesSection(
+    attendees: List<User>,
+    friendShips: Map<UUID, Boolean>,
+    toggleFriendClick: (UUID) -> Unit
+) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Default.Group, contentDescription = null, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(8.dp))
@@ -161,12 +173,16 @@ fun AttendeesSection(attendees: List<User>) {
     Spacer(modifier = Modifier.height(4.dp))
 
     attendees.forEach { user ->
-        AttendeeItem(user = user)
+        AttendeeItem(user = user, friendShips = friendShips, toggleFriendClick = {toggleFriendClick(user.id)})
     }
 }
 
 @Composable
-fun AttendeeItem(user: User) {
+fun AttendeeItem(
+    user: User,
+    friendShips: Map<UUID, Boolean>,
+    toggleFriendClick: (UUID) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -175,33 +191,70 @@ fun AttendeeItem(user: User) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier.size(28.dp).background(MaterialTheme.colorScheme.surfaceVariant),
+            modifier = Modifier.size(32.dp),
             contentAlignment = Alignment.Center
         ) {
             AsyncImage(
                 model= "https://cataas.com/cat",
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.clip(CircleShape).fillMaxSize()
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .fillMaxSize()
             )
         }
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(16.dp))
         Text(text = user.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-        
-        Button(
-            onClick = { /* TODO */ },
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer),
-            shape = RoundedCornerShape(6.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
-            modifier = Modifier.height(32.dp)
-        ) {
-            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(14.dp))
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                "Add friend",
-                style = MaterialTheme.typography.labelSmall
-            )
-        }
+
+        if (friendShips[user.id] == true)
+            IsFriendButton(toggleFriendClick = { toggleFriendClick(user.id) })
+        else
+            AddFriendButton(toggleFriendClick = { toggleFriendClick(user.id) })
+    }
+}
+
+@Composable
+fun AddFriendButton(
+    toggleFriendClick : () -> Unit
+){
+    Button(
+        onClick = { toggleFriendClick() },
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer),
+        shape = RoundedCornerShape(6.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+        modifier = Modifier.height(32.dp)
+    ) {
+        Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            "Add friend",
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+fun IsFriendButton(
+    toggleFriendClick : () -> Unit
+){
+    Button(
+        onClick = { toggleFriendClick() },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF99FFAF).copy(alpha = 0.40f),
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
+        shape = RoundedCornerShape(6.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+        modifier = Modifier.height(32.dp)
+    ) {
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            "Add friend",
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF2C6B24)
+        )
     }
 }
 

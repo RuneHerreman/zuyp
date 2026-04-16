@@ -26,4 +26,7 @@ object DatabaseModule {
 
     @Provides
     fun provideHangoutDao(database: AppDatabase) = database.hangoutDao()
+
+    @Provides
+    fun provideUserDao(database: AppDatabase) = database.userDao()
 }

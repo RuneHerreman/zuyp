@@ -74,7 +74,8 @@ fun ZuypNavGraph(
             hangoutViewModel.loadHangout(hangoutId)
             HangoutScreen(
                 uiState = hangoutUiState,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onFriendClick = hangoutViewModel::toggleFriendship
             )
         }
     }

@@ -2,7 +2,12 @@ package be.runeherreman.zuyp.di
 
 import be.runeherreman.zuyp.data.repositories.HangoutRepositoryFakeDataImpl
 import be.runeherreman.zuyp.data.repositories.HangoutRepositoryRoomImpl
+import be.runeherreman.zuyp.data.repositories.UserRepositoryFakeDataImpl
+import be.runeherreman.zuyp.data.repositories.UserRepositoryRoomImpl
+import be.runeherreman.zuyp.data.repositories.WeatherRepositoryImpl
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
+import be.runeherreman.zuyp.domain.repository.UserRepository
+import be.runeherreman.zuyp.domain.repository.WeatherRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -14,5 +19,13 @@ import javax.inject.Singleton
 interface RepositoryModule {
     @Binds
     @Singleton
-    fun bindHangoutRepository(impl: HangoutRepositoryFakeDataImpl): HangoutRepository
+    fun bindHangoutRepository(impl: HangoutRepositoryRoomImpl): HangoutRepository
+
+    @Binds
+    @Singleton
+    fun bindUserRepository(impl: UserRepositoryRoomImpl): UserRepository
+
+    @Binds
+    @Singleton
+    fun bindWeatherRepository(impl: WeatherRepositoryImpl): WeatherRepository
 }
