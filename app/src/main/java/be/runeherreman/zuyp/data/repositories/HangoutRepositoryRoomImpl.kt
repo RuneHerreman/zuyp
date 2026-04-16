@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flow
 import java.util.UUID
 import javax.inject.Inject
 
-class HangoutRepositoryImpl @Inject constructor(
+class HangoutRepositoryRoomImpl @Inject constructor(
     private val hangoutDao: HangoutDao
 ): HangoutRepository {
 

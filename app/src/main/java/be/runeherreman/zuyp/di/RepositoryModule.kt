@@ -1,6 +1,7 @@
 package be.runeherreman.zuyp.di
 
-import be.runeherreman.zuyp.data.repositories.HangoutRepositoryImpl
+import be.runeherreman.zuyp.data.repositories.HangoutRepositoryFakeDataImpl
+import be.runeherreman.zuyp.data.repositories.HangoutRepositoryRoomImpl
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import dagger.Binds
 import dagger.Module
@@ -13,5 +14,5 @@ import javax.inject.Singleton
 interface RepositoryModule {
     @Binds
     @Singleton
-    fun bindHangoutRepository(impl: HangoutRepositoryImpl): HangoutRepository
+    fun bindHangoutRepository(impl: HangoutRepositoryFakeDataImpl): HangoutRepository
 }
