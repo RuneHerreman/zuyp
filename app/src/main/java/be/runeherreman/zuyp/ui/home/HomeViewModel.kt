@@ -24,12 +24,13 @@ class HomeViewModel @Inject constructor(
 ): ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
-
-    init {
-        loadHangouts()
-    }
+    
+    private var isLoaded = false
 
     fun loadHangouts(){
+        if (isLoaded) return
+        isLoaded = true
+        
         viewModelScope.launch {
             getHangoutsUseCase().collect { items ->
                 _uiState.update {

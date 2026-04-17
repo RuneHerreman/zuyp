@@ -45,6 +45,9 @@ fun ZuypNavGraph(
         modifier = modifier
     ) {
         composable(Screen.Home.route) {
+            LaunchedEffect(Unit) {
+                homeViewModel.loadHangouts()
+            }
             HomeScreen(
                 uiState = homeUiState,
                 onLocationClick = { hangout ->
