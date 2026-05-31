@@ -57,7 +57,11 @@ fun ZuypNavGraph(
             )
         }
         composable(Screen.Discover.route) {
-            DiscoverScreen(uiState = discoverUiState)
+            DiscoverScreen(
+                uiState = discoverUiState,
+                onLocationChanged = discoverViewModel::onUserLocationUpdates,
+                onMarkerClick = discoverViewModel::openHangoutPopup,
+            )
         }
         composable(Screen.Friends.route) {
             FriendsScreen(uiState = friendsUiState)

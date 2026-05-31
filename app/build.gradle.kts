@@ -46,6 +46,9 @@ android {
         compose = true
     }
     packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "/META-INF/INDEX.LIST"
@@ -100,4 +103,9 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // MapBox
+    implementation(libs.mapbox.maps)
+    implementation(libs.mapbox.maps.compose)
+    implementation(libs.mapbox.search)
 }

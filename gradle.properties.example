@@ -9,3 +9,4 @@ AMQPpassword=your_cloudamqp_password
 AMQPurl=your_host.lmq.cloudamqp.com:5672
 AMQPvhost=your_cloudamqp_username
 AMQPexchange=zuyp.notifications
+MAPBOX_DOWNLOADS_TOKEN=public_mapbox_token
