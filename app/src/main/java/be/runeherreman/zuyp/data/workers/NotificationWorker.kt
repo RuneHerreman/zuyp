@@ -1,5 +1,7 @@
 package be.runeherreman.zuyp.data.workers
 
+import android.graphics.BitmapFactory
+import be.runeherreman.zuyp.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -69,7 +71,8 @@ class NotificationWorker @AssistedInject constructor(
             .setContentTitle("Invite: ${message.title}")
             .setContentText("📍 ${message.locationName} · ${message.startDate}")
             .setStyle(NotificationCompat.BigTextStyle().bigText(details))
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)
+            .setLargeIcon(BitmapFactory.decodeResource(applicationContext.resources, R.mipmap.ic_launcher))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
         notificationManager.notify(message.hangoutId.hashCode(), notification)
@@ -90,9 +93,10 @@ class NotificationWorker @AssistedInject constructor(
         )
 
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ZUYP_ALERT)
-            .setContentTitle("⚠ Zuyp Alert: ${message.title}")
+            .setContentTitle(message.title)
             .setContentText("📍 ${message.locationName} · ${message.startDate}")
-            .setSmallIcon(android.R.drawable.ic_dialog_alert)
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)
+            .setLargeIcon(BitmapFactory.decodeResource(applicationContext.resources, R.mipmap.ic_launcher))
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setFullScreenIntent(pendingIntent, true)
