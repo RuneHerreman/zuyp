@@ -10,7 +10,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -18,7 +17,6 @@ import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.DeviceThermostat
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -44,20 +42,20 @@ fun HangoutScreen(
     onFriendClick: (UUID) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    if (uiState.isLoadingWeather) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
+    if (uiState.isError) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Hangout not found", style = MaterialTheme.typography.bodyLarge)
         }
         return
     }
+
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
         BackButton(onBackClick = onBackClick)
@@ -182,7 +180,7 @@ fun AttendeesSection(
     Spacer(modifier = Modifier.height(4.dp))
 
     attendees.forEach { user ->
-        AttendeeItem(user = user, friendShips = friendShips, toggleFriendClick = {toggleFriendClick(user.id)})
+        AttendeeItem(user = user, friendShips = friendShips, toggleFriendClick = { toggleFriendClick(user.id) })
     }
 }
 
@@ -190,7 +188,7 @@ fun AttendeesSection(
 fun AttendeeItem(
     user: User,
     friendShips: Map<UUID, Boolean>,
-    toggleFriendClick: (UUID) -> Unit
+    toggleFriendClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -204,7 +202,7 @@ fun AttendeeItem(
             contentAlignment = Alignment.Center
         ) {
             AsyncImage(
-                model= "https://cataas.com/cat",
+                model = user.imageUrl.ifBlank { null },
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -216,18 +214,18 @@ fun AttendeeItem(
         Text(text = user.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
 
         if (friendShips[user.id] == true)
-            IsFriendButton(toggleFriendClick = { toggleFriendClick(user.id) })
+            IsFriendButton(toggleFriendClick = toggleFriendClick)
         else
-            AddFriendButton(toggleFriendClick = { toggleFriendClick(user.id) })
+            AddFriendButton(toggleFriendClick = toggleFriendClick)
     }
 }
 
 @Composable
 fun AddFriendButton(
-    toggleFriendClick : () -> Unit
-){
+    toggleFriendClick: () -> Unit
+) {
     Button(
-        onClick = { toggleFriendClick() },
+        onClick = toggleFriendClick,
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer),
         shape = RoundedCornerShape(6.dp),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
@@ -245,10 +243,10 @@ fun AddFriendButton(
 
 @Composable
 fun IsFriendButton(
-    toggleFriendClick : () -> Unit
-){
+    toggleFriendClick: () -> Unit
+) {
     Button(
-        onClick = { toggleFriendClick() },
+        onClick = toggleFriendClick,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF99FFAF).copy(alpha = 0.40f),
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -257,9 +255,8 @@ fun IsFriendButton(
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
         modifier = Modifier.height(32.dp)
     ) {
-        Spacer(modifier = Modifier.width(4.dp))
         Text(
-            "Add friend",
+            "Friends",
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF2C6B24)
