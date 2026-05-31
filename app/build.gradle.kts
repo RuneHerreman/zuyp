@@ -25,6 +25,7 @@ android {
         buildConfigField("String", "AMQP_PASSWORD", "\"${project.findProperty("AMQPpassword")}\"")
         buildConfigField("String", "AMQP_URL", "\"${project.findProperty("AMQPurl")}\"")
         buildConfigField("String", "AMQP_EXCHANGE", "\"${project.findProperty("AMQPexchange")}\"")
+        buildConfigField("String", "AMQP_VHOST", "\"${project.findProperty("AMQPvhost")}\"")
     }
 
     buildTypes {

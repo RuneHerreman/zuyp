@@ -29,6 +29,8 @@ object MessagingModule {
             password = BuildConfig.AMQP_PASSWORD
             this.host = host
             this.port = port
+            virtualHost = BuildConfig.AMQP_VHOST
+            useSslProtocol()
         }
     }
 

@@ -1,27 +1,27 @@
 ### Variables
-# The management API runs on port 40301 (mapped in docker-compose)
-# Replace {{userId}} with the actual user ID you want to target
+# CloudAMQP management API
+# vhost: gtbvjenp (URL-encoded in path)
 
-### Send hangout invite notification
-POST http://localhost:40301/api/exchanges/%2F/zuyp.notifications/publish
-Authorization: Basic guest guest
+### Send hangout invite to userJan
+POST https://seal.lmq.cloudamqp.com/api/exchanges/gtbvjenp/zuyp.notifications/publish
+Authorization: Basic gtbvjenp LoRo_Eayh9R-k1zdq47nwpJa3vLUDj-t
 Content-Type: application/json
 
 {
   "properties": {},
-  "routing_key": "user-01234566-8f09-4567-4af8-def000000014",
-  "payload": "{\"type\":\"hangout_invite\",\"hangoutId\":\"10000000-0000-0000-0000-000000000002\"}",
+  "routing_key": "user-20000000-0000-0000-0000-000000000001",
+  "payload": "{\"type\":\"hangout_invite\",\"hangoutId\":\"hangout-abc123\"}",
   "payload_encoding": "string"
 }
 
-### Send zuyp alert notification
-POST http://localhost:40301/api/exchanges/%2F/zuyp.notifications/publish
-Authorization: Basic guest guest
+### Send zuyp alert to userJan
+POST https://seal.lmq.cloudamqp.com/api/exchanges/gtbvjenp/zuyp.notifications/publish
+Authorization: Basic gtbvjenp LoRo_Eayh9R-k1zdq47nwpJa3vLUDj-t
 Content-Type: application/json
 
 {
   "properties": {},
-  "routing_key": "user-01234566-8f09-4567-4af8-def000000014",
-  "payload": "{\"type\":\"zuyp_alert\",\"hangoutId\":\"10000000-0000-0000-0000-000000000002\"}",
+  "routing_key": "user-20000000-0000-0000-0000-000000000001",
+  "payload": "{\"type\":\"zuyp_alert\",\"hangoutId\":\"hangout-abc123\"}",
   "payload_encoding": "string"
 }
