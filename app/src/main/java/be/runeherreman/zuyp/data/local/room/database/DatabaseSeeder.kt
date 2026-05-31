@@ -3,6 +3,7 @@ package be.runeherreman.zuyp.data.local.room.database
 import androidx.room.withTransaction
 import be.runeherreman.zuyp.data.fake.data.FakeDataSource
 import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
+import be.runeherreman.zuyp.data.local.room.dao.UserDao
 import be.runeherreman.zuyp.data.local.room.entity.HangoutEntity
 import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
 import be.runeherreman.zuyp.data.local.room.entity.UserEntity
@@ -14,6 +15,7 @@ import javax.inject.Singleton
 class DatabaseSeeder @Inject constructor(
     private val database: AppDatabase,
     private val hangoutDao: HangoutDao,
+    private val userDao: UserDao,
     private val fakeDataSource: FakeDataSource
 ) {
     suspend fun seedIfNeeded() {
@@ -67,7 +69,7 @@ class DatabaseSeeder @Inject constructor(
         }
 
         database.withTransaction {
-            hangoutDao.insertUsers(users)
+            userDao.insertUsers(users)
             hangoutDao.insertHangouts(hangouts)
             hangoutDao.insertAttendees(attendeeMappings)
         }
@@ -77,4 +79,3 @@ class DatabaseSeeder @Inject constructor(
 private fun String.normalizedEmailKey(): String {
     return trim().lowercase(Locale.ROOT)
 }
-

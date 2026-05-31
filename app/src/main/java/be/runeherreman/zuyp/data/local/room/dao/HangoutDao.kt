@@ -8,14 +8,11 @@ import androidx.room.Transaction
 import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
 import be.runeherreman.zuyp.data.local.room.entity.HangoutEntity
 import be.runeherreman.zuyp.data.local.room.entity.HangoutWithDetails
-import be.runeherreman.zuyp.data.local.room.entity.UserEntity
+import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
 @Dao
 interface HangoutDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertUsers(items: List<UserEntity>)
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHangouts(items: List<HangoutEntity>)
 
@@ -30,7 +27,7 @@ interface HangoutDao {
 
     @Transaction
     @Query("SELECT * FROM hangouts")
-    suspend fun getAll(): List<HangoutWithDetails>
+    fun getAll(): Flow<List<HangoutWithDetails>>
 
     @Transaction
     @Query("SELECT * FROM hangouts WHERE id = :id")
@@ -47,7 +44,4 @@ interface HangoutDao {
 
     @Query("DELETE FROM hangouts")
     suspend fun deleteAllHangouts()
-
-    @Query("DELETE FROM users")
-    suspend fun deleteAllUsers()
 }
