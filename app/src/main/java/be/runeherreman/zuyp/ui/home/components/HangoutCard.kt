@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import coil.compose.AsyncImage
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -55,11 +56,15 @@ fun HangoutCard(
     val formattedDate =
         hangout.startDate.format(DateTimeFormatter.ofPattern("MMM d yyyy", Locale.getDefault()))
 
-    val attendeeText = remember(hangout.attendees) {
-        if (hangout.attendees.isEmpty()) {
+    val goingAttendees = remember(hangout.attendees) {
+        hangout.attendees.filter { it.attendanceStatus == AttendanceStatus.GOING }
+    }
+
+    val attendeeText = remember(goingAttendees) {
+        if (goingAttendees.isEmpty()) {
             phrases.random()
         } else {
-            "${hangout.attendees.size} going"
+            "${goingAttendees.size} going"
         }
     }
 

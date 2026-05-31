@@ -51,6 +51,7 @@ fun ZuypApp(
 
                 HangoutOverlay(
                     uiState = hangoutUiState,
+                    modifier = Modifier.padding(innerPadding),
                     onDismiss = hangoutViewModel::dismissHangout,
                     onFriendClick = hangoutViewModel::toggleFriendship,
                     onUpdateAttendanceStatus = hangoutViewModel::toggleGoing

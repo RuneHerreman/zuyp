@@ -3,6 +3,7 @@ package be.runeherreman.zuyp.domain.useCases
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.repository.UserRepository
+import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import java.util.UUID
 import javax.inject.Inject
 
@@ -12,7 +13,9 @@ class GetFriendAttendeesByHangoutUseCase @Inject constructor(
     suspend operator fun invoke(currentUserId: UUID, hangouts: List<Hangout>): Map<UUID, List<User>> {
         val friendIds = userRepository.getFriendsOfUser(currentUserId).map { it.id }.toHashSet()
         return hangouts.associate { hangout ->
-            hangout.id to hangout.attendees.filter { it.id in friendIds }
+            hangout.id to hangout.attendees.filter {
+                it.id in friendIds && it.attendanceStatus == AttendanceStatus.GOING
+            }
         }
     }
 }

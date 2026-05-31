@@ -48,6 +48,7 @@ fun HangoutOverlay(
     onDismiss: () -> Unit,
     onFriendClick: (UUID) -> Unit,
     onUpdateAttendanceStatus: (Hangout, AttendanceStatus?) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     AnimatedVisibility(
         visible = uiState.selectedHangoutId != null,
@@ -55,7 +56,7 @@ fun HangoutOverlay(
         exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
     ) {
         Surface(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
             HangoutScreen(
@@ -95,7 +96,6 @@ fun HangoutScreen(
             .verticalScroll(scrollState)
             .pointerInput(Unit) {}
             .padding(16.dp)
-            .padding(top = 32.dp)
     ) {
         BackButton(onBackClick = onBackClick)
 
