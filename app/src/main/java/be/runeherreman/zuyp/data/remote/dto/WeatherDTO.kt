@@ -28,17 +28,16 @@ data class HourlyDTO(
     val rain: List<Double>
 )
 
-
 fun WeatherDTO.toWeather(): Weather {
     return Weather(
         latitude = latitude,
         longitude = longitude,
-        generationtime_ms = generationtime_ms,
-        utc_offset_seconds = utc_offset_seconds,
+        generationtimeMs = generationtime_ms,
+        utcOffsetSeconds = utc_offset_seconds,
         timezone = timezone,
-        timezone_abbreviation = timezone_abbreviation,
+        timezoneAbbreviation = timezone_abbreviation,
         elevation = elevation,
-        hourly_units = hourly_units.toHourlyUnits(),
+        hourlyUnits = hourly_units.toHourlyUnits(),
         hourly = hourly.toHourly()
     )
 }
@@ -46,7 +45,7 @@ fun WeatherDTO.toWeather(): Weather {
 fun HourlyUnitsDTO.toHourlyUnits(): HourlyUnits {
     return HourlyUnits(
         time = time,
-        temperature_2m = temperature_2m,
+        temperature2m = temperature_2m,
         rain = rain
     )
 }
@@ -54,7 +53,7 @@ fun HourlyUnitsDTO.toHourlyUnits(): HourlyUnits {
 fun HourlyDTO.toHourly(): Hourly {
     return Hourly(
         time = time,
-        temperature_2m = temperature_2m,
+        temperature2m = temperature_2m,
         rain = rain
     )
 }
