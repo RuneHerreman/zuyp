@@ -50,10 +50,11 @@ fun ZuypNavGraph(
             }
             HomeScreen(
                 uiState = homeUiState,
-                onLocationClick = { hangout ->
-                    homeViewModel.openMapsForHangout(hangout, context)
-                },
-                onHangoutClick = { homeViewModel.onHangoutClick(it, navController) }
+                onLocationClick = { homeViewModel.openMapsForHangout(it, context) },
+                onHangoutClick = { homeViewModel.onHangoutClick(it, navController) },
+                onSearchOpen = homeViewModel::openSearch,
+                onSearchClose = homeViewModel::closeSearch,
+                onSearchQueryChange = homeViewModel::onSearchQueryChange
             )
         }
         composable(Screen.Discover.route) {

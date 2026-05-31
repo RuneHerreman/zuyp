@@ -2,7 +2,7 @@ package be.runeherreman.zuyp.ui.home
 
 import be.runeherreman.zuyp.domain.model.Hangout
 
-data class HomeUiState (
+data class HomeUiState(
     val hangouts: List<Hangout> = emptyList(),
     val phrases: List<String> = listOf(
         "Voorlopig bitter hard alleen",
@@ -17,5 +17,8 @@ data class HomeUiState (
         "Wanneer stopt het? Deze eenzaamheid",
         "Kom af, asociale flappie!",
         "Kben fabelachtig eenzaam als de maan, kom erbij!"
-    )
+    ),
+    val isSearchOpen: Boolean = false,
+    val searchQuery: String = "",
+    val searchResults: List<Hangout> = emptyList()
 )

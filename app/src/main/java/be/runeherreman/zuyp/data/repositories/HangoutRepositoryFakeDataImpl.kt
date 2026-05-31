@@ -13,6 +13,14 @@ import javax.inject.Inject
 class HangoutRepositoryFakeDataImpl @Inject constructor(
     private val fakeDataSource: FakeDataSource
 ) : HangoutRepository {
+    override fun getAllHangouts(): Flow<List<Hangout>> {
+        return flowOf(
+            fakeDataSource.getHangouts()
+                .map(HangoutDto::toDomain)
+                .sortedBy { it.startDate }
+        )
+    }
+
     override fun getHangouts(): Flow<List<Hangout>> {
         val now = LocalDateTime.now()
         return flowOf(

@@ -6,5 +6,6 @@ import java.util.UUID
 
 interface HangoutRepository {
     fun getHangouts(): Flow<List<Hangout>>
+    fun getAllHangouts(): Flow<List<Hangout>>
     suspend fun getHangoutById(id: UUID): Hangout?
 }

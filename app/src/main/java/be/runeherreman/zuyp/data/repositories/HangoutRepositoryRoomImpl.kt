@@ -16,6 +16,12 @@ class HangoutRepositoryRoomImpl @Inject constructor(
     private val hangoutDao: HangoutDao
 ): HangoutRepository {
 
+    override fun getAllHangouts(): Flow<List<Hangout>> {
+        return hangoutDao.getAll().map { list ->
+            list.map(HangoutWithDetails::toDomain).sortedBy { it.startDate }
+        }
+    }
+
     override fun getHangouts(): Flow<List<Hangout>> {
         return hangoutDao.getAll().map { list ->
             val now = LocalDateTime.now()

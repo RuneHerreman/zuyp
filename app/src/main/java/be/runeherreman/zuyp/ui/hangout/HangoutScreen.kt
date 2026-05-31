@@ -113,10 +113,22 @@ fun HangoutHeader(hangout: Hangout, uiState: HangoutUiState) {
         text = hangout.locationName
     )
     Spacer(modifier = Modifier.height(4.dp))
-    InfoRow(
-        icon = uiState.weatherIcon,
-        text = uiState.weatherPrediction
-    )
+    if (uiState.isLoadingWeather) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(16.dp),
+                strokeWidth = 2.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Loading weather...", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
+        }
+    } else {
+        InfoRow(
+            icon = uiState.weatherIcon,
+            text = uiState.weatherPrediction
+        )
+    }
 }
 
 @Composable

@@ -57,6 +57,10 @@ class HangoutViewModel @Inject constructor(
     }
 
     private suspend fun loadWeatherForHangout(hangout: Hangout) {
+        if (hangout.endDate.isBefore(java.time.LocalDateTime.now())) {
+            _uiState.update { it.copy(isLoadingWeather = false, weatherPrediction = "No forecast for past events") }
+            return
+        }
         _uiState.update { it.copy(isLoadingWeather = true) }
         try {
             val weather = getWeatherUseCase(
