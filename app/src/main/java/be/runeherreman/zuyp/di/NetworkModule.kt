@@ -2,7 +2,6 @@ package be.runeherreman.zuyp.di
 
 import be.runeherreman.zuyp.BuildConfig
 import be.runeherreman.zuyp.data.remote.api.WeatherApi
-import be.runeherreman.zuyp.domain.model.Weather
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -19,23 +18,13 @@ import javax.inject.Singleton
 object NetworkModule {
     @Provides
     @Singleton
-    fun provideMoshi(): Moshi = lazy {
-        Moshi.Builder()
-            .add(KotlinJsonAdapterFactory())
-            .build()
-    }.value
+    fun provideMoshi(): Moshi = Moshi.Builder()
+        .add(KotlinJsonAdapterFactory())
+        .build()
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient = lazy {
-        OkHttpClient.Builder()
-            .addInterceptor { chain ->
-                val request = chain.request()
-                val newRequest = request.newBuilder().build()
-                chain.proceed(newRequest)
-            }
-            .build()
-    }.value
+    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder().build()
 
     @Provides
     @Singleton
