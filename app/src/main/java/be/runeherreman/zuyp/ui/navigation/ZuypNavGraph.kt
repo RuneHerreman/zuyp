@@ -50,7 +50,10 @@ fun ZuypNavGraph(
                 onSearchClose = homeViewModel::closeSearch,
                 onSearchQueryChange = homeViewModel::onSearchQueryChange,
                 onRefresh = homeViewModel::refresh,
-                onZuypAlertClick = homeViewModel::sendZuypAlert
+                onZuypAlertClick = homeViewModel::sendZuypAlert,
+                onCreateHangoutOpen = homeViewModel::openCreateHangout,
+                onCreateHangoutClose = homeViewModel::closeCreateHangout,
+                onCreateHangout = homeViewModel::createHangout
             )
         }
         composable(Screen.Discover.route) {

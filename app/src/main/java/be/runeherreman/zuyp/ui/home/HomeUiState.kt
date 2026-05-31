@@ -8,6 +8,8 @@ data class HomeUiState(
     val hangouts: List<Hangout> = emptyList(),
     val friendAttendees: Map<UUID, List<User>> = emptyMap(),
     val isRefreshing: Boolean = false,
+    val isCreateHangoutOpen: Boolean = false,
+    val availableFriends: List<User> = emptyList(),
     val phrases: List<String> = listOf(
         "Voorlopig bitter hard alleen",
         "Tafel voor geen!",

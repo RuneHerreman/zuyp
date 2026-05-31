@@ -22,10 +22,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -49,7 +51,9 @@ import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.ui.theme.errorContainerLight
 import be.runeherreman.zuyp.ui.theme.onErrorContainerLight
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.home.components.CreateHangoutPopup
 import be.runeherreman.zuyp.ui.home.components.HangoutCard
+import java.time.LocalDate
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,7 +67,10 @@ fun HomeScreen(
     onSearchClose: () -> Unit = {},
     onSearchQueryChange: (String) -> Unit = {},
     onZuypAlertClick: () -> Unit = {},
-    onRefresh: () -> Unit = {}
+    onRefresh: () -> Unit = {},
+    onCreateHangoutOpen: () -> Unit = {},
+    onCreateHangoutClose: () -> Unit = {},
+    onCreateHangout: (String, LocalDate, String, List<User>, Boolean) -> Unit = { _, _, _, _, _ -> }
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         PullToRefreshBox(
@@ -134,6 +141,26 @@ fun HomeScreen(
                 onClose = onSearchClose,
                 onLocationClick = onLocationClick,
                 onHangoutClick = onHangoutClick
+            )
+        }
+
+        FloatingActionButton(
+            onClick = onCreateHangoutOpen,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(6.dp),
+            shape = RoundedCornerShape(16.dp),
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ) {
+            Icon(imageVector = Icons.Default.Add, contentDescription = "Create hangout")
+        }
+
+        if (uiState.isCreateHangoutOpen) {
+            CreateHangoutPopup(
+                availableFriends = uiState.availableFriends,
+                onDismiss = onCreateHangoutClose,
+                onCreate = onCreateHangout
             )
         }
     }
