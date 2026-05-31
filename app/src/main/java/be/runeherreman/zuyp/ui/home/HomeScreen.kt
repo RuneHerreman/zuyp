@@ -5,13 +5,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material3.ButtonDefaults
@@ -41,11 +42,11 @@ fun HomeScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 16.dp)
-            .verticalScroll(rememberScrollState())
     ) {
-        Column (
-            modifier = Modifier.fillMaxWidth().padding(top=16.dp),
-
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
         ) {
             Text(
                 text = "Upcoming\nEvents",
@@ -53,18 +54,20 @@ fun HomeScreen(
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary
             )
+
             ZuypEmergencyButton(
                 modifier = Modifier.align(Alignment.End)
             )
         }
 
-
         Spacer(modifier = Modifier.height(30.dp))
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            uiState.hangouts.forEach {
+            items(uiState.hangouts) {
                 HangoutCard(
                     hangout = it,
                     onLocationClick = onLocationClick,
@@ -73,13 +76,6 @@ fun HomeScreen(
                 )
             }
         }
-
-//        // This is where you'd use your uiState
-//        if (uiState.isLoading) {
-//            CircularProgressIndicator()
-//        } else {
-//            // Display your content here
-//        }
     }
 }
 
