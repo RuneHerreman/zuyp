@@ -1,7 +1,6 @@
 package be.runeherreman.zuyp.domain.model
 
 import java.time.LocalDateTime
-import java.util.Date
 import java.util.UUID
 
 data class Hangout(

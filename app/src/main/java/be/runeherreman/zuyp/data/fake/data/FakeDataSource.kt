@@ -551,7 +551,7 @@ class FakeDataSource @Inject constructor() {
         )
     }
 
-    fun getHangoutById(id: UUID): HangoutDto {
-        return getHangouts().first { id == it.id }
+    fun getHangoutById(id: UUID): HangoutDto? {
+        return getHangouts().firstOrNull { id == it.id }
     }
 }

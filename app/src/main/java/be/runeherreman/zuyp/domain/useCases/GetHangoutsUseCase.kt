@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GetHangoutsUseCase @Inject constructor(
     private val hangoutRepository: HangoutRepository
 ) {
-    suspend operator fun invoke(): Flow<List<Hangout>> {
+    operator fun invoke(): Flow<List<Hangout>> {
         return hangoutRepository.getHangouts()
     }
 }
