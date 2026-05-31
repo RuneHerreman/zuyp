@@ -23,6 +23,8 @@ class LavinMQMessageConsumer(
                 val connection = factory.newConnection()
                 val channel = connection.createChannel()
 
+                channel.exchangeDeclare(exchange, "direct", true)
+
                 // Exclusive temporary queue — auto-deletes when the app disconnects
                 val queue = channel.queueDeclare("", false, true, true, null)
                 channel.queueBind(queue.queue, exchange, "user-$userId")
