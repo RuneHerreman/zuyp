@@ -12,7 +12,7 @@ import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
 
 @Database(
     entities = [HangoutEntity::class, UserEntity::class, HangoutUsersMapping::class, FriendshipEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

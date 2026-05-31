@@ -69,7 +69,7 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .padding(top = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Upcoming\nEvents",
@@ -77,17 +77,18 @@ fun HomeScreen(
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Column(horizontalAlignment = Alignment.End) {
-                    IconButton(onClick = onSearchOpen) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search events",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    ZuypEmergencyButton()
+                IconButton(onClick = onSearchOpen) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search events",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            ZuypEmergencyButton(modifier = Modifier.align(Alignment.End))
 
             Spacer(modifier = Modifier.height(30.dp))
 
