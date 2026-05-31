@@ -6,6 +6,7 @@ import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
 
@@ -13,7 +14,13 @@ class HangoutRepositoryFakeDataImpl @Inject constructor(
     private val fakeDataSource: FakeDataSource
 ) : HangoutRepository {
     override fun getHangouts(): Flow<List<Hangout>> {
-        return flowOf(fakeDataSource.getHangouts().map(HangoutDto::toDomain))
+        val now = LocalDateTime.now()
+        return flowOf(
+            fakeDataSource.getHangouts()
+                .map(HangoutDto::toDomain)
+                .filter { it.startDate.isAfter(now) }
+                .sortedBy { it.startDate }
+        )
     }
 
     override suspend fun getHangoutById(id: UUID): Hangout? {

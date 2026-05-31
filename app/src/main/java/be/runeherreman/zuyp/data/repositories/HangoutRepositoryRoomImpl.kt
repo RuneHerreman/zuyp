@@ -8,6 +8,7 @@ import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
 
@@ -16,7 +17,12 @@ class HangoutRepositoryRoomImpl @Inject constructor(
 ): HangoutRepository {
 
     override fun getHangouts(): Flow<List<Hangout>> {
-        return hangoutDao.getAll().map { list -> list.map(HangoutWithDetails::toDomain) }
+        return hangoutDao.getAll().map { list ->
+            val now = LocalDateTime.now()
+            list.map(HangoutWithDetails::toDomain)
+                .filter { it.startDate.isAfter(now) }
+                .sortedBy { it.startDate }
+        }
     }
 
     override suspend fun getHangoutById(id: UUID): Hangout? {
