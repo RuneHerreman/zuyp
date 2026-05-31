@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.Weather
 import be.runeherreman.zuyp.domain.useCases.AddFriendshipUseCase
@@ -14,6 +15,7 @@ import be.runeherreman.zuyp.domain.useCases.AreFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.GetHangoutByIdUseCase
 import be.runeherreman.zuyp.domain.useCases.GetWeatherForecastUseCase
 import be.runeherreman.zuyp.domain.useCases.RemoveFriendshipUseCase
+import be.runeherreman.zuyp.domain.useCases.ToggleGoingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,7 +31,8 @@ class HangoutViewModel @Inject constructor(
     private val areFriendsUseCase: AreFriendsUseCase,
     private val addFriendshipUseCase: AddFriendshipUseCase,
     private val removeFriendshipUseCase: RemoveFriendshipUseCase,
-    private val getWeatherUseCase: GetWeatherForecastUseCase
+    private val getWeatherUseCase: GetWeatherForecastUseCase,
+    private val toggleGoingUseCase: ToggleGoingUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow(HangoutUiState())
     val uiState: StateFlow<HangoutUiState> = _uiState
@@ -109,6 +112,20 @@ class HangoutViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("HangoutViewModel", "Error toggling friendship", e)
             }
+        }
+    }
+
+    fun toggleGoing(hangout: Hangout) {
+        viewModelScope.launch {
+            toggleGoingUseCase(
+                hangoutId = hangout.id,
+                userId = _uiState.value.currentUser.id,
+                attendaceStatus = if (hangout.attendees.any { it.id == _uiState.value.currentUser.id }) {
+                    null
+                } else {
+                    AttendanceStatus.GOING
+                }
+            )
         }
     }
 

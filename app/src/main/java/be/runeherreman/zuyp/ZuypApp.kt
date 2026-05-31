@@ -21,39 +21,41 @@ import be.runeherreman.zuyp.ui.navigation.ZuypNavGraph
 import be.runeherreman.zuyp.ui.theme.ZuypTheme
 
 @Composable
-fun ZuypApp() {
+fun ZuypApp(
+    hangoutViewModel: HangoutViewModel = viewModel()
+) {
     ZuypTheme {
         val navController = rememberNavController()
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
-        val hangoutViewModel: HangoutViewModel = viewModel()
         val hangoutUiState by hangoutViewModel.uiState.collectAsStateWithLifecycle()
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                containerColor = MaterialTheme.colorScheme.background,
-                contentColor = MaterialTheme.colorScheme.onBackground,
-                bottomBar = {
-                    ZuypBottomBar(
-                        navController = navController,
-                        currentDestination = currentDestination
-                    )
-                }
-            ) { innerPadding ->
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = MaterialTheme.colorScheme.background,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+            bottomBar = {
+                ZuypBottomBar(
+                    navController = navController,
+                    currentDestination = currentDestination
+                )
+            }
+        ) { innerPadding ->
+            Box(modifier = Modifier.fillMaxSize()) {
                 ZuypNavGraph(
                     navController = navController,
                     modifier = Modifier.padding(innerPadding),
                     hangoutViewModel = hangoutViewModel
                 )
-            }
 
-            HangoutOverlay(
-                uiState = hangoutUiState,
-                onDismiss = hangoutViewModel::dismissHangout,
-                onFriendClick = hangoutViewModel::toggleFriendship
-            )
+                HangoutOverlay(
+                    uiState = hangoutUiState,
+                    onDismiss = hangoutViewModel::dismissHangout,
+                    onFriendClick = hangoutViewModel::toggleFriendship,
+                    onToggleGoingClick = hangoutViewModel::toggleGoing
+                )
+            }
         }
     }
 }

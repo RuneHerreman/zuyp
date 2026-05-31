@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
+import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import be.runeherreman.zuyp.data.local.room.entity.HangoutEntity
 import be.runeherreman.zuyp.data.local.room.entity.HangoutWithDetails
 import kotlinx.coroutines.flow.Flow
@@ -44,4 +45,10 @@ interface HangoutDao {
 
     @Query("DELETE FROM hangouts")
     suspend fun deleteAllHangouts()
+
+    @Query("UPDATE hangouts_users SET status = :status WHERE hangoutId = :hangoutId AND userId = :userId")
+    suspend fun updateAttendanceStatus(hangoutId: UUID, userId: UUID, status: AttendanceStatus)
+
+    @Query("DELETE FROM hangouts_users WHERE hangoutId = :hangoutId AND userId = :userId")
+    suspend fun removeAttendee(hangoutId: UUID, userId: UUID)
 }

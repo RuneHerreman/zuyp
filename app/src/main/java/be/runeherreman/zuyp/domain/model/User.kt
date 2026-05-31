@@ -1,5 +1,6 @@
 package be.runeherreman.zuyp.domain.model
 
+import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import java.time.LocalDate
 import java.util.UUID
 
@@ -8,5 +9,6 @@ data class User(
     val name: String,
     val birthdate: LocalDate,
     val email: String,
-    val imageUrl: String = ""
+    val imageUrl: String = "",
+    val attendanceStatus: AttendanceStatus? = null
 )

@@ -48,7 +48,8 @@ import java.util.UUID
 fun HangoutOverlay(
     uiState: HangoutUiState,
     onDismiss: () -> Unit,
-    onFriendClick: (UUID) -> Unit
+    onFriendClick: (UUID) -> Unit,
+    onToggleGoingClick: (Hangout) -> Unit
 ) {
     AnimatedVisibility(
         visible = uiState.selectedHangoutId != null,
@@ -62,7 +63,8 @@ fun HangoutOverlay(
             HangoutScreen(
                 uiState = uiState,
                 onBackClick = onDismiss,
-                onFriendClick = onFriendClick
+                onFriendClick = onFriendClick,
+                onToggleGoingClick = onToggleGoingClick
             )
         }
     }
@@ -73,6 +75,7 @@ fun HangoutScreen(
     uiState: HangoutUiState,
     onBackClick: () -> Unit = {},
     onFriendClick: (UUID) -> Unit = {},
+    onToggleGoingClick: (Hangout) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Handle system back press
@@ -111,7 +114,9 @@ fun HangoutScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        ActionButtons()
+        ActionButtons(
+            toggleGoingClick = { onToggleGoingClick(uiState.hangout) }
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -179,19 +184,22 @@ fun InfoRow(icon: ImageVector, text: String) {
 }
 
 @Composable
-fun ActionButtons() {
+fun ActionButtons(
+    toggleGoingClick: () -> Unit = {},
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Button(
-            onClick = { /* TODO */ },
+            onClick = toggleGoingClick,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer),
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.weight(1f)
         ) {
             Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(4.dp))
+
             Text("I'm going", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
         }
         Button(

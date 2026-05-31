@@ -22,6 +22,12 @@ data class HangoutWithDetails(
             entityColumn = "userId"
         )
     )
-    val attendees: List<UserEntity>
+    val attendees: List<UserEntity>,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "hangoutId"
+    )
+    val attendanceStatuses: List<HangoutUsersMapping>
 )
 

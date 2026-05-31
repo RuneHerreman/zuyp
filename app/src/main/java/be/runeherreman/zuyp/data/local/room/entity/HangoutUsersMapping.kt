@@ -5,6 +5,11 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import java.util.UUID
 
+enum class AttendanceStatus {
+    GOING,
+    NOT_INTERESTED,
+}
+
 @Entity(
     tableName = "hangouts_users",
     primaryKeys = ["hangoutId", "userId"],
@@ -26,5 +31,6 @@ import java.util.UUID
 )
 data class HangoutUsersMapping(
     val hangoutId: UUID,
-    val userId: UUID
+    val userId: UUID,
+    val status: AttendanceStatus
 )

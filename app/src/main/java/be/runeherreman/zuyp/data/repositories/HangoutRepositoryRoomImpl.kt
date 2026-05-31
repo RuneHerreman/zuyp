@@ -1,6 +1,7 @@
 package be.runeherreman.zuyp.data.repositories
 
 import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
+import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import be.runeherreman.zuyp.data.local.room.entity.HangoutWithDetails
 import be.runeherreman.zuyp.data.local.room.entity.UserEntity
 import be.runeherreman.zuyp.domain.model.Hangout
@@ -34,9 +35,22 @@ class HangoutRepositoryRoomImpl @Inject constructor(
     override suspend fun getHangoutById(id: UUID): Hangout? {
         return hangoutDao.getById(id)?.toDomain()
     }
+
+    override suspend fun updateAttendenceStatus(
+        hangoutId: UUID,
+        userId: UUID,
+        status: AttendanceStatus
+    ) {
+        hangoutDao.updateAttendanceStatus(hangoutId, userId, status)
+    }
+
+    override suspend fun removeAttendee(hangoutId: UUID, userId: UUID) {
+        hangoutDao.removeAttendee(hangoutId, userId)
+    }
 }
 
 private fun HangoutWithDetails.toDomain(): Hangout {
+    val statusMap = attendanceStatuses.associateBy { it.userId }
     return Hangout(
         id = hangout.id,
         title = hangout.title,
@@ -46,18 +60,26 @@ private fun HangoutWithDetails.toDomain(): Hangout {
         longitude = hangout.longitude,
         startDate = hangout.startDate,
         endDate = hangout.endDate,
-        attendees = attendees.map(UserEntity::toDomain),
+        attendees = attendees.map { userEntity ->
+            userEntity.toDomain(statusMap[userEntity.id]?.status)
+        },
         creator = creator.toDomain(),
         private = hangout.private
     )
 }
 
-private fun UserEntity.toDomain(): User {
+private fun UserEntity.toDomain(attendanceStatus: AttendanceStatus? = null): User {
     return User(
         id = id,
         name = name,
         birthdate = birthdate,
         email = email,
-        imageUrl = imageUrl
+        imageUrl = imageUrl,
+        attendanceStatus = attendanceStatus?.let {
+            when (it) {
+                AttendanceStatus.GOING -> AttendanceStatus.GOING
+                AttendanceStatus.NOT_INTERESTED -> AttendanceStatus.NOT_INTERESTED
+            }
+        }
     )
 }
