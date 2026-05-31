@@ -18,8 +18,14 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +40,30 @@ import be.runeherreman.zuyp.domain.model.User
 import coil.compose.AsyncImage
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+
+@Composable
+fun HangoutOverlay(
+    uiState: HangoutUiState,
+    onDismiss: () -> Unit,
+    onFriendClick: (UUID) -> Unit
+) {
+    AnimatedVisibility(
+        visible = uiState.selectedHangoutId != null,
+        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            HangoutScreen(
+                uiState = uiState,
+                onBackClick = onDismiss,
+                onFriendClick = onFriendClick
+            )
+        }
+    }
+}
 
 @Composable
 fun HangoutScreen(
@@ -57,6 +87,7 @@ fun HangoutScreen(
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(scrollState)
             .padding(16.dp)
+            .padding(top = 32.dp)
     ) {
         BackButton(onBackClick = onBackClick)
 
@@ -260,8 +291,8 @@ fun IsFriendButton(
     Button(
         onClick = toggleFriendClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF99FFAF).copy(alpha = 0.40f),
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
         ),
         shape = RoundedCornerShape(6.dp),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
@@ -270,8 +301,7 @@ fun IsFriendButton(
         Text(
             "Friends",
             style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF2C6B24)
+            fontWeight = FontWeight.Bold
         )
     }
 }

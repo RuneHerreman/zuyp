@@ -1,5 +1,6 @@
 package be.runeherreman.zuyp
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -9,8 +10,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import be.runeherreman.zuyp.ui.hangout.HangoutOverlay
+import be.runeherreman.zuyp.ui.hangout.HangoutViewModel
 import be.runeherreman.zuyp.ui.navigation.ZuypBottomBar
 import be.runeherreman.zuyp.ui.navigation.ZuypNavGraph
 import be.runeherreman.zuyp.ui.theme.ZuypTheme
@@ -22,20 +27,32 @@ fun ZuypApp() {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
 
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.onBackground,
-            bottomBar = {
-                ZuypBottomBar(
+        val hangoutViewModel: HangoutViewModel = viewModel()
+        val hangoutUiState by hangoutViewModel.uiState.collectAsStateWithLifecycle()
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                bottomBar = {
+                    ZuypBottomBar(
+                        navController = navController,
+                        currentDestination = currentDestination
+                    )
+                }
+            ) { innerPadding ->
+                ZuypNavGraph(
                     navController = navController,
-                    currentDestination = currentDestination
+                    modifier = Modifier.padding(innerPadding),
+                    hangoutViewModel = hangoutViewModel
                 )
             }
-        ) { innerPadding ->
-            ZuypNavGraph(
-                navController = navController,
-                modifier = Modifier.padding(innerPadding)
+
+            HangoutOverlay(
+                uiState = hangoutUiState,
+                onDismiss = hangoutViewModel::dismissHangout,
+                onFriendClick = hangoutViewModel::toggleFriendship
             )
         }
     }
@@ -46,7 +63,6 @@ fun ZuypApp() {
     showSystemUi = true,
     device = Devices.PIXEL_7
 )
-
 @Composable
 fun ZuypAppPreview() {
     ZuypApp()

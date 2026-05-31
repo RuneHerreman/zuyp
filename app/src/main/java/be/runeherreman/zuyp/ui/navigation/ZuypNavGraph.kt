@@ -1,7 +1,6 @@
 package be.runeherreman.zuyp.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -15,7 +14,6 @@ import be.runeherreman.zuyp.ui.discover.DiscoverScreen
 import be.runeherreman.zuyp.ui.discover.DiscoverViewModel
 import be.runeherreman.zuyp.ui.friends.FriendsScreen
 import be.runeherreman.zuyp.ui.friends.FriendsViewModel
-import be.runeherreman.zuyp.ui.hangout.HangoutScreen
 import be.runeherreman.zuyp.ui.hangout.HangoutViewModel
 import be.runeherreman.zuyp.ui.home.HomeScreen
 import be.runeherreman.zuyp.ui.home.HomeViewModel
@@ -37,7 +35,6 @@ fun ZuypNavGraph(
     val discoverUiState by discoverViewModel.uiState.collectAsStateWithLifecycle()
     val friendsUiState by friendsViewModel.uiState.collectAsStateWithLifecycle()
     val profileUiState by profileViewModel.uiState.collectAsStateWithLifecycle()
-    val hangoutUiState by hangoutViewModel.uiState.collectAsStateWithLifecycle()
 
     NavHost(
         navController = navController,
@@ -45,46 +42,24 @@ fun ZuypNavGraph(
         modifier = modifier
     ) {
         composable(Screen.Home.route) {
-            LaunchedEffect(Unit) {
-                homeViewModel.loadHangouts()
-            }
             HomeScreen(
                 uiState = homeUiState,
                 onLocationClick = { homeViewModel.openMapsForHangout(it, context) },
-                onHangoutClick = { homeViewModel.onHangoutClick(it, navController) },
+                onHangoutClick = { hangoutViewModel.selectHangout(it.id.toString()) },
                 onSearchOpen = homeViewModel::openSearch,
                 onSearchClose = homeViewModel::closeSearch,
-                onSearchQueryChange = homeViewModel::onSearchQueryChange
+                onSearchQueryChange = homeViewModel::onSearchQueryChange,
+                onRefresh = homeViewModel::refresh
             )
         }
         composable(Screen.Discover.route) {
-            DiscoverScreen(
-                uiState = discoverUiState
-            )
+            DiscoverScreen(uiState = discoverUiState)
         }
         composable(Screen.Friends.route) {
-            FriendsScreen(
-                uiState = friendsUiState
-            )
+            FriendsScreen(uiState = friendsUiState)
         }
         composable(Screen.Profile.route) {
-            ProfileScreen(
-                uiState = profileUiState
-            )
-        }
-
-        composable(Screen.Hangout.route) { backStackEntry ->
-            val hangoutId = backStackEntry.arguments?.getString("hangoutId")!!
-
-            LaunchedEffect(hangoutId) {
-                hangoutViewModel.loadHangout(hangoutId)
-            }
-
-            HangoutScreen(
-                uiState = hangoutUiState,
-                onBackClick = { navController.popBackStack() },
-                onFriendClick = hangoutViewModel::toggleFriendship
-            )
+            ProfileScreen(uiState = profileUiState)
         }
     }
 }

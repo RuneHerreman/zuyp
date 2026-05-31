@@ -34,7 +34,8 @@ class HangoutViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HangoutUiState())
     val uiState: StateFlow<HangoutUiState> = _uiState
 
-    fun loadHangout(hangoutId: String) {
+    fun selectHangout(hangoutId: String) {
+        _uiState.update { it.copy(selectedHangoutId = hangoutId) }
         viewModelScope.launch {
             val item = getHangoutByIdUseCase(hangoutId)
             if (item == null) {
@@ -45,6 +46,10 @@ class HangoutViewModel @Inject constructor(
             loadFriendships(item.attendees.map { it.id })
             loadWeatherForHangout(item)
         }
+    }
+
+    fun dismissHangout() {
+        _uiState.update { it.copy(selectedHangoutId = null, isError = false) }
     }
 
     private suspend fun loadFriendships(attendeeIds: List<UUID>) {

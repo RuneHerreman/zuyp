@@ -33,5 +33,6 @@ data class HangoutUiState(
     val weatherPrediction: String = "",
     val isLoadingWeather: Boolean = true,
     val weatherIcon: ImageVector = Icons.Filled.Thermostat,
-    val isError: Boolean = false
+    val isError: Boolean = false,
+    val selectedHangoutId: String? = null
 )
