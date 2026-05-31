@@ -1,0 +1,27 @@
+### Variables
+# Management API runs on port 40301
+# userJan ID: 20000000-0000-0000-0000-000000000001
+
+### Send hangout invite to userJan
+POST http://localhost:40301/api/exchanges/%2F/zuyp.notifications/publish
+Authorization: Basic guest guest
+Content-Type: application/json
+
+{
+  "properties": {},
+  "routing_key": "user-20000000-0000-0000-0000-000000000001",
+  "payload": "{\"type\":\"hangout_invite\",\"hangoutId\":\"hangout-abc123\"}",
+  "payload_encoding": "string"
+}
+
+### Send zuyp alert to userJan
+POST http://localhost:40301/api/exchanges/%2F/zuyp.notifications/publish
+Authorization: Basic guest guest
+Content-Type: application/json
+
+{
+  "properties": {},
+  "routing_key": "user-20000000-0000-0000-0000-000000000001",
+  "payload": "{\"type\":\"zuyp_alert\",\"hangoutId\":\"hangout-abc123\"}",
+  "payload_encoding": "string"
+}

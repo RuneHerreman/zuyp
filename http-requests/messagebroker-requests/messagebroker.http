@@ -1,0 +1,27 @@
+### Variables
+# The management API runs on port 40301 (mapped in docker-compose)
+# Replace {{userId}} with the actual user ID you want to target
+
+### Send hangout invite notification
+POST http://localhost:40301/api/exchanges/%2F/zuyp.notifications/publish
+Authorization: Basic guest guest
+Content-Type: application/json
+
+{
+  "properties": {},
+  "routing_key": "user-01234566-8f09-4567-4af8-def000000014",
+  "payload": "{\"type\":\"hangout_invite\",\"hangoutId\":\"10000000-0000-0000-0000-000000000002\"}",
+  "payload_encoding": "string"
+}
+
+### Send zuyp alert notification
+POST http://localhost:40301/api/exchanges/%2F/zuyp.notifications/publish
+Authorization: Basic guest guest
+Content-Type: application/json
+
+{
+  "properties": {},
+  "routing_key": "user-01234566-8f09-4567-4af8-def000000014",
+  "payload": "{\"type\":\"zuyp_alert\",\"hangoutId\":\"10000000-0000-0000-0000-000000000002\"}",
+  "payload_encoding": "string"
+}
