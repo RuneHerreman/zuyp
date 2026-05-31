@@ -84,7 +84,7 @@ class HomeViewModel @Inject constructor(
 
     fun sendZuypAlert() {
         viewModelScope.launch {
-            sendZuypAlertUseCase(userId = currentUserId, hangoutId = "10000000-0000-0000-0000-000000000002")
+            sendZuypAlertUseCase(userId = currentUserId, hangoutId = UUID.fromString("10000000-0000-0000-0000-000000000002"))
         }
     }
 

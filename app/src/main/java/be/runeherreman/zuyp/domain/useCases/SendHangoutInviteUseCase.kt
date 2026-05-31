@@ -3,19 +3,17 @@ package be.runeherreman.zuyp.domain.useCases
 import be.runeherreman.zuyp.data.messaging.MessagePublisher
 import be.runeherreman.zuyp.domain.model.generateWeatherPrediction
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
-import be.runeherreman.zuyp.domain.repository.UserRepository
 import org.json.JSONObject
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
 
-class SendZuypAlertUseCase @Inject constructor(
-    private val userRepository: UserRepository,
+class SendHangoutInviteUseCase @Inject constructor(
     private val hangoutRepository: HangoutRepository,
     private val messagePublisher: MessagePublisher,
     private val getWeatherForecast: GetWeatherForecastUseCase,
 ) {
-    suspend operator fun invoke(userId: UUID, hangoutId: UUID) {
+    suspend operator fun invoke(recipientId: UUID, hangoutId: UUID) {
         val hangout = hangoutRepository.getHangoutById(hangoutId) ?: return
         val formatter = DateTimeFormatter.ofPattern("MMM d yyyy, HH'h'mm")
         val weather = try {
@@ -33,7 +31,7 @@ class SendZuypAlertUseCase @Inject constructor(
         }
 
         val message = JSONObject()
-            .put("type", "zuyp_alert")
+            .put("type", "hangout_invite")
             .put("hangoutId", hangoutId.toString())
             .put("title", hangout.title)
             .put("locationName", hangout.locationName)
@@ -41,8 +39,6 @@ class SendZuypAlertUseCase @Inject constructor(
             .apply { weather?.let { put("weather", it) } }
             .toString()
 
-        userRepository.getFriendsOfUser(userId).forEach { friend ->
-            messagePublisher.publishMessage(friend.id.toString(), message)
-        }
+        messagePublisher.publishMessage(recipientId.toString(), message)
     }
 }
