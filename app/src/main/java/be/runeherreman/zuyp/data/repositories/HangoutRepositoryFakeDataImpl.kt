@@ -1,7 +1,7 @@
 package be.runeherreman.zuyp.data.repositories
 
-import android.util.Log
 import be.runeherreman.zuyp.data.fake.data.FakeDataSource
+import be.runeherreman.zuyp.data.fake.dto.HangoutDto
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import kotlinx.coroutines.flow.Flow
@@ -13,44 +13,24 @@ class HangoutRepositoryFakeDataImpl @Inject constructor(
     private val fakeDataSource: FakeDataSource
 ) : HangoutRepository {
     override fun getHangouts(): Flow<List<Hangout>> {
-        val hangouts = fakeDataSource.getHangouts().map { dto ->
-            Hangout(
-                id = dto.id,
-                title = dto.title,
-                description = dto.description,
-                locationName = dto.locationName,
-                latitude = dto.latitude,
-                longitude = dto.longitude,
-                startDate = dto.startDate,
-                endDate = dto.endDate,
-                attendees = dto.attendees,
-                creator = dto.creator,
-                private = dto.private
-            )
-        }
-        return flowOf(hangouts)
+        return flowOf(fakeDataSource.getHangouts().map(HangoutDto::toDomain))
     }
 
     override suspend fun getHangoutById(id: UUID): Hangout? {
-        return try {
-            val dto = fakeDataSource.getHangoutById(id)
-            Hangout(
-                id = dto.id,
-                title = dto.title,
-                description = dto.description,
-                locationName = dto.locationName,
-                latitude = dto.latitude,
-                longitude = dto.longitude,
-                startDate = dto.startDate,
-                endDate = dto.endDate,
-                attendees = dto.attendees,
-                creator = dto.creator,
-                private = dto.private
-            )
-        } catch (e: NoSuchElementException) {
-            Log.e("HangoutError", e.message.toString())
-            null
-        }
+        return fakeDataSource.getHangouts().firstOrNull { it.id == id }?.toDomain()
     }
-
 }
+
+private fun HangoutDto.toDomain() = Hangout(
+    id = id,
+    title = title,
+    description = description,
+    locationName = locationName,
+    latitude = latitude,
+    longitude = longitude,
+    startDate = startDate,
+    endDate = endDate,
+    attendees = attendees,
+    creator = creator,
+    private = private
+)
