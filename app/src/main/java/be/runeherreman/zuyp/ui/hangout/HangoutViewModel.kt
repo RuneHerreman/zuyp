@@ -36,68 +36,50 @@ class HangoutViewModel @Inject constructor(
 
     fun loadHangout(hangoutId: String) {
         viewModelScope.launch {
-            getHangoutByIdUseCase(hangoutId).let { item ->
-                _uiState.update {
-                    it.copy(
-                        hangout = item ?: HangoutUiState().hangout
-                    )
-                }
-                loadFriendships(item?.attendees?.map { attendee -> attendee.id } ?: emptyList())
+            val item = getHangoutByIdUseCase(hangoutId)
+            if (item == null) {
+                _uiState.update { it.copy(isError = true) }
+                return@launch
             }
+            _uiState.update { it.copy(hangout = item) }
+            loadFriendships(item.attendees.map { it.id })
+            loadWeatherForHangout(item)
         }
     }
 
-    fun loadFriendships(attendeeIds: List<UUID>) {
-        viewModelScope.launch {
-            val currentUserId = _uiState.value.currentUser.id
-            val friendshipMap = mutableMapOf<UUID, Boolean>()
-            
-            attendeeIds.forEach { attendeeId ->
-                val isFriend = areFriendsUseCase(currentUserId, attendeeId)
-                friendshipMap[attendeeId] = isFriend
-            }
-            
+    private suspend fun loadFriendships(attendeeIds: List<UUID>) {
+        val currentUserId = _uiState.value.currentUser.id
+        val friendshipMap = mutableMapOf<UUID, Boolean>()
+        attendeeIds.forEach { attendeeId ->
+            friendshipMap[attendeeId] = areFriendsUseCase(currentUserId, attendeeId)
+        }
+        _uiState.update { it.copy(friendShipMapping = friendshipMap) }
+    }
+
+    private suspend fun loadWeatherForHangout(hangout: Hangout) {
+        _uiState.update { it.copy(isLoadingWeather = true) }
+        try {
+            val weather = getWeatherUseCase(
+                latitude = hangout.latitude,
+                longitude = hangout.longitude,
+                hourly = "temperature_2m,rain",
+                timezone = "auto",
+                startDate = hangout.startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                endDate = hangout.endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            )
+            val weatherString = generateWeatherString(weather, hangout)
+            val icon = getWeatherIconFromPrediction(weatherString)
             _uiState.update {
                 it.copy(
-                    friendShipMapping = friendshipMap
+                    weatherPrediction = weatherString,
+                    weatherIcon = icon,
+                    isLoadingWeather = false
                 )
             }
-        }
-    }
-
-    fun loadWeather(hangoutId: String) {
-        viewModelScope.launch {
-            getHangoutByIdUseCase(hangoutId).let { item ->
-                _uiState.update { it.copy(isLoadingWeather = true) }
-                try {
-                    val hangout = item ?: _uiState.value.hangout
-                    val weather = getWeatherUseCase(
-                        latitude = hangout.latitude,
-                        longitude = hangout.longitude,
-                        hourly = "temperature_2m,rain",
-                        timezone = "auto",
-                        startDate = hangout.startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).toString(),
-                        endDate = hangout.endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).toString()
-                    )
-
-
-                    val weatherString = generateWeatherString(weather, hangout)
-                    val icon = getWeatherIconFromPrediction(weatherString)
-                    
-                    _uiState.update {
-                        it.copy(
-                            weatherPrediction = weatherString,
-                            weatherIcon = icon,
-                            isLoadingWeather = false
-                        )
-                    }
-                    Log.i("HangoutViewModel - Weather", "Weather loaded: ${weather.hourly.temperature_2m.min()}, - ${weather.hourly.rain.max()}")
-                } catch (e: Exception) {
-                    Log.e("HangoutViewModel - Weather", "Error loading weather", e)
-                    _uiState.update { it.copy(isLoadingWeather = false) }
-                }
-            }
-
+            Log.i("HangoutViewModel", "Weather: ${weather.hourly.temperature2m.min()}°C, rain: ${weather.hourly.rain.max()}mm")
+        } catch (e: Exception) {
+            Log.e("HangoutViewModel", "Error loading weather", e)
+            _uiState.update { it.copy(isLoadingWeather = false) }
         }
     }
 
@@ -105,75 +87,60 @@ class HangoutViewModel @Inject constructor(
         viewModelScope.launch {
             val currentUserId = _uiState.value.currentUser.id
             val currentFriendshipStatus = _uiState.value.friendShipMapping[targetUserId] ?: false
-            
             try {
-                if (currentFriendshipStatus) { // Remove
+                if (currentFriendshipStatus) {
                     removeFriendshipUseCase(currentUserId, targetUserId)
-                    _uiState.update {
-                        it.copy(
-                            friendShipMapping = it.friendShipMapping + (targetUserId to false)
-                        )
-                    }
-                    Log.i("HangoutViewModel - Friendships", "Friendship removed")
-                } else { // Add
+                    _uiState.update { it.copy(friendShipMapping = it.friendShipMapping + (targetUserId to false)) }
+                    Log.i("HangoutViewModel", "Friendship removed")
+                } else {
                     addFriendshipUseCase(currentUserId, targetUserId)
-                    _uiState.update {
-                        it.copy(
-                            friendShipMapping = it.friendShipMapping + (targetUserId to true)
-                        )
-                    }
-                    Log.i("HangoutViewModel - Friendships", "Friendship added")
+                    _uiState.update { it.copy(friendShipMapping = it.friendShipMapping + (targetUserId to true)) }
+                    Log.i("HangoutViewModel", "Friendship added")
                 }
             } catch (e: Exception) {
-                Log.e("HangoutViewModel - Friendships", "Error toggling friendship", e)
+                Log.e("HangoutViewModel", "Error toggling friendship", e)
             }
         }
     }
 
-    fun generateWeatherString(weather: Weather, hangout: Hangout): String {
-        return if (weather.hourly.temperature_2m.isNotEmpty()) {
-            val now = java.time.LocalDateTime.now()
-            val startTime = hangout.startDate
+    private fun generateWeatherString(weather: Weather, hangout: Hangout): String {
+        if (weather.hourly.temperature2m.isEmpty()) return "Weather data unavailable"
 
-            val hourIndex =
-                if (startTime.isBefore(now)) {
-                    weather.hourly.temperature_2m.size - 1
-                } else {
-                    val hoursDiff = java.time.temporal.ChronoUnit.HOURS.between(now, startTime).toInt()
-                    val index = minOf(hoursDiff, weather.hourly.temperature_2m.size - 1)
-                    maxOf(0, index)
-                }
-            
-            val temperature = weather.hourly.temperature_2m.getOrNull(hourIndex)?.toInt() ?: 0
-            val rain = weather.hourly.rain.getOrNull(hourIndex) ?: 0.0
-            
-            val weatherStatus = when {
-                rain > 5.0 -> "Heavy rain"
-                rain > 1.0 -> "Light rain"
-                else -> "Clear skies"
-            }
-            
-            val clothingRecommendation = when {
-                rain > 5.0 -> "Wear rain coat"
-                rain > 1.0 && temperature < 15 -> "Wear sweater, rain protection"
-                rain > 1.0 && temperature >= 20 -> "T-shirt w/ light rain jacket"
-                rain > 1.0 -> "Bring umbrella / light rain jacket"
-                temperature < 7 -> "Dress warmly w/ winter jacket"
-                temperature < 15 -> "Wear a sweater"
-                temperature < 22 -> "Wear a light jacket"
-                else -> "T-shirt and shorts"
-            }
-            
-            "$temperature°C - $weatherStatus - $clothingRecommendation"
+        val now = java.time.LocalDateTime.now()
+        val startTime = hangout.startDate
+        val hourIndex = if (startTime.isBefore(now)) {
+            weather.hourly.temperature2m.size - 1
         } else {
-            "Weather data unavailable"
+            val hoursDiff = java.time.temporal.ChronoUnit.HOURS.between(now, startTime).toInt()
+            minOf(hoursDiff, weather.hourly.temperature2m.size - 1).coerceAtLeast(0)
         }
+
+        val temperature = weather.hourly.temperature2m.getOrNull(hourIndex)?.toInt() ?: 0
+        val rain = weather.hourly.rain.getOrNull(hourIndex) ?: 0.0
+
+        val weatherStatus = when {
+            rain > 5.0 -> "Heavy rain"
+            rain > 1.0 -> "Light rain"
+            else -> "Clear skies"
+        }
+
+        val clothingRecommendation = when {
+            rain > 5.0 -> "Wear rain coat"
+            rain > 1.0 && temperature < 15 -> "Wear sweater, rain protection"
+            rain > 1.0 && temperature >= 20 -> "T-shirt w/ light rain jacket"
+            rain > 1.0 -> "Bring umbrella / light rain jacket"
+            temperature < 7 -> "Dress warmly w/ winter jacket"
+            temperature < 15 -> "Wear a sweater"
+            temperature < 22 -> "Wear a light jacket"
+            else -> "T-shirt and shorts"
+        }
+
+        return "$temperature°C - $weatherStatus - $clothingRecommendation"
     }
 
     private fun getWeatherIconFromPrediction(weatherPrediction: String) = when {
         weatherPrediction.contains("Heavy rain", ignoreCase = true) -> Icons.Default.Grain
         weatherPrediction.contains("Light rain", ignoreCase = true) -> Icons.Default.Cloud
-        weatherPrediction.contains("Clear skies", ignoreCase = true) -> Icons.Default.WbSunny
         else -> Icons.Default.WbSunny
     }
 }

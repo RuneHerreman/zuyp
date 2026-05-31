@@ -77,7 +77,6 @@ fun ZuypNavGraph(
 
             LaunchedEffect(hangoutId) {
                 hangoutViewModel.loadHangout(hangoutId)
-                hangoutViewModel.loadWeather(hangoutId)
             }
 
             HangoutScreen(

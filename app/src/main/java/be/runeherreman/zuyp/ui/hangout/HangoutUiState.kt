@@ -32,5 +32,6 @@ data class HangoutUiState(
     val friendShipMapping: Map<UUID, Boolean> = emptyMap(),
     val weatherPrediction: String = "",
     val isLoadingWeather: Boolean = true,
-    val weatherIcon: ImageVector = Icons.Filled.Thermostat
+    val weatherIcon: ImageVector = Icons.Filled.Thermostat,
+    val isError: Boolean = false
 )
