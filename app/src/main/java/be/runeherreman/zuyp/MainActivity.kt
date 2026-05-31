@@ -1,9 +1,14 @@
 package be.runeherreman.zuyp
 
+import android.app.NotificationManager
+import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
+import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -28,17 +33,38 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import be.runeherreman.zuyp.data.fake.data.FakeUsers
 import be.runeherreman.zuyp.data.workers.NotificationWorker
+import be.runeherreman.zuyp.ui.permissions.AppPermission
+import be.runeherreman.zuyp.ui.permissions.toAndroidPermission
 import be.runeherreman.zuyp.ui.theme.ZuypTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        requestFullScreenIntentPermission()
+        startNotificationWorker()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        startNotificationWorker()
+        requestPermissionLauncher.launch(AppPermission.NOTIFICATION.toAndroidPermission())
         setContent {
             ZuypApp()
+        }
+    }
+
+    private fun requestFullScreenIntentPermission() {
+        val notificationManager = getSystemService(NotificationManager::class.java)
+        if (!notificationManager.canUseFullScreenIntent()) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
+                Uri.parse("package:$packageName"),
+            )
+            startActivity(intent)
         }
     }
 
