@@ -30,6 +30,10 @@
             </intent-filter>
         </activity>
 
+        <receiver
+            android:name=".data.receivers.JoinHangoutReceiver"
+            android:exported="false" />
+
         <activity
             android:name=".ui.alert.ZuypAlertActivity"
             android:exported="false"

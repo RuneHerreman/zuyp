@@ -28,9 +28,7 @@ class SendZuypAlertUseCase @Inject constructor(
                 endDate = hangout.endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
             )
             generateWeatherPrediction(forecast, hangout)
-        } catch (e: Exception) {
-            null
-        }
+        } catch (e: Exception) { null }
 
         val message = JSONObject()
             .put("type", "zuyp_alert")
@@ -41,7 +39,7 @@ class SendZuypAlertUseCase @Inject constructor(
             .apply { weather?.let { put("weather", it) } }
             .toString()
 
-        userRepository.getFriendsOfUser(userId).forEach { friend ->
+        userRepository.getFriendsOfUser(userId).filter { it.id != userId }.forEach { friend ->
             messagePublisher.publishMessage(friend.id.toString(), message)
         }
     }

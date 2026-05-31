@@ -1,5 +1,6 @@
 package be.runeherreman.zuyp.data.workers
 
+import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import be.runeherreman.zuyp.R
 import android.app.NotificationChannel
@@ -17,6 +18,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import be.runeherreman.zuyp.ui.alert.ZuypAlertActivity
 import be.runeherreman.zuyp.data.messaging.MessageConsumer
+import be.runeherreman.zuyp.data.receivers.JoinHangoutReceiver
 import be.runeherreman.zuyp.data.messaging.NotificationMessage
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -36,8 +38,11 @@ class NotificationWorker @AssistedInject constructor(
         applicationContext.getSystemService(NotificationManager::class.java)
     }
 
+    private var currentUserId: String = ""
+
     override suspend fun doWork(): Result {
         val userId = inputData.getString(KEY_USER_ID) ?: return Result.failure()
+        currentUserId = userId
 
         createNotificationChannels()
         // =========================================
@@ -67,6 +72,19 @@ class NotificationWorker @AssistedInject constructor(
             append("\n🕐 ${message.startDate}")
             message.weather?.let { append("\n$it") }
         }
+        val notificationId = message.hangoutId.hashCode()
+        val joinIntent = Intent(applicationContext, JoinHangoutReceiver::class.java).apply {
+            putExtra("hangoutId", message.hangoutId)
+            putExtra("userId", currentUserId)
+            putExtra("notificationId", notificationId)
+        }
+        val joinPendingIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            notificationId,
+            joinIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_HANGOUT)
             .setContentTitle("Invite: ${message.title}")
             .setContentText("📍 ${message.locationName} · ${message.startDate}")
@@ -74,10 +92,12 @@ class NotificationWorker @AssistedInject constructor(
             .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setLargeIcon(BitmapFactory.decodeResource(applicationContext.resources, R.mipmap.ic_launcher))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .addAction(0, "Join", joinPendingIntent)
             .build()
-        notificationManager.notify(message.hangoutId.hashCode(), notification)
+        notificationManager.notify(notificationId, notification)
     }
 
+    @SuppressLint("FullScreenIntentPolicy")
     private fun showZuypAlertNotification(message: NotificationMessage.ZuypAlert) {
         val intent = Intent(applicationContext, ZuypAlertActivity::class.java).apply {
             putExtra("hangoutId", message.hangoutId)
@@ -93,7 +113,7 @@ class NotificationWorker @AssistedInject constructor(
         )
 
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ZUYP_ALERT)
-            .setContentTitle(message.title)
+            .setContentTitle("⚠ ${message.title}")
             .setContentText("📍 ${message.locationName} · ${message.startDate}")
             .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setLargeIcon(BitmapFactory.decodeResource(applicationContext.resources, R.mipmap.ic_launcher))

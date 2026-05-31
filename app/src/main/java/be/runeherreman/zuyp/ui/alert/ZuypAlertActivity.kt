@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.runtime.collectAsState
+import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -39,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.runeherreman.zuyp.data.fake.data.FakeUsers
 import be.runeherreman.zuyp.data.workers.NotificationWorker
 import be.runeherreman.zuyp.ui.theme.ZuypTheme
 
@@ -49,7 +53,10 @@ private val WhiteDim    = Color(0x99FFFFFF)
 private val WhiteFaint  = Color(0x14FFFFFF)
 private val WhiteBorder = Color(0x1FFFFFFF)
 
+@AndroidEntryPoint
 class ZuypAlertActivity : ComponentActivity() {
+
+    private val viewModel: ZuypAlertViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,17 +68,33 @@ class ZuypAlertActivity : ComponentActivity() {
             WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
 
+        viewModel.loadFromIntent(
+            hangoutId = intent.getStringExtra("hangoutId") ?: "",
+            title = intent.getStringExtra("title") ?: "",
+            locationName = intent.getStringExtra("locationName") ?: "",
+            startDate = intent.getStringExtra("startDate") ?: "",
+            weather = intent.getStringExtra("weather"),
+        )
+
         setContent {
             ZuypTheme {
+                val uiState by viewModel.uiState.collectAsState()
                 ZuypAlertScreen(
-                    title = intent.getStringExtra("title") ?: "",
-                    locationName = intent.getStringExtra("locationName") ?: "",
-                    startDate = intent.getStringExtra("startDate") ?: "",
-                    weather = intent.getStringExtra("weather"),
+                    title = uiState.title,
+                    locationName = uiState.locationName,
+                    startDate = uiState.startDate,
+                    weather = uiState.weather,
                     onDismiss = {
                         getSystemService(NotificationManager::class.java)
                             .cancel(NotificationWorker.ZUYP_ALERT_ID)
                         finish()
+                    },
+                    onJoin = {
+                        viewModel.join(FakeUsers.userKoen.id) {
+                            getSystemService(NotificationManager::class.java)
+                                .cancel(NotificationWorker.ZUYP_ALERT_ID)
+                            finish()
+                        }
                     },
                 )
             }
@@ -86,6 +109,7 @@ private fun ZuypAlertScreen(
     startDate: String,
     weather: String?,
     onDismiss: () -> Unit,
+    onJoin: () -> Unit,
 ) {
     val pulse = rememberInfiniteTransition(label = "pulse")
     val dotAlpha by pulse.animateFloat(
@@ -171,6 +195,27 @@ private fun ZuypAlertScreen(
             }
 
             Spacer(modifier = Modifier.weight(1f))
+
+            // Join
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .drawBehind { drawRect(AlertRed) }
+                    .clickable { onJoin() },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "JOIN",
+                    color = White,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 3.sp,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Dismiss — ghost, understated
             Box(

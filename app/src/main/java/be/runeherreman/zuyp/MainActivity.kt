@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
 
     private fun startNotificationWorker() {
         val request = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setInputData(workDataOf(NotificationWorker.KEY_USER_ID to FakeUsers.userJan.id.toString()))
+            .setInputData(workDataOf(NotificationWorker.KEY_USER_ID to FakeUsers.userKoen.id.toString()))
             .build()
         WorkManager.getInstance(this).enqueueUniqueWork(
             NotificationWorker.WORK_NAME,
