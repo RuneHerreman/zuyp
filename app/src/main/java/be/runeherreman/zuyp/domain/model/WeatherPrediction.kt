@@ -34,5 +34,5 @@ fun generateWeatherPrediction(weather: Weather, hangout: Hangout): String {
         else -> "T-shirt and shorts"
     }
 
-    return "$temperature°C - $weatherStatus - $styleTip"
+    return "$temperature°C • $weatherStatus • $styleTip"
 }

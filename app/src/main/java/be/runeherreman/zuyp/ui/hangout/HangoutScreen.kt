@@ -158,7 +158,7 @@ fun HangoutHeader(hangout: Hangout, uiState: HangoutUiState) {
 
     InfoRow(
         icon = Icons.Default.CalendarToday,
-        text = "${hangout.startDate.format(dateFormatter)} - from ${hangout.startDate.format(timeFormatter)} to ${hangout.endDate.format(timeFormatter)}"
+        text = "${hangout.startDate.format(dateFormatter)} • ${hangout.startDate.format(timeFormatter)} - ${hangout.endDate.format(timeFormatter)}"
     )
     Spacer(modifier = Modifier.height(4.dp))
     InfoRow(

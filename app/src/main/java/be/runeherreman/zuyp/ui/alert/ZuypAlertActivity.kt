@@ -198,7 +198,7 @@ private fun ZuypAlertScreen(
 
 @Composable
 private fun WeatherField(weather: String) {
-    val parts = weather.split(" - ")
+    val parts = weather.split(" • ")
     val temperature = parts.getOrNull(0) ?: weather
     val condition = parts.getOrNull(1)
     val styleTip = parts.getOrNull(2)
