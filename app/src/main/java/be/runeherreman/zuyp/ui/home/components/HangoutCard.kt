@@ -6,7 +6,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -25,14 +29,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import be.runeherreman.zuyp.domain.model.Hangout
+import be.runeherreman.zuyp.domain.model.User
+import coil.compose.AsyncImage
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-import kotlin.random.Random
 
 @Composable
 fun HangoutCard(
@@ -44,7 +52,7 @@ fun HangoutCard(
 ) {
     val formattedDate =
         hangout.startDate.format(DateTimeFormatter.ofPattern("MMM d yyyy", Locale.getDefault()))
-    
+
     val attendeeText = remember(hangout.attendees) {
         if (hangout.attendees.isEmpty()) {
             phrases.random()
@@ -62,39 +70,124 @@ fun HangoutCard(
             contentColor = MaterialTheme.colorScheme.onSurface
         )
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
+                .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            // Title + visibility badge
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = hangout.title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false)
                 )
+                if (hangout.private) {
+                    PrivateBadge(modifier = Modifier.padding(start = 8.dp))
+                }
+            }
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Date and location grouped
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 InfoRow(icon = Icons.Filled.CalendarToday, text = formattedDate)
                 InfoRow(
                     icon = Icons.Filled.LocationOn,
                     text = hangout.locationName,
                     onClick = { onLocationClick(hangout) }
                 )
-
-                InfoRow(
-                    icon = Icons.Filled.Group,
-                    text = attendeeText
-                )
             }
 
-            CreatorAvatar(name = hangout.creator.name)
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Attendance count + stacked avatars
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                InfoRow(icon = Icons.Filled.Group, text = attendeeText)
+                if (hangout.attendees.isNotEmpty()) {
+                    StackedAvatars(attendees = hangout.attendees)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PrivateBadge(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(Color(0xFFFFB3B3)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Private",
+            style = MaterialTheme.typography.labelSmall,
+            color = Color(0xFFB00020),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+        )
+    }
+}
+
+@Composable
+private fun StackedAvatars(
+    attendees: List<User>,
+    modifier: Modifier = Modifier
+) {
+    val display = attendees.take(3)
+    val avatarSize = 28.dp
+    val overlap = 10.dp
+    val extraCount = (display.size - 1).coerceAtLeast(0).toFloat()
+    val totalWidth = avatarSize + (avatarSize - overlap) * extraCount
+
+    Box(modifier = modifier.size(width = totalWidth, height = avatarSize)) {
+        display.forEachIndexed { index, user ->
+            val initials = remember(user.name) {
+                user.name
+                    .trim()
+                    .split(" ")
+                    .filter { it.isNotBlank() }
+                    .take(2)
+                    .joinToString("") { it.first().uppercaseChar().toString() }
+                    .ifBlank { "?" }
+            }
+            Box(
+                modifier = Modifier
+                    .offset(x = (avatarSize - overlap) * index.toFloat())
+                    .size(avatarSize)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                if (user.imageUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = user.imageUrl,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .fillMaxSize()
+                    )
+                } else {
+                    Text(
+                        text = initials,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
         }
     }
 }
@@ -126,34 +219,6 @@ private fun InfoRow(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-@Composable
-private fun CreatorAvatar(name: String) {
-    val initials = remember(name) {
-        name
-            .trim()
-            .split(" ")
-            .filter { it.isNotBlank() }
-            .take(2)
-            .joinToString("") { it.first().uppercaseChar().toString() }
-            .ifBlank { "?" }
-    }
-
-    Box(
-        modifier = Modifier
-            .padding(start = 12.dp)
-            .size(38.dp)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primaryContainer),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = initials,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }
 }
