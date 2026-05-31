@@ -7,5 +7,6 @@ data class User(
     val id: UUID,
     val name: String,
     val birthdate: LocalDate,
-    val email: String
+    val email: String,
+    val imageUrl: String = ""
 )

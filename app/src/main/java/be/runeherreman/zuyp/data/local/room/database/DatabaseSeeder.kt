@@ -32,7 +32,8 @@ class DatabaseSeeder @Inject constructor(
                         id = user.id,
                         name = user.name,
                         birthdate = user.birthdate,
-                        email = user.email.trim()
+                        email = user.email.trim(),
+                        imageUrl = user.imageUrl
                     )
                 }
             }

@@ -45,6 +45,7 @@ private fun UserEntity.toDomain(): User {
         id = id,
         name = name,
         birthdate = birthdate,
-        email = email
+        email = email,
+        imageUrl = imageUrl
     )
 }

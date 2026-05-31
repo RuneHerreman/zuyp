@@ -14,5 +14,6 @@ data class UserEntity (
     @PrimaryKey val id: UUID,
     val name: String,
     val birthdate: LocalDate,
-    val email: String
+    val email: String,
+    val imageUrl: String = ""
 )
