@@ -7,7 +7,7 @@ import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
 
@@ -16,9 +16,7 @@ class HangoutRepositoryRoomImpl @Inject constructor(
 ): HangoutRepository {
 
     override fun getHangouts(): Flow<List<Hangout>> {
-        return flow {
-            emit(hangoutDao.getAll().map(HangoutWithDetails::toDomain))
-        }
+        return hangoutDao.getAll().map { list -> list.map(HangoutWithDetails::toDomain) }
     }
 
     override suspend fun getHangoutById(id: UUID): Hangout? {
