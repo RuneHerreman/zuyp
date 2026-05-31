@@ -1,5 +1,6 @@
 package be.runeherreman.zuyp.ui.hangout
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
@@ -7,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -33,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import be.runeherreman.zuyp.domain.model.Hangout
@@ -72,6 +75,9 @@ fun HangoutScreen(
     onFriendClick: (UUID) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    // Handle system back press
+    BackHandler(onBack = onBackClick)
+    
     if (uiState.isError) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Hangout not found", style = MaterialTheme.typography.bodyLarge)
@@ -86,6 +92,7 @@ fun HangoutScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(scrollState)
+            .pointerInput(Unit) {}
             .padding(16.dp)
             .padding(top = 32.dp)
     ) {
@@ -112,7 +119,7 @@ fun HangoutScreen(
             attendees = uiState.hangout.attendees, friendShips = uiState.friendShipMapping,
             toggleFriendClick = { onFriendClick(it) }
         )
-
+        
         Spacer(modifier = Modifier.height(32.dp))
 
         ExpensesSection()
@@ -222,8 +229,17 @@ fun AttendeesSection(
 
     Spacer(modifier = Modifier.height(4.dp))
 
-    attendees.forEach { user ->
-        AttendeeItem(user = user, friendShips = friendShips, toggleFriendClick = { toggleFriendClick(user.id) })
+    if (attendees.count() == 0) {
+        Text(
+            text = "No attendees yet",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
+            textAlign = TextAlign.Center)
+    } else {
+        attendees.forEach { user ->
+            AttendeeItem(user = user, friendShips = friendShips, toggleFriendClick = { toggleFriendClick(user.id) })
+        }
     }
 }
 
@@ -323,6 +339,19 @@ fun ExpensesSection() {
 
     Spacer(modifier = Modifier.height(4.dp))
 
+    // TODO: Add expense Placeholder
+//    if (expenses.count() == 0) {
+//        Text(
+//            text = "No expenses yet",
+//            style = MaterialTheme.typography.bodyMedium,
+//            color = MaterialTheme.colorScheme.onSurfaceVariant,
+//            modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
+//            textAlign = TextAlign.Center)
+//    } else {
+//        expenses.forEach { expense ->
+//            ExpenseItem(title = expense.title, payerName = expense.payerName, amount = expense.amount)
+//        }
+//    }
     ExpenseItem(title = "🍻 4 Stella's", payerName = "Koen Koreman", amount = "€ 14.10")
 }
 
