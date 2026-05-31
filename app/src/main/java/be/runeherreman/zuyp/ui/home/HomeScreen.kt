@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -158,7 +159,8 @@ private fun SearchOverlay(
                 placeholder = { Text("Search events…") },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search)
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
             )
         }
 
