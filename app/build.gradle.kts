@@ -21,6 +21,12 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
         buildConfigField("String", "WEATHER_API_BASE_URL", "\"${project.findProperty("WEATHER_API_BASE_URL")}\"")
+        buildConfigField("String", "AMQP_USERNAME", "\"${project.findProperty("AMQPusername")}\"")
+        buildConfigField("String", "AMQP_PASSWORD", "\"${project.findProperty("AMQPpassword")}\"")
+        buildConfigField("String", "AMQP_URL", "\"${project.findProperty("AMQPurl")}\"")
+        buildConfigField("String", "AMQP_PUBLISH_TOPIC", "\"${project.findProperty("AMQPpublishtopic")}\"")
+        buildConfigField("String", "AMQP_SUBSCRIBE_TOPIC", "\"${project.findProperty("AMQPsubscribetopic")}\"")
+        buildConfigField("String", "AMQP_CONSUMER_TAG", "\"${project.findProperty("AMQPconsumertag")}\"")
     }
 
     buildTypes {
@@ -66,6 +72,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.compose.ui.text.google.fonts)
+    implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.hilt.compiler)
     androidTestImplementation(libs.hilt.android.testing)
     kspAndroidTest(libs.hilt.compiler)

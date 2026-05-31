@@ -1,0 +1,15 @@
+services:
+  messagebroker:
+    image: cloudamqp/lavinmq
+    ports:
+      - 40300:5672
+      - 40301:15672
+    networks:
+      - client-mobile-howestprime-dev
+
+networks:
+  client-mobile-howestprime-dev:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.23.0.0/16
