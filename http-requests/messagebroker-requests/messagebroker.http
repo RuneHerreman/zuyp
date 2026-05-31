@@ -1,6 +1,6 @@
 ### Variables
 # CloudAMQP management API
-# vhost: gtbvjenp (URL-encoded in path)
+# vhost: gtbvjenp
 
 ### Send hangout invite to userJan
 POST https://seal.lmq.cloudamqp.com/api/exchanges/gtbvjenp/zuyp.notifications/publish
@@ -10,7 +10,7 @@ Content-Type: application/json
 {
   "properties": {},
   "routing_key": "user-20000000-0000-0000-0000-000000000001",
-  "payload": "{\"type\":\"hangout_invite\",\"hangoutId\":\"hangout-abc123\"}",
+  "payload": "{\"type\":\"hangout_invite\",\"hangoutId\":\"hangout-abc123\",\"title\":\"Drinks at the square\",\"locationName\":\"Grote Markt, Bruges\",\"startDate\":\"Jun 5 2026, 20h00\",\"weather\":\"☀️ 22°C\"}",
   "payload_encoding": "string"
 }
 
@@ -22,6 +22,6 @@ Content-Type: application/json
 {
   "properties": {},
   "routing_key": "user-20000000-0000-0000-0000-000000000001",
-  "payload": "{\"type\":\"zuyp_alert\",\"hangoutId\":\"hangout-abc123\"}",
+  "payload": "{\"type\":\"zuyp_alert\",\"hangoutId\":\"hangout-abc123\",\"title\":\"Drinks at the square\",\"locationName\":\"Grote Markt, Bruges\",\"startDate\":\"Jun 5 2026, 20h00\",\"weather\":\"☀️ 22°C\"}",
   "payload_encoding": "string"
 }
