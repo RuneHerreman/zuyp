@@ -13,7 +13,7 @@ import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import be.runeherreman.zuyp.MainActivity
+import be.runeherreman.zuyp.ui.alert.ZuypAlertActivity
 import be.runeherreman.zuyp.data.messaging.MessageConsumer
 import be.runeherreman.zuyp.data.messaging.NotificationMessage
 import dagger.assisted.Assisted
@@ -43,9 +43,9 @@ class NotificationWorker @AssistedInject constructor(
         // =========================================
         messageConsumer.onMessageReceived = { raw ->
             when (val message = NotificationMessage.fromJson(raw)) {
-                is NotificationMessage.HangoutInvite -> showHangoutInviteNotification(message.hangoutId)
+                is NotificationMessage.HangoutInvite -> showHangoutInviteNotification(message)
                 is NotificationMessage.ZuypAlert -> {
-                    showZuypAlertNotification(message.hangoutId)
+                    showZuypAlertNotification(message)
                     CoroutineScope(Dispatchers.IO).launch { flashFlashlight() }
                 }
                 null -> Log.w("Messagebroker", "Unknown message: $raw")
@@ -59,19 +59,29 @@ class NotificationWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private fun showHangoutInviteNotification(hangoutId: String) {
+    private fun showHangoutInviteNotification(message: NotificationMessage.HangoutInvite) {
+        val details = buildString {
+            append("📍 ${message.locationName}")
+            append("\n🕐 ${message.startDate}")
+            message.weather?.let { append("\n$it") }
+        }
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_HANGOUT)
-            .setContentTitle("New hangout invite")
-            .setContentText("You've been invited to a hangout!")
+            .setContentTitle("Invite: ${message.title}")
+            .setContentText("📍 ${message.locationName} · ${message.startDate}")
+            .setStyle(NotificationCompat.BigTextStyle().bigText(details))
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
-        notificationManager.notify(hangoutId.hashCode(), notification)
+        notificationManager.notify(message.hangoutId.hashCode(), notification)
     }
 
-    private fun showZuypAlertNotification(hangoutId: String) {
-        val intent = Intent(applicationContext, MainActivity::class.java).apply {
-            putExtra("hangoutId", hangoutId)
+    private fun showZuypAlertNotification(message: NotificationMessage.ZuypAlert) {
+        val intent = Intent(applicationContext, ZuypAlertActivity::class.java).apply {
+            putExtra("hangoutId", message.hangoutId)
+            putExtra("title", message.title)
+            putExtra("locationName", message.locationName)
+            putExtra("startDate", message.startDate)
+            putExtra("weather", message.weather)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent = PendingIntent.getActivity(
@@ -80,8 +90,8 @@ class NotificationWorker @AssistedInject constructor(
         )
 
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ZUYP_ALERT)
-            .setContentTitle("Zuyp Alert!")
-            .setContentText("Urgent alert!")
+            .setContentTitle("⚠ Zuyp Alert: ${message.title}")
+            .setContentText("📍 ${message.locationName} · ${message.startDate}")
             .setSmallIcon(android.R.drawable.ic_dialog_alert)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_CALL)
@@ -104,7 +114,7 @@ class NotificationWorker @AssistedInject constructor(
         val hangoutChannel = NotificationChannel(
             CHANNEL_HANGOUT,
             "Hangout Invites",
-            NotificationManager.IMPORTANCE_DEFAULT,
+            NotificationManager.IMPORTANCE_HIGH,
         )
 
         val alertSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
