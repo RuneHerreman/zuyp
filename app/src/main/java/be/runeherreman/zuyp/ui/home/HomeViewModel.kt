@@ -5,41 +5,48 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.useCases.GetAllHangoutsUseCase
+import be.runeherreman.zuyp.domain.useCases.GetFriendAttendeesByHangoutUseCase
 import be.runeherreman.zuyp.domain.useCases.GetHangoutsUseCase
-import be.runeherreman.zuyp.ui.navigation.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
-import androidx.navigation.NavHostController
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getHangoutsUseCase: GetHangoutsUseCase,
-    private val getAllHangoutsUseCase: GetAllHangoutsUseCase
+    private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
+    private val getFriendAttendeesByHangoutUseCase: GetFriendAttendeesByHangoutUseCase
 ): ViewModel() {
+    private val currentUserId = UUID.fromString("01234566-8f09-4567-4af8-def000000014")
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
 
-    private var isLoaded = false
     private var allHangouts: List<Hangout> = emptyList()
 
-    fun loadHangouts() {
-        if (isLoaded) return
-        isLoaded = true
-
+    init {
         viewModelScope.launch {
             getHangoutsUseCase().collect { items ->
-                _uiState.update { it.copy(hangouts = items) }
+                val friendAttendees = getFriendAttendeesByHangoutUseCase(currentUserId, items)
+                _uiState.update { it.copy(hangouts = items, friendAttendees = friendAttendees) }
             }
         }
         viewModelScope.launch {
             getAllHangoutsUseCase().collect { items ->
                 allHangouts = items
             }
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true) }
+            val friendAttendees = getFriendAttendeesByHangoutUseCase(currentUserId, _uiState.value.hangouts)
+            _uiState.update { it.copy(friendAttendees = friendAttendees, isRefreshing = false) }
         }
     }
 
@@ -73,10 +80,4 @@ class HomeViewModel @Inject constructor(
         context.startActivity(chooser)
     }
 
-    fun onHangoutClick(hangout: Hangout, navController: NavHostController) {
-        navController.navigate(
-            Screen.Hangout.route
-                .replace("{hangoutId}", "${hangout.id}")
-        )
-    }
 }

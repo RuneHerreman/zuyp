@@ -1,9 +1,13 @@
 package be.runeherreman.zuyp.ui.home
 
 import be.runeherreman.zuyp.domain.model.Hangout
+import be.runeherreman.zuyp.domain.model.User
+import java.util.UUID
 
 data class HomeUiState(
     val hangouts: List<Hangout> = emptyList(),
+    val friendAttendees: Map<UUID, List<User>> = emptyMap(),
+    val isRefreshing: Boolean = false,
     val phrases: List<String> = listOf(
         "Voorlopig bitter hard alleen",
         "Tafel voor geen!",

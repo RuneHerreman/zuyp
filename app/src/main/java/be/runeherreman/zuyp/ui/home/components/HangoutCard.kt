@@ -29,8 +29,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import be.runeherreman.zuyp.ui.theme.errorContainerLight
+import be.runeherreman.zuyp.ui.theme.onErrorContainerLight
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,6 +47,7 @@ import java.util.Locale
 fun HangoutCard(
     hangout: Hangout,
     phrases: List<String>,
+    friendAttendees: List<User> = emptyList(),
     modifier: Modifier = Modifier,
     onLocationClick: (Hangout) -> Unit = { _ -> },
     onClick: (Hangout) -> Unit = {}
@@ -115,8 +117,8 @@ fun HangoutCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 InfoRow(icon = Icons.Filled.Group, text = attendeeText)
-                if (hangout.attendees.isNotEmpty()) {
-                    StackedAvatars(attendees = hangout.attendees)
+                if (friendAttendees.isNotEmpty()) {
+                    StackedAvatars(attendees = friendAttendees)
                 }
             }
         }
@@ -128,13 +130,13 @@ private fun PrivateBadge(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(6.dp))
-            .background(Color(0xFFFFB3B3)),
+            .background(errorContainerLight),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = "Private",
             style = MaterialTheme.typography.labelSmall,
-            color = Color(0xFFB00020),
+            color = onErrorContainerLight,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
         )
     }

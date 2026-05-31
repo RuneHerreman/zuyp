@@ -25,6 +25,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,8 +46,13 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import be.runeherreman.zuyp.domain.model.Hangout
+import be.runeherreman.zuyp.ui.theme.errorContainerLight
+import be.runeherreman.zuyp.ui.theme.onErrorContainerLight
+import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.ui.home.components.HangoutCard
+import java.util.UUID
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
@@ -54,9 +61,15 @@ fun HomeScreen(
     onHangoutClick: (Hangout) -> Unit = {},
     onSearchOpen: () -> Unit = {},
     onSearchClose: () -> Unit = {},
-    onSearchQueryChange: (String) -> Unit = {}
+    onSearchQueryChange: (String) -> Unit = {},
+    onRefresh: () -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize()) {
+        PullToRefreshBox(
+            isRefreshing = uiState.isRefreshing,
+            onRefresh = onRefresh,
+            modifier = Modifier.fillMaxSize()
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -98,11 +111,13 @@ fun HomeScreen(
                         hangout = it,
                         onLocationClick = onLocationClick,
                         phrases = uiState.phrases,
+                        friendAttendees = uiState.friendAttendees[it.id] ?: emptyList(),
                         onClick = onHangoutClick
                     )
                 }
             }
         }
+        } // PullToRefreshBox
 
         AnimatedVisibility(
             visible = uiState.isSearchOpen,
@@ -113,6 +128,7 @@ fun HomeScreen(
                 query = uiState.searchQuery,
                 results = uiState.searchResults,
                 phrases = uiState.phrases,
+                friendAttendees = uiState.friendAttendees,
                 onQueryChange = onSearchQueryChange,
                 onClose = onSearchClose,
                 onLocationClick = onLocationClick,
@@ -127,6 +143,7 @@ private fun SearchOverlay(
     query: String,
     results: List<Hangout>,
     phrases: List<String>,
+    friendAttendees: Map<UUID, List<User>>,
     onQueryChange: (String) -> Unit,
     onClose: () -> Unit,
     onLocationClick: (Hangout) -> Unit,
@@ -193,6 +210,7 @@ private fun SearchOverlay(
                         hangout = hangout,
                         onLocationClick = onLocationClick,
                         phrases = phrases,
+                        friendAttendees = friendAttendees[hangout.id] ?: emptyList(),
                         onClick = { onHangoutClick(it); onClose() }
                     )
                 }
@@ -211,8 +229,8 @@ fun ZuypEmergencyButton(
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.errorContainer,
-            contentColor = MaterialTheme.colorScheme.onErrorContainer
+            containerColor = errorContainerLight,
+            contentColor = onErrorContainerLight
         )
     ) {
         Row(
