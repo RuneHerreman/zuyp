@@ -15,7 +15,7 @@ import be.runeherreman.zuyp.domain.useCases.AreFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.GetHangoutByIdUseCase
 import be.runeherreman.zuyp.domain.useCases.GetWeatherForecastUseCase
 import be.runeherreman.zuyp.domain.useCases.RemoveFriendshipUseCase
-import be.runeherreman.zuyp.domain.useCases.ToggleGoingUseCase
+import be.runeherreman.zuyp.domain.useCases.UpdateAttendanceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +32,7 @@ class HangoutViewModel @Inject constructor(
     private val addFriendshipUseCase: AddFriendshipUseCase,
     private val removeFriendshipUseCase: RemoveFriendshipUseCase,
     private val getWeatherUseCase: GetWeatherForecastUseCase,
-    private val toggleGoingUseCase: ToggleGoingUseCase
+    private val updateAttendanceUseCase: UpdateAttendanceUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow(HangoutUiState())
     val uiState: StateFlow<HangoutUiState> = _uiState
@@ -115,17 +115,23 @@ class HangoutViewModel @Inject constructor(
         }
     }
 
-    fun toggleGoing(hangout: Hangout) {
+    fun toggleGoing(hangout: Hangout, attendanceStatus: AttendanceStatus? = null) {
         viewModelScope.launch {
-            toggleGoingUseCase(
-                hangoutId = hangout.id,
-                userId = _uiState.value.currentUser.id,
-                attendaceStatus = if (hangout.attendees.any { it.id == _uiState.value.currentUser.id }) {
-                    null
-                } else {
-                    AttendanceStatus.GOING
+            try {
+                updateAttendanceUseCase(
+                    hangoutId = hangout.id,
+                    userId = _uiState.value.currentUser.id,
+                    attendaceStatus = attendanceStatus
+                )
+                // Reload the hangout to reflect the changes
+                val updatedHangout = getHangoutByIdUseCase(hangout.id.toString())
+                if (updatedHangout != null) {
+                    _uiState.update { it.copy(hangout = updatedHangout) }
+                    Log.i("HangoutViewModel", "Attendance toggled")
                 }
-            )
+            } catch (e: Exception) {
+                Log.e("HangoutViewModel", "Error toggling going", e)
+            }
         }
     }
 

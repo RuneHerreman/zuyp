@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import be.runeherreman.zuyp.data.fake.data.FakeDataSource
 import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
 import be.runeherreman.zuyp.data.local.room.dao.UserDao
+import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import be.runeherreman.zuyp.data.local.room.entity.HangoutEntity
 import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
 import be.runeherreman.zuyp.data.local.room.entity.UserEntity
@@ -62,7 +63,8 @@ class DatabaseSeeder @Inject constructor(
                     userIdByEmail[attendee.email.normalizedEmailKey()]?.let { canonicalUserId ->
                         HangoutUsersMapping(
                             hangoutId = hangout.id,
-                            userId = canonicalUserId
+                            userId = canonicalUserId,
+                            status = attendee.attendanceStatus ?: null
                         )
                     }
                 }

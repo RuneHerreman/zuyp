@@ -23,8 +23,6 @@ interface HangoutDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: HangoutEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAttendee(crossRef: HangoutUsersMapping)
 
     @Transaction
     @Query("SELECT * FROM hangouts")
@@ -46,8 +44,8 @@ interface HangoutDao {
     @Query("DELETE FROM hangouts")
     suspend fun deleteAllHangouts()
 
-    @Query("UPDATE hangouts_users SET status = :status WHERE hangoutId = :hangoutId AND userId = :userId")
-    suspend fun updateAttendanceStatus(hangoutId: UUID, userId: UUID, status: AttendanceStatus)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateAttendee(crossRef: HangoutUsersMapping)
 
     @Query("DELETE FROM hangouts_users WHERE hangoutId = :hangoutId AND userId = :userId")
     suspend fun removeAttendee(hangoutId: UUID, userId: UUID)

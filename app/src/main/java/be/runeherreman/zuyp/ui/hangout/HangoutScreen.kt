@@ -14,7 +14,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Share
@@ -27,17 +26,16 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import coil.compose.AsyncImage
@@ -49,7 +47,7 @@ fun HangoutOverlay(
     uiState: HangoutUiState,
     onDismiss: () -> Unit,
     onFriendClick: (UUID) -> Unit,
-    onToggleGoingClick: (Hangout) -> Unit
+    onUpdateAttendanceStatus: (Hangout, AttendanceStatus?) -> Unit,
 ) {
     AnimatedVisibility(
         visible = uiState.selectedHangoutId != null,
@@ -64,7 +62,7 @@ fun HangoutOverlay(
                 uiState = uiState,
                 onBackClick = onDismiss,
                 onFriendClick = onFriendClick,
-                onToggleGoingClick = onToggleGoingClick
+                onUpdateAttendanceStatus = onUpdateAttendanceStatus,
             )
         }
     }
@@ -75,12 +73,12 @@ fun HangoutScreen(
     uiState: HangoutUiState,
     onBackClick: () -> Unit = {},
     onFriendClick: (UUID) -> Unit = {},
-    onToggleGoingClick: (Hangout) -> Unit = {},
-    modifier: Modifier = Modifier
+    onUpdateAttendanceStatus: (Hangout, AttendanceStatus?) -> Unit = {_, _, ->},
+    modifier: Modifier = Modifier,
 ) {
     // Handle system back press
     BackHandler(onBack = onBackClick)
-    
+
     if (uiState.isError) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text("Hangout not found", style = MaterialTheme.typography.bodyLarge)
@@ -115,13 +113,25 @@ fun HangoutScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         ActionButtons(
-            toggleGoingClick = { onToggleGoingClick(uiState.hangout) }
+            attendanceStatus = uiState.currentUserAttendanceStatus(),
+            toggleGoingClick = {
+                onUpdateAttendanceStatus(uiState.hangout, uiState.nextAttendanceStatus(AttendanceStatus.GOING))
+            },
+            toggleNotInterestedClick = {
+                onUpdateAttendanceStatus(uiState.hangout, uiState.nextAttendanceStatus(AttendanceStatus.NOT_INTERESTED))
+            }
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        val goingAttendees = uiState.hangout.attendees.filter {
+            it.attendanceStatus == AttendanceStatus.GOING
+        }
+
         AttendeesSection(
-            attendees = uiState.hangout.attendees, friendShips = uiState.friendShipMapping,
+            attendees = goingAttendees,
+            friendShips = uiState.friendShipMapping,
+            currentUserId = uiState.currentUser.id,
             toggleFriendClick = { onFriendClick(it) }
         )
         
@@ -185,32 +195,53 @@ fun InfoRow(icon: ImageVector, text: String) {
 
 @Composable
 fun ActionButtons(
+    attendanceStatus: AttendanceStatus?,
     toggleGoingClick: () -> Unit = {},
+    toggleNotInterestedClick: () -> Unit = {},
 ) {
+    val isUserGoing = attendanceStatus == AttendanceStatus.GOING
+    val isUserNotInterested = attendanceStatus == AttendanceStatus.NOT_INTERESTED
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Button(
-            onClick = toggleGoingClick,
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer),
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier.weight(1f)
-        ) {
-            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(4.dp))
+        if (!isUserNotInterested) {
+            Button(
+                onClick = toggleGoingClick,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                if (isUserGoing) {
+                    Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
 
-            Text("I'm going", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                Text(
+                    if (isUserGoing) "Going" else "I'm going",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
-        Button(
-            onClick = { /* TODO */ },
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant, contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
-            shape = RoundedCornerShape(8.dp),
-            contentPadding = PaddingValues(horizontal = 12.dp)
-        ) {
-            Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("Not interested", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+        if (!isUserGoing) {
+            Button(
+                onClick = toggleNotInterestedClick,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isUserNotInterested) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = if (isUserNotInterested) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                shape = RoundedCornerShape(8.dp),
+                contentPadding = PaddingValues(horizontal = 12.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                if (isUserNotInterested) {
+                    Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
+                Text("Not interested", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+            }
         }
         Button(
             onClick = { /* TODO */ },
@@ -227,6 +258,7 @@ fun ActionButtons(
 fun AttendeesSection(
     attendees: List<User>,
     friendShips: Map<UUID, Boolean>,
+    currentUserId: UUID,
     toggleFriendClick: (UUID) -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -239,14 +271,19 @@ fun AttendeesSection(
 
     if (attendees.count() == 0) {
         Text(
-            text = "No attendees yet",
+            text = "No one is going yet",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
             textAlign = TextAlign.Center)
     } else {
         attendees.forEach { user ->
-            AttendeeItem(user = user, friendShips = friendShips, toggleFriendClick = { toggleFriendClick(user.id) })
+            AttendeeItem(
+                user = user,
+                friendShips = friendShips,
+                currentUserId = currentUserId,
+                toggleFriendClick = { toggleFriendClick(user.id) }
+            )
         }
     }
 }
@@ -255,6 +292,7 @@ fun AttendeesSection(
 fun AttendeeItem(
     user: User,
     friendShips: Map<UUID, Boolean>,
+    currentUserId: UUID,
     toggleFriendClick: () -> Unit
 ) {
     Row(
@@ -280,10 +318,29 @@ fun AttendeeItem(
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = user.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
 
-        if (friendShips[user.id] == true)
+        if (user.id == currentUserId) {
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                shape = RoundedCornerShape(6.dp),
+                modifier = Modifier.height(32.dp)
+            ) {
+                Box(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "You",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        } else if (friendShips[user.id] == true) {
             IsFriendButton(toggleFriendClick = toggleFriendClick)
-        else
+        } else {
             AddFriendButton(toggleFriendClick = toggleFriendClick)
+        }
     }
 }
 

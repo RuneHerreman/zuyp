@@ -1,6 +1,8 @@
 package be.runeherreman.zuyp.data.fake.data
 
 import be.runeherreman.zuyp.data.fake.dto.HangoutDto
+import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.User
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -13,6 +15,9 @@ import javax.inject.Singleton
  */
 @Singleton
 class FakeDataSource @Inject constructor() {
+    private fun goingAttendees(vararg users: User): List<User> =
+        users.map { it.copy(attendanceStatus = AttendanceStatus.GOING) }
+
     private val hangoutOnlynumbers = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000001"),
         "Onlynumbers, Vladimir Couchemar",
@@ -22,7 +27,7 @@ class FakeDataSource @Inject constructor() {
         3.7042,
         LocalDateTime.now().plusHours(2),
         LocalDateTime.now().plusHours(4),
-        listOf(FakeUsers.userJan, FakeUsers.userKoen, FakeUsers.userLotte, FakeUsers.userMilan, FakeUsers.userNora),
+        goingAttendees(FakeUsers.userJan, FakeUsers.userKoen, FakeUsers.userLotte, FakeUsers.userMilan, FakeUsers.userNora),
         FakeUsers.userJan,
         false
     )
@@ -35,7 +40,7 @@ class FakeDataSource @Inject constructor() {
         3.2223,
         LocalDateTime.now().plusDays(2).withHour(19).withMinute(0).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(2).withHour(23).withMinute(0).withSecond(0).withNano(0),
-        listOf(FakeUsers.userBram, FakeUsers.userElise, FakeUsers.userTibo),
+        goingAttendees(FakeUsers.userBram, FakeUsers.userElise, FakeUsers.userTibo),
         FakeUsers.userBram,
         false
     )
@@ -74,7 +79,7 @@ class FakeDataSource @Inject constructor() {
         3.2272,
         LocalDateTime.now().plusDays(9).withHour(19).withMinute(30).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(9).withHour(22).withMinute(30).withSecond(0).withNano(0),
-        listOf(FakeUsers.userMila, FakeUsers.userRuben, FakeUsers.userLotte, FakeUsers.userNoor),
+        goingAttendees(FakeUsers.userMila, FakeUsers.userRuben, FakeUsers.userLotte, FakeUsers.userNoor),
         FakeUsers.userMila,
         true
     )
@@ -87,7 +92,7 @@ class FakeDataSource @Inject constructor() {
         4.3632,
         LocalDateTime.now().plusDays(11).withHour(23).withMinute(0).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(12).withHour(5).withMinute(0).withSecond(0).withNano(0),
-        listOf(FakeUsers.userSanne, FakeUsers.userDaan, FakeUsers.userThijs, FakeUsers.userRyan),
+        goingAttendees(FakeUsers.userSanne, FakeUsers.userDaan, FakeUsers.userThijs, FakeUsers.userRyan),
         FakeUsers.userDaan,
         false
     )
@@ -100,7 +105,7 @@ class FakeDataSource @Inject constructor() {
         5.8000,
         LocalDateTime.now().plusDays(13).withHour(22).withMinute(0).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(14).withHour(4).withMinute(0).withSecond(0).withNano(0),
-        listOf(FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva, FakeUsers.userFelix, FakeUsers.userZoe),
+        goingAttendees(FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva, FakeUsers.userFelix, FakeUsers.userZoe),
         FakeUsers.userLuna,
         false
     )
@@ -113,7 +118,7 @@ class FakeDataSource @Inject constructor() {
         4.7005,
         LocalDateTime.now().plusDays(16).withHour(20).withMinute(0).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(17).withHour(2).withMinute(0).withSecond(0).withNano(0),
-        listOf(FakeUsers.userJoren, FakeUsers.userIsabella, FakeUsers.userSebastian, FakeUsers.userNatasja),
+        goingAttendees(FakeUsers.userJoren, FakeUsers.userIsabella, FakeUsers.userSebastian, FakeUsers.userNatasja),
         FakeUsers.userJoren,
         true
     )
@@ -126,7 +131,7 @@ class FakeDataSource @Inject constructor() {
         4.4024,
         LocalDateTime.now().plusDays(18).withHour(19).withMinute(0).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(18).withHour(23).withMinute(0).withSecond(0).withNano(0),
-        listOf(FakeUsers.userThijs, FakeUsers.userStéphanie, FakeUsers.userMarkus),
+        goingAttendees(FakeUsers.userThijs, FakeUsers.userStéphanie, FakeUsers.userMarkus),
         FakeUsers.userThijs,
         false
     )
@@ -139,7 +144,7 @@ class FakeDataSource @Inject constructor() {
         3.7042,
         LocalDateTime.now().plusDays(20).withHour(23).withMinute(30).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(21).withHour(5).withMinute(30).withSecond(0).withNano(0),
-        listOf(FakeUsers.userCamille, FakeUsers.userVictoria, FakeUsers.userDieter, FakeUsers.userLea, FakeUsers.userRyan),
+        goingAttendees(FakeUsers.userCamille, FakeUsers.userVictoria, FakeUsers.userDieter, FakeUsers.userLea, FakeUsers.userRyan),
         FakeUsers.userCamille,
         false
     )
@@ -152,7 +157,7 @@ class FakeDataSource @Inject constructor() {
         4.3457,
         LocalDateTime.now().plusDays(22).withHour(21).withMinute(0).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(23).withHour(3).withMinute(0).withSecond(0).withNano(0),
-        listOf(FakeUsers.userSophie, FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars),
+        goingAttendees(FakeUsers.userSophie, FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars),
         FakeUsers.userSophie,
         true
     )
@@ -165,7 +170,7 @@ class FakeDataSource @Inject constructor() {
         3.7161,
         LocalDateTime.now().plusDays(25).withHour(20).withMinute(0).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(26).withHour(2).withMinute(0).withSecond(0).withNano(0),
-        listOf(FakeUsers.userAnna, FakeUsers.userTom, FakeUsers.userEmilie),
+        goingAttendees(FakeUsers.userAnna, FakeUsers.userTom, FakeUsers.userEmilie),
         FakeUsers.userTom,
         false
     )
@@ -178,7 +183,7 @@ class FakeDataSource @Inject constructor() {
         4.4141,
         LocalDateTime.now().plusDays(28).withHour(14).withMinute(0).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(28).withHour(22).withMinute(0).withSecond(0).withNano(0),
-        listOf(FakeUsers.userPhilip, FakeUsers.userClaire, FakeUsers.userSven, FakeUsers.userBeat, FakeUsers.userLena),
+        goingAttendees(FakeUsers.userPhilip, FakeUsers.userClaire, FakeUsers.userSven, FakeUsers.userBeat, FakeUsers.userLena),
         FakeUsers.userPhilip,
         false
     )
@@ -191,7 +196,7 @@ class FakeDataSource @Inject constructor() {
         4.3632,
         LocalDateTime.now().plusDays(31).withHour(23).withMinute(0).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(32).withHour(5).withMinute(0).withSecond(0).withNano(0),
-        listOf(FakeUsers.userJulian, FakeUsers.userSienna, FakeUsers.userAlex),
+        goingAttendees(FakeUsers.userJulian, FakeUsers.userSienna, FakeUsers.userAlex),
         FakeUsers.userJulian,
         false
     )
@@ -204,7 +209,7 @@ class FakeDataSource @Inject constructor() {
         4.7005,
         LocalDateTime.now().plusDays(34).withHour(19).withMinute(0).withSecond(0).withNano(0),
         LocalDateTime.now().plusDays(35).withHour(1).withMinute(0).withSecond(0).withNano(0),
-        listOf(FakeUsers.userOliver, FakeUsers.userMaya, FakeUsers.userLuc, FakeUsers.userAnne),
+        goingAttendees(FakeUsers.userOliver, FakeUsers.userMaya, FakeUsers.userLuc, FakeUsers.userAnne),
         FakeUsers.userOliver,
         true
     )
@@ -217,7 +222,7 @@ class FakeDataSource @Inject constructor() {
         4.3572,
         LocalDateTime.of(2026, 4, 20, 19, 30),
         LocalDateTime.of(2026, 4, 21, 1, 30),
-        listOf(FakeUsers.userDavid, FakeUsers.userFlorence),
+        goingAttendees(FakeUsers.userDavid, FakeUsers.userFlorence),
         FakeUsers.userDavid,
         false
     )
@@ -230,7 +235,7 @@ class FakeDataSource @Inject constructor() {
         5.8000,
         LocalDateTime.of(2026, 4, 26, 22, 0),
         LocalDateTime.of(2026, 4, 27, 4, 0),
-        listOf(FakeUsers.userNico, FakeUsers.userGrace, FakeUsers.userChris, FakeUsers.userMaria),
+        goingAttendees(FakeUsers.userNico, FakeUsers.userGrace, FakeUsers.userChris, FakeUsers.userMaria),
         FakeUsers.userNico,
         false
     )
@@ -243,7 +248,7 @@ class FakeDataSource @Inject constructor() {
         4.4024,
         LocalDateTime.of(2026, 4, 18, 21, 0),
         LocalDateTime.of(2026, 4, 19, 2, 0),
-        listOf(FakeUsers.userSteve, FakeUsers.userJessica, FakeUsers.userPaul, FakeUsers.userRosa),
+        goingAttendees(FakeUsers.userSteve, FakeUsers.userJessica, FakeUsers.userPaul, FakeUsers.userRosa),
         FakeUsers.userSteve,
         true
     )
@@ -256,7 +261,7 @@ class FakeDataSource @Inject constructor() {
         3.7042,
         LocalDateTime.of(2026, 4, 27, 23, 0),
         LocalDateTime.of(2026, 4, 28, 5, 0),
-        listOf(FakeUsers.userSanne, FakeUsers.userDaan, FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva),
+        goingAttendees(FakeUsers.userSanne, FakeUsers.userDaan, FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva),
         FakeUsers.userDaan,
         false
     )
@@ -269,7 +274,7 @@ class FakeDataSource @Inject constructor() {
         3.7176,
         LocalDateTime.of(2026, 4, 19, 19, 0),
         LocalDateTime.of(2026, 4, 19, 22, 0),
-        listOf(FakeUsers.userFelix, FakeUsers.userZoe, FakeUsers.userJoren),
+        goingAttendees(FakeUsers.userFelix, FakeUsers.userZoe, FakeUsers.userJoren),
         FakeUsers.userFelix,
         false
     )
@@ -282,7 +287,7 @@ class FakeDataSource @Inject constructor() {
         4.3948,
         LocalDateTime.of(2026, 4, 24, 18, 0),
         LocalDateTime.of(2026, 4, 25, 2, 0),
-        listOf(FakeUsers.userIsabella, FakeUsers.userSebastian, FakeUsers.userNatasja, FakeUsers.userThijs),
+        goingAttendees(FakeUsers.userIsabella, FakeUsers.userSebastian, FakeUsers.userNatasja, FakeUsers.userThijs),
         FakeUsers.userIsabella,
         true
     )
@@ -295,7 +300,7 @@ class FakeDataSource @Inject constructor() {
         4.7005,
         LocalDateTime.of(2026, 4, 21, 19, 30),
         LocalDateTime.of(2026, 4, 22, 1, 30),
-        listOf(FakeUsers.userStéphanie, FakeUsers.userMarkus, FakeUsers.userCamille, FakeUsers.userVictoria),
+        goingAttendees(FakeUsers.userStéphanie, FakeUsers.userMarkus, FakeUsers.userCamille, FakeUsers.userVictoria),
         FakeUsers.userMarkus,
         false
     )
@@ -308,7 +313,7 @@ class FakeDataSource @Inject constructor() {
         4.3600,
         LocalDateTime.of(2026, 4, 23, 20, 0),
         LocalDateTime.of(2026, 4, 24, 2, 0),
-        listOf(FakeUsers.userDieter, FakeUsers.userLea, FakeUsers.userRyan, FakeUsers.userSophie),
+        goingAttendees(FakeUsers.userDieter, FakeUsers.userLea, FakeUsers.userRyan, FakeUsers.userSophie),
         FakeUsers.userRyan,
         true
     )
@@ -321,7 +326,7 @@ class FakeDataSource @Inject constructor() {
         3.2796,
         LocalDateTime.of(2026, 5, 2, 15, 0),
         LocalDateTime.of(2026, 5, 2, 22, 0),
-        listOf(FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars, FakeUsers.userAnna, FakeUsers.userTom),
+        goingAttendees(FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars, FakeUsers.userAnna, FakeUsers.userTom),
         FakeUsers.userQuentin,
         false
     )
@@ -334,7 +339,7 @@ class FakeDataSource @Inject constructor() {
         3.7299,
         LocalDateTime.of(2026, 4, 25, 23, 0),
         LocalDateTime.of(2026, 4, 26, 5, 0),
-        listOf(FakeUsers.userEmilie, FakeUsers.userPhilip, FakeUsers.userClaire),
+        goingAttendees(FakeUsers.userEmilie, FakeUsers.userPhilip, FakeUsers.userClaire),
         FakeUsers.userEmilie,
         false
     )
@@ -347,7 +352,7 @@ class FakeDataSource @Inject constructor() {
         4.7005,
         LocalDateTime.of(2026, 4, 28, 20, 0),
         LocalDateTime.of(2026, 4, 29, 2, 0),
-        listOf(FakeUsers.userSven, FakeUsers.userBeat, FakeUsers.userLena),
+        goingAttendees(FakeUsers.userSven, FakeUsers.userBeat, FakeUsers.userLena),
         FakeUsers.userBeat,
         true
     )
@@ -360,7 +365,7 @@ class FakeDataSource @Inject constructor() {
         3.2223,
         LocalDateTime.of(2026, 4, 22, 18, 0),
         LocalDateTime.of(2026, 4, 23, 0, 0),
-        listOf(FakeUsers.userJulian, FakeUsers.userSienna, FakeUsers.userAlex, FakeUsers.userOliver),
+        goingAttendees(FakeUsers.userJulian, FakeUsers.userSienna, FakeUsers.userAlex, FakeUsers.userOliver),
         FakeUsers.userJulian,
         false
     )
@@ -373,7 +378,7 @@ class FakeDataSource @Inject constructor() {
         4.4005,
         LocalDateTime.of(2026, 5, 3, 14, 0),
         LocalDateTime.of(2026, 5, 3, 22, 0),
-        listOf(FakeUsers.userMaya, FakeUsers.userLuc, FakeUsers.userAnne, FakeUsers.userDavid),
+        goingAttendees(FakeUsers.userMaya, FakeUsers.userLuc, FakeUsers.userAnne, FakeUsers.userDavid),
         FakeUsers.userMaya,
         false
     )
@@ -386,7 +391,7 @@ class FakeDataSource @Inject constructor() {
         4.3632,
         LocalDateTime.of(2026, 4, 24, 23, 30),
         LocalDateTime.of(2026, 4, 25, 5, 30),
-        listOf(FakeUsers.userFlorence, FakeUsers.userNico, FakeUsers.userGrace),
+        goingAttendees(FakeUsers.userFlorence, FakeUsers.userNico, FakeUsers.userGrace),
         FakeUsers.userFlorence,
         false
     )
@@ -399,7 +404,7 @@ class FakeDataSource @Inject constructor() {
         3.7299,
         LocalDateTime.of(2026, 4, 29, 21, 0),
         LocalDateTime.of(2026, 4, 30, 3, 0),
-        listOf(FakeUsers.userChris, FakeUsers.userMaria, FakeUsers.userSteve, FakeUsers.userJessica),
+        goingAttendees(FakeUsers.userChris, FakeUsers.userMaria, FakeUsers.userSteve, FakeUsers.userJessica),
         FakeUsers.userChris,
         true
     )
@@ -412,7 +417,7 @@ class FakeDataSource @Inject constructor() {
         5.8000,
         LocalDateTime.of(2026, 4, 28, 22, 0),
         LocalDateTime.of(2026, 4, 29, 4, 0),
-        listOf(FakeUsers.userPaul, FakeUsers.userRosa, FakeUsers.userSanne),
+        goingAttendees(FakeUsers.userPaul, FakeUsers.userRosa, FakeUsers.userSanne),
         FakeUsers.userPaul,
         false
     )
@@ -425,7 +430,7 @@ class FakeDataSource @Inject constructor() {
         3.7153,
         LocalDateTime.of(2026, 4, 20, 16, 0),
         LocalDateTime.of(2026, 4, 20, 22, 0),
-        listOf(FakeUsers.userDaan, FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva, FakeUsers.userFelix, FakeUsers.userZoe),
+        goingAttendees(FakeUsers.userDaan, FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva, FakeUsers.userFelix, FakeUsers.userZoe),
         FakeUsers.userZoe,
         false
     )
@@ -438,7 +443,7 @@ class FakeDataSource @Inject constructor() {
         3.7042,
         LocalDateTime.of(2026, 4, 30, 23, 0),
         LocalDateTime.of(2026, 5, 1, 5, 0),
-        listOf(FakeUsers.userJoren, FakeUsers.userIsabella, FakeUsers.userSebastian),
+        goingAttendees(FakeUsers.userJoren, FakeUsers.userIsabella, FakeUsers.userSebastian),
         FakeUsers.userJoren,
         false
     )
@@ -451,7 +456,7 @@ class FakeDataSource @Inject constructor() {
         2.9267,
         LocalDateTime.of(2026, 5, 4, 16, 0),
         LocalDateTime.of(2026, 5, 5, 0, 0),
-        listOf(FakeUsers.userNatasja, FakeUsers.userThijs, FakeUsers.userStéphanie, FakeUsers.userMarkus, FakeUsers.userCamille),
+        goingAttendees(FakeUsers.userNatasja, FakeUsers.userThijs, FakeUsers.userStéphanie, FakeUsers.userMarkus, FakeUsers.userCamille),
         FakeUsers.userNatasja,
         false
     )
@@ -464,7 +469,7 @@ class FakeDataSource @Inject constructor() {
         4.3457,
         LocalDateTime.of(2026, 4, 25, 3, 0),
         LocalDateTime.of(2026, 4, 25, 8, 0),
-        listOf(FakeUsers.userVictoria, FakeUsers.userDieter, FakeUsers.userLea),
+        goingAttendees(FakeUsers.userVictoria, FakeUsers.userDieter, FakeUsers.userLea),
         FakeUsers.userVictoria,
         true
     )
@@ -477,7 +482,7 @@ class FakeDataSource @Inject constructor() {
         4.3948,
         LocalDateTime.of(2026, 5, 10, 14, 0),
         LocalDateTime.of(2026, 5, 10, 22, 0),
-        listOf(FakeUsers.userRyan, FakeUsers.userSophie, FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars),
+        goingAttendees(FakeUsers.userRyan, FakeUsers.userSophie, FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars),
         FakeUsers.userEva,
         false
     )
@@ -490,7 +495,7 @@ class FakeDataSource @Inject constructor() {
         4.4024,
         LocalDateTime.of(2026, 4, 26, 19, 0),
         LocalDateTime.of(2026, 4, 27, 1, 0),
-        listOf(FakeUsers.userAnna, FakeUsers.userTom, FakeUsers.userEmilie, FakeUsers.userPhilip),
+        goingAttendees(FakeUsers.userAnna, FakeUsers.userTom, FakeUsers.userEmilie, FakeUsers.userPhilip),
         FakeUsers.userAnna,
         false
     )
@@ -503,7 +508,7 @@ class FakeDataSource @Inject constructor() {
         4.7005,
         LocalDateTime.of(2026, 4, 27, 5, 0),
         LocalDateTime.of(2026, 4, 27, 10, 0),
-        listOf(FakeUsers.userClaire, FakeUsers.userSven, FakeUsers.userBeat),
+        goingAttendees(FakeUsers.userClaire, FakeUsers.userSven, FakeUsers.userBeat),
         FakeUsers.userClaire,
         true
     )

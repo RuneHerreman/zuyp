@@ -7,7 +7,7 @@ import be.runeherreman.zuyp.domain.repository.UserRepository
 import java.util.UUID
 import javax.inject.Inject
 
-class ToggleGoingUseCase @Inject constructor(
+class UpdateAttendanceUseCase @Inject constructor(
     private val hangoutRepository: HangoutRepository
 ) {
     suspend operator fun invoke(hangoutId: UUID, userId: UUID, attendaceStatus: AttendanceStatus?) {

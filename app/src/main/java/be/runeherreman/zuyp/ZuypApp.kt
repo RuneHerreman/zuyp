@@ -53,7 +53,7 @@ fun ZuypApp(
                     uiState = hangoutUiState,
                     onDismiss = hangoutViewModel::dismissHangout,
                     onFriendClick = hangoutViewModel::toggleFriendship,
-                    onToggleGoingClick = hangoutViewModel::toggleGoing
+                    onUpdateAttendanceStatus = hangoutViewModel::toggleGoing
                 )
             }
         }

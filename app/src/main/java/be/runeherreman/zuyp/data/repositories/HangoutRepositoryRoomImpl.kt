@@ -2,6 +2,8 @@ package be.runeherreman.zuyp.data.repositories
 
 import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
 import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
+import be.runeherreman.zuyp.data.local.room.entity.HangoutEntity
+import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
 import be.runeherreman.zuyp.data.local.room.entity.HangoutWithDetails
 import be.runeherreman.zuyp.data.local.room.entity.UserEntity
 import be.runeherreman.zuyp.domain.model.Hangout
@@ -41,12 +43,31 @@ class HangoutRepositoryRoomImpl @Inject constructor(
         userId: UUID,
         status: AttendanceStatus
     ) {
-        hangoutDao.updateAttendanceStatus(hangoutId, userId, status)
+        hangoutDao.insertOrUpdateAttendee(HangoutUsersMapping(hangoutId, userId, status))
     }
 
     override suspend fun removeAttendee(hangoutId: UUID, userId: UUID) {
         hangoutDao.removeAttendee(hangoutId, userId)
     }
+
+    override suspend fun createOrUpdateHangout(hangout: Hangout) {
+        hangoutDao.insert(hangout.toEntity())
+    }
+}
+
+private fun Hangout.toEntity(): HangoutEntity {
+    return HangoutEntity(
+        id = id,
+        title = title,
+        description = description,
+        locationName = locationName,
+        latitude = latitude,
+        longitude = longitude,
+        startDate = startDate,
+        endDate = endDate,
+        creatorId = creator.id,
+        private = private
+    )
 }
 
 private fun HangoutWithDetails.toDomain(): Hangout {

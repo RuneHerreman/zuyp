@@ -32,5 +32,5 @@ enum class AttendanceStatus {
 data class HangoutUsersMapping(
     val hangoutId: UUID,
     val userId: UUID,
-    val status: AttendanceStatus
+    val status: AttendanceStatus?
 )

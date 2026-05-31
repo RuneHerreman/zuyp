@@ -5,6 +5,7 @@ import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.ui.graphics.vector.ImageVector
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -35,4 +36,10 @@ data class HangoutUiState(
     val weatherIcon: ImageVector = Icons.Filled.Thermostat,
     val isError: Boolean = false,
     val selectedHangoutId: String? = null
-)
+) {
+    fun currentUserAttendanceStatus(): AttendanceStatus? =
+        hangout.attendees.firstOrNull { it.id == currentUser.id }?.attendanceStatus
+
+    fun nextAttendanceStatus(target: AttendanceStatus): AttendanceStatus? =
+        if (currentUserAttendanceStatus() == target) null else target
+}
