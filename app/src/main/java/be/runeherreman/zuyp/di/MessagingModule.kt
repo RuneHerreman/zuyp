@@ -18,7 +18,7 @@ object MessagingModule {
 
     @Provides
     @Singleton
-    fun provideConntectionFactory(): ConnectionFactory {
+    fun provideConnectionFactory(): ConnectionFactory {
         val hostPort = BuildConfig.AMQP_URL
         val hostParts = hostPort.split(":", limit = 2)
         val host = hostParts.firstOrNull().orEmpty()
@@ -32,16 +32,13 @@ object MessagingModule {
         }
     }
 
-    @Singleton
     @Provides
-    fun provideInvitePublisher(factory: ConnectionFactory): MessagePublisher = lazy {
-        LavinMQMessagePublisher(factory.host, BuildConfig.AMQP_SUBSCRIBE_TOPIC, factory)
-    }.value
-
     @Singleton
-    @Provides
-    fun provideMessageConsumer(factory: ConnectionFactory): MessageConsumer = lazy {
-        LavinMQMessageConsumer(factory.host, BuildConfig.AMQP_SUBSCRIBE_TOPIC, factory)
-    }.value
+    fun provideMessagePublisher(factory: ConnectionFactory): MessagePublisher =
+        LavinMQMessagePublisher(BuildConfig.AMQP_EXCHANGE, factory)
 
+    @Provides
+    @Singleton
+    fun provideMessageConsumer(factory: ConnectionFactory): MessageConsumer =
+        LavinMQMessageConsumer(BuildConfig.AMQP_EXCHANGE, factory)
 }

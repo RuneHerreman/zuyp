@@ -49,7 +49,8 @@ fun ZuypNavGraph(
                 onSearchOpen = homeViewModel::openSearch,
                 onSearchClose = homeViewModel::closeSearch,
                 onSearchQueryChange = homeViewModel::onSearchQueryChange,
-                onRefresh = homeViewModel::refresh
+                onRefresh = homeViewModel::refresh,
+                onZuypAlertClick = homeViewModel::sendZuypAlert
             )
         }
         composable(Screen.Discover.route) {

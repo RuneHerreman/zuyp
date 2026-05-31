@@ -1,5 +1,5 @@
 package be.runeherreman.zuyp.data.messaging
 
 interface MessagePublisher {
-    suspend fun publishMessage(message: String)
+    suspend fun publishMessage(recipientId: String, message: String)
 }

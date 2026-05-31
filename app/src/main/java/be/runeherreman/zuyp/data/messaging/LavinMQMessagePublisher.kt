@@ -7,27 +7,25 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class LavinMQMessagePublisher @Inject constructor(
-    private val hostName: String,
-    private val queueName: String,
-    private val connectionFactory: ConnectionFactory,
+    private val exchange: String,
+    private val factory: ConnectionFactory,
 ) : MessagePublisher {
-    override suspend fun publishMessage(message: String) {
+    override suspend fun publishMessage(recipientId: String, message: String) {
         withContext(Dispatchers.IO) {
             try {
-                val connection = connectionFactory.newConnection(hostName)
+                val connection = factory.newConnection()
                 val channel = connection.createChannel()
-                channel.queueDeclare(queueName, true, false, false, null)
                 channel.basicPublish(
-                    "",
-                    queueName,
+                    exchange,
+                    "user-$recipientId",
                     null,
                     message.toByteArray(Charsets.UTF_8)
                 )
-                Log.d("Messagebroker", "Published to Messagebroker")
+                Log.d("Messagebroker", "Published to user-$recipientId")
                 channel.close()
                 connection.close()
             } catch (e: Exception) {
-                Log.e("Messagebroker", "Error publishing to Messagebroker - ${e.message}")
+                Log.e("Messagebroker", "Error publishing - ${e.message}")
             }
         }
     }

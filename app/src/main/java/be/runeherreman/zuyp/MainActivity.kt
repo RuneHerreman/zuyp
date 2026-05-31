@@ -23,6 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import be.runeherreman.zuyp.data.fake.data.FakeUsers
+import be.runeherreman.zuyp.data.workers.NotificationWorker
 import be.runeherreman.zuyp.ui.theme.ZuypTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -31,8 +36,20 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        startNotificationWorker()
         setContent {
             ZuypApp()
         }
+    }
+
+    private fun startNotificationWorker() {
+        val request = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInputData(workDataOf(NotificationWorker.KEY_USER_ID to FakeUsers.userJan.id.toString()))
+            .build()
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            NotificationWorker.WORK_NAME,
+            androidx.work.ExistingWorkPolicy.REPLACE,
+            request,
+        )
     }
 }

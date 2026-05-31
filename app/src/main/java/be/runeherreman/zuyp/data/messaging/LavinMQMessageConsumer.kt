@@ -12,31 +12,33 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class LavinMQMessageConsumer(
-    private val host: String,
-    private val queueName: String,
-    private val factory: ConnectionFactory
-): MessageConsumer {
+    private val exchange: String,
+    private val factory: ConnectionFactory,
+) : MessageConsumer {
     private var consumerJob: Job? = null
 
-    override fun startConsuming() {
+    override fun startConsuming(userId: String) {
         consumerJob = CoroutineScope(Dispatchers.IO).launch {
             try {
-                val connection = factory.newConnection(host)
+                val connection = factory.newConnection()
                 val channel = connection.createChannel()
 
-                channel.queueDeclare(queueName, true, false, false, null)
+                // Exclusive temporary queue — auto-deletes when the app disconnects
+                val queue = channel.queueDeclare("", false, true, true, null)
+                channel.queueBind(queue.queue, exchange, "user-$userId")
+
                 val deliverCallback = DeliverCallback { _, delivery ->
                     val message = String(delivery.body, Charsets.UTF_8)
                     onMessageReceived(message)
                 }
 
-                channel.basicConsume(queueName, true, deliverCallback, CancelCallback {
-                    Log.w("Messagebroker", "Consumer callback")
+                channel.basicConsume(queue.queue, true, deliverCallback, CancelCallback {
+                    Log.w("Messagebroker", "Consumer cancelled")
                 })
 
-                while(isActive) delay(1000)
+                while (isActive) delay(1000)
             } catch (e: Exception) {
-                Log.e("Messagebroker", "Error publishing to Messagebroker - ${e.message}")
+                Log.e("Messagebroker", "Consumer error - ${e.message}")
             }
         }
     }

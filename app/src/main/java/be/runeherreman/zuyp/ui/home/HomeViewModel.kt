@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
+import be.runeherreman.zuyp.domain.useCases.SendZuypAlertUseCase
 import java.util.UUID
 import javax.inject.Inject
 
@@ -20,7 +21,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getHangoutsUseCase: GetHangoutsUseCase,
     private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
-    private val getFriendAttendeesByHangoutUseCase: GetFriendAttendeesByHangoutUseCase
+    private val getFriendAttendeesByHangoutUseCase: GetFriendAttendeesByHangoutUseCase,
+    private val sendZuypAlertUseCase: SendZuypAlertUseCase
 ): ViewModel() {
     private val currentUserId = UUID.fromString("01234566-8f09-4567-4af8-def000000014")
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -78,6 +80,12 @@ class HomeViewModel @Inject constructor(
         val chooser = Intent.createChooser(mapIntent, "Navigate to ${hangout.title}")
 
         context.startActivity(chooser)
+    }
+
+    fun sendZuypAlert() {
+        viewModelScope.launch {
+            sendZuypAlertUseCase(userId = currentUserId, hangoutId = "10000000-0000-0000-0000-000000000002")
+        }
     }
 
 }

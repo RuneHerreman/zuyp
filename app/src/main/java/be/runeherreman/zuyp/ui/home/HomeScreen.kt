@@ -62,6 +62,7 @@ fun HomeScreen(
     onSearchOpen: () -> Unit = {},
     onSearchClose: () -> Unit = {},
     onSearchQueryChange: (String) -> Unit = {},
+    onZuypAlertClick: () -> Unit = {},
     onRefresh: () -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -101,7 +102,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            ZuypEmergencyButton(modifier = Modifier.align(Alignment.End))
+            ZuypEmergencyButton(modifier = Modifier.align(Alignment.End), onClick = onZuypAlertClick)
 
             Spacer(modifier = Modifier.height(30.dp))
 

@@ -1,9 +1,7 @@
 package be.runeherreman.zuyp.data.messaging
 
-import com.rabbitmq.client.ConnectionFactory
-
 interface MessageConsumer {
-    fun startConsuming()
+    fun startConsuming(userId: String)
     fun stopConsuming()
     var onMessageReceived: ((String) -> Unit)
 }

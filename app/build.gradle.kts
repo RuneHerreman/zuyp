@@ -24,9 +24,7 @@ android {
         buildConfigField("String", "AMQP_USERNAME", "\"${project.findProperty("AMQPusername")}\"")
         buildConfigField("String", "AMQP_PASSWORD", "\"${project.findProperty("AMQPpassword")}\"")
         buildConfigField("String", "AMQP_URL", "\"${project.findProperty("AMQPurl")}\"")
-        buildConfigField("String", "AMQP_PUBLISH_TOPIC", "\"${project.findProperty("AMQPpublishtopic")}\"")
-        buildConfigField("String", "AMQP_SUBSCRIBE_TOPIC", "\"${project.findProperty("AMQPsubscribetopic")}\"")
-        buildConfigField("String", "AMQP_CONSUMER_TAG", "\"${project.findProperty("AMQPconsumertag")}\"")
+        buildConfigField("String", "AMQP_EXCHANGE", "\"${project.findProperty("AMQPexchange")}\"")
     }
 
     buildTypes {
@@ -71,9 +69,11 @@ dependencies {
     //Hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.work.runtime.ktx)
     ksp(libs.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
     androidTestImplementation(libs.hilt.android.testing)
     kspAndroidTest(libs.hilt.compiler)
 

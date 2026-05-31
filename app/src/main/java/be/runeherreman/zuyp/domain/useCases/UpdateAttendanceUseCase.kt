@@ -1,9 +1,7 @@
 package be.runeherreman.zuyp.domain.useCases
 
 import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
-import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
-import be.runeherreman.zuyp.domain.repository.UserRepository
 import java.util.UUID
 import javax.inject.Inject
 
