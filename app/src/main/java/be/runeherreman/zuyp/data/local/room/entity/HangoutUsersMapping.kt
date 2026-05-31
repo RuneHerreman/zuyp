@@ -1,12 +1,27 @@
 package be.runeherreman.zuyp.data.local.room.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import java.util.UUID
 
 @Entity(
     tableName = "hangouts_users",
     primaryKeys = ["hangoutId", "userId"],
+    foreignKeys = [
+        ForeignKey(
+            entity = HangoutEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["hangoutId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = UserEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["userId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
     indices = [Index(value = ["userId"])]
 )
 data class HangoutUsersMapping(
