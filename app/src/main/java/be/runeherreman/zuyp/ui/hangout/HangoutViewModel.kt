@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.Weather
+import be.runeherreman.zuyp.domain.model.generateWeatherPrediction
 import be.runeherreman.zuyp.domain.useCases.AddFriendshipUseCase
 import be.runeherreman.zuyp.domain.useCases.AreFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.GetHangoutByIdUseCase
@@ -79,7 +80,7 @@ class HangoutViewModel @Inject constructor(
                 startDate = hangout.startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
                 endDate = hangout.endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             )
-            val weatherString = generateWeatherString(weather, hangout)
+            val weatherString = generateWeatherPrediction(weather, hangout)
             val icon = getWeatherIconFromPrediction(weatherString)
             _uiState.update {
                 it.copy(
@@ -133,41 +134,6 @@ class HangoutViewModel @Inject constructor(
                 Log.e("HangoutViewModel", "Error toggling going", e)
             }
         }
-    }
-
-    private fun generateWeatherString(weather: Weather, hangout: Hangout): String {
-        if (weather.hourly.temperature2m.isEmpty()) return "Weather data unavailable"
-
-        val now = java.time.LocalDateTime.now()
-        val startTime = hangout.startDate
-        val hourIndex = if (startTime.isBefore(now)) {
-            weather.hourly.temperature2m.size - 1
-        } else {
-            val hoursDiff = java.time.temporal.ChronoUnit.HOURS.between(now, startTime).toInt()
-            minOf(hoursDiff, weather.hourly.temperature2m.size - 1).coerceAtLeast(0)
-        }
-
-        val temperature = weather.hourly.temperature2m.getOrNull(hourIndex)?.toInt() ?: 0
-        val rain = weather.hourly.rain.getOrNull(hourIndex) ?: 0.0
-
-        val weatherStatus = when {
-            rain > 5.0 -> "Heavy rain"
-            rain > 1.0 -> "Light rain"
-            else -> "Clear skies"
-        }
-
-        val clothingRecommendation = when {
-            rain > 5.0 -> "Wear rain coat"
-            rain > 1.0 && temperature < 15 -> "Wear sweater, rain protection"
-            rain > 1.0 && temperature >= 20 -> "T-shirt w/ light rain jacket"
-            rain > 1.0 -> "Bring umbrella / light rain jacket"
-            temperature < 7 -> "Dress warmly w/ winter jacket"
-            temperature < 15 -> "Wear a sweater"
-            temperature < 22 -> "Wear a light jacket"
-            else -> "T-shirt and shorts"
-        }
-
-        return "$temperature°C - $weatherStatus - $clothingRecommendation"
     }
 
     private fun getWeatherIconFromPrediction(weatherPrediction: String) = when {
