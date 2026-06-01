@@ -54,7 +54,7 @@ import be.runeherreman.zuyp.ui.theme.onErrorContainerLight
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.ui.home.components.CreateHangoutPopup
 import be.runeherreman.zuyp.ui.home.components.HangoutCard
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,7 +74,7 @@ fun HomeScreen(
     onAddressQueryChange: (String) -> Unit = {},
     onAddressSelect: (AddressSuggestion) -> Unit = {},
     onAddressClear: () -> Unit = {},
-    onCreateHangout: (String, LocalDate, List<User>, Boolean) -> Unit = { _, _, _, _ -> }
+    onCreateHangout: (String, LocalDateTime, LocalDateTime, List<User>, Boolean) -> Unit = { _, _, _, _, _ -> }
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         PullToRefreshBox(
@@ -162,7 +162,7 @@ fun HomeScreen(
 
         if (uiState.isCreateHangoutOpen) {
             CreateHangoutPopup(
-                availableFriends = uiState.availableFriends,
+                availableUsers = uiState.availableUsers,
                 addressQuery = uiState.addressQuery,
                 addressSuggestions = uiState.addressSuggestions,
                 isAddressLoading = uiState.isAddressLoading,

@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
 import be.runeherreman.zuyp.domain.useCases.SendZuypAlertUseCase
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -139,7 +138,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val allUsers = userRepository.getAllUsers().filter { it.id != currentUserId }
             _uiState.update {
-                it.copy(isCreateHangoutOpen = true, availableFriends = allUsers)
+                it.copy(isCreateHangoutOpen = true, availableUsers = allUsers)
             }
         }
     }
@@ -185,7 +184,8 @@ class HomeViewModel @Inject constructor(
 
     fun createHangout(
         title: String,
-        date: LocalDate,
+        start: LocalDateTime,
+        end: LocalDateTime,
         members: List<User>,
         isPublic: Boolean
     ) {
@@ -193,8 +193,6 @@ class HomeViewModel @Inject constructor(
         // Guard: only allow creation with a resolved, existing address.
         val address = _uiState.value.selectedAddress ?: return
         val hangoutId = UUID.randomUUID()
-        val startDate = date.atTime(12, 0)
-        val endDate = startDate.plusHours(2)
         val hangout = Hangout(
             id = hangoutId,
             title = title,
@@ -202,8 +200,8 @@ class HomeViewModel @Inject constructor(
             locationName = address.fullAddress,
             latitude = address.latitude,
             longitude = address.longitude,
-            startDate = startDate,
-            endDate = endDate,
+            startDate = start,
+            endDate = end,
             attendees = emptyList(),
             creator = creator,
             private = !isPublic

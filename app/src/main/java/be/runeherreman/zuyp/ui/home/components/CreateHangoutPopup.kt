@@ -42,7 +42,6 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.MaterialTheme
@@ -52,7 +51,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,6 +63,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -71,15 +73,16 @@ import androidx.compose.ui.window.DialogProperties
 import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.model.User
 import coil.compose.AsyncImage
+import java.time.Duration
 import java.time.Instant
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateHangoutPopup(
-    availableFriends: List<User>,
+    availableUsers: List<User>,
     addressQuery: String,
     addressSuggestions: List<AddressSuggestion>,
     isAddressLoading: Boolean,
@@ -88,16 +91,22 @@ fun CreateHangoutPopup(
     onAddressSelect: (AddressSuggestion) -> Unit,
     onAddressClear: () -> Unit,
     onDismiss: () -> Unit,
-    onCreate: (title: String, date: LocalDate, members: List<User>, isPublic: Boolean) -> Unit
+    onCreate: (title: String, start: LocalDateTime, end: LocalDateTime, members: List<User>, isPublic: Boolean) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
-    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+    val nowRounded = remember {
+        LocalDateTime.now().withSecond(0).withNano(0).withMinute(0).plusHours(1)
+    }
+    var startDateTime by remember { mutableStateOf(nowRounded) }
+    var endDateTime by remember { mutableStateOf(nowRounded.plusHours(2)) }
+    var isAllDay by remember { mutableStateOf(false) }
+    var activePicker by remember { mutableStateOf<PickerTarget?>(null) }
     var memberSearch by remember { mutableStateOf("") }
     var selectedMembers by remember { mutableStateOf<List<User>>(emptyList()) }
     var isPublic by remember { mutableStateOf(false) }
-    var showDatePicker by remember { mutableStateOf(false) }
 
-    val dateFormatter = remember { DateTimeFormatter.ofPattern("MM/dd/yyyy") }
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("EEE, MMM d") }
+    val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
 
     BackHandler(onBack = onDismiss)
 
@@ -139,25 +148,41 @@ fun CreateHangoutPopup(
                     )
                 }
 
-                // Date
+                // Date & time
                 LabeledField(label = "When is it?") {
-                    OutlinedTextField(
-                        value = selectedDate.format(dateFormatter),
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        textStyle = MaterialTheme.typography.labelLarge,
-                        trailingIcon = {
-                            IconButton(onClick = { showDatePicker = true }) {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarMonth,
-                                    contentDescription = "Pick date"
-                                )
-                            }
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DateTimeRow(
+                            label = "Start",
+                            dateText = startDateTime.format(dateFormatter),
+                            timeText = startDateTime.format(timeFormatter),
+                            showTime = !isAllDay,
+                            onDateClick = { activePicker = PickerTarget.StartDate },
+                            onTimeClick = { activePicker = PickerTarget.StartTime }
+                        )
+                        DateTimeRow(
+                            label = "End",
+                            dateText = endDateTime.format(dateFormatter),
+                            timeText = endDateTime.format(timeFormatter),
+                            showTime = !isAllDay,
+                            onDateClick = { activePicker = PickerTarget.EndDate },
+                            onTimeClick = { activePicker = PickerTarget.EndTime }
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "All day",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Switch(
+                                checked = isAllDay,
+                                onCheckedChange = { isAllDay = it }
+                            )
                         }
-                    )
+                    }
                 }
 
                 // Location
@@ -176,7 +201,7 @@ fun CreateHangoutPopup(
                 // Members
                 LabeledField(label = "Add members or groups") {
                     MembersSelector(
-                        availableFriends = availableFriends,
+                        availableUsers = availableUsers,
                         selectedMembers = selectedMembers,
                         memberSearch = memberSearch,
                         onSearchChange = { memberSearch = it },
@@ -212,7 +237,15 @@ fun CreateHangoutPopup(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = { onCreate(title, selectedDate, selectedMembers, isPublic) },
+                        onClick = {
+                            val finalStart = if (isAllDay)
+                                startDateTime.toLocalDate().atStartOfDay()
+                            else startDateTime
+                            val finalEnd = if (isAllDay)
+                                endDateTime.toLocalDate().atTime(23, 59)
+                            else endDateTime
+                            onCreate(title, finalStart, finalEnd, selectedMembers, isPublic)
+                        },
                         modifier = Modifier.weight(1f),
                         enabled = title.isNotBlank() && isAddressSelected
                     ) {
@@ -233,32 +266,186 @@ fun CreateHangoutPopup(
         }
     }
 
-    if (showDatePicker) {
-        val pickerState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedDate
-                .atStartOfDay(ZoneOffset.UTC)
-                .toInstant()
-                .toEpochMilli()
-        )
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    pickerState.selectedDateMillis?.let { millis ->
-                        selectedDate = Instant.ofEpochMilli(millis)
-                            .atZone(ZoneOffset.UTC)
-                            .toLocalDate()
-                    }
-                    showDatePicker = false
-                }) { Text("OK") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+    when (activePicker) {
+        PickerTarget.StartDate, PickerTarget.EndDate -> {
+            val isStart = activePicker == PickerTarget.StartDate
+            val current = if (isStart) startDateTime else endDateTime
+            val pickerState = rememberDatePickerState(
+                initialSelectedDateMillis = current.toLocalDate()
+                    .atStartOfDay(ZoneOffset.UTC)
+                    .toInstant()
+                    .toEpochMilli()
+            )
+            DatePickerDialog(
+                onDismissRequest = { activePicker = null },
+                confirmButton = {
+                    TextButton(onClick = {
+                        pickerState.selectedDateMillis?.let { millis ->
+                            val pickedDate = Instant.ofEpochMilli(millis)
+                                .atZone(ZoneOffset.UTC)
+                                .toLocalDate()
+                            if (isStart) {
+                                val newStart = startDateTime.with(pickedDate)
+                                val (s, e) = adjustStart(startDateTime, newStart, endDateTime)
+                                startDateTime = s
+                                endDateTime = e
+                            } else {
+                                endDateTime = adjustEnd(startDateTime, endDateTime.with(pickedDate))
+                            }
+                        }
+                        activePicker = null
+                    }) { Text("OK") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { activePicker = null }) { Text("Cancel") }
+                }
+            ) {
+                DatePicker(state = pickerState)
             }
-        ) {
-            DatePicker(state = pickerState)
+        }
+        PickerTarget.StartTime, PickerTarget.EndTime -> {
+            val isStart = activePicker == PickerTarget.StartTime
+            val current = if (isStart) startDateTime else endDateTime
+            val timeState = rememberTimePickerState(
+                initialHour = current.hour,
+                initialMinute = current.minute,
+                is24Hour = true
+            )
+            TimePickerDialog(
+                onDismiss = { activePicker = null },
+                onConfirm = {
+                    val pickedTime = current
+                        .withHour(timeState.hour)
+                        .withMinute(timeState.minute)
+                    if (isStart) {
+                        val (s, e) = adjustStart(startDateTime, pickedTime, endDateTime)
+                        startDateTime = s
+                        endDateTime = e
+                    } else {
+                        endDateTime = adjustEnd(startDateTime, pickedTime)
+                    }
+                    activePicker = null
+                }
+            ) {
+                TimePicker(state = timeState)
+            }
+        }
+        null -> Unit
+    }
+}
+
+private enum class PickerTarget { StartDate, StartTime, EndDate, EndTime }
+
+/**
+ * Moves the start to [newStart] and shifts the end to preserve the original
+ * duration, so dragging the start never produces an end-before-start range.
+ */
+private fun adjustStart(
+    oldStart: LocalDateTime,
+    newStart: LocalDateTime,
+    end: LocalDateTime
+): Pair<LocalDateTime, LocalDateTime> {
+    val duration = Duration.between(oldStart, end)
+    val safeDuration = if (duration.isNegative || duration.isZero) Duration.ofHours(2) else duration
+    return newStart to newStart.plus(safeDuration)
+}
+
+/** Clamps [newEnd] so it never lands before [start] (falls back to start + 1h). */
+private fun adjustEnd(start: LocalDateTime, newEnd: LocalDateTime): LocalDateTime =
+    if (!newEnd.isAfter(start)) start.plusHours(1) else newEnd
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DateTimeRow(
+    label: String,
+    dateText: String,
+    timeText: String,
+    showTime: Boolean,
+    onDateClick: () -> Unit,
+    onTimeClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.width(44.dp)
+        )
+        PickerChip(
+            text = dateText,
+            icon = Icons.Default.CalendarMonth,
+            onClick = onDateClick,
+            modifier = Modifier.weight(1f)
+        )
+        if (showTime) {
+            PickerChip(
+                text = timeText,
+                icon = Icons.Default.Schedule,
+                onClick = onTimeClick
+            )
         }
     }
+}
+
+@Composable
+private fun PickerChip(
+    text: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val shape = RoundedCornerShape(12.dp)
+    Surface(
+        shape = shape,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        modifier = modifier
+            .clip(shape)
+            .clickable(onClick = onClick)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
+@Composable
+private fun TimePickerDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = { TextButton(onClick = onConfirm) { Text("OK") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        text = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                content()
+            }
+        }
+    )
 }
 
 @Composable
@@ -420,17 +607,17 @@ private fun AddressSelector(
 
 @Composable
 private fun MembersSelector(
-    availableFriends: List<User>,
+    availableUsers: List<User>,
     selectedMembers: List<User>,
     memberSearch: String,
     onSearchChange: (String) -> Unit,
     onMemberToggle: (User) -> Unit
 ) {
-    val filtered = availableFriends
-        .filter { friend ->
-            selectedMembers.none { it.id == friend.id } &&
+    val filtered = availableUsers
+        .filter { user ->
+            selectedMembers.none { it.id == user.id } &&
                     memberSearch.isNotBlank() &&
-                    friend.name.contains(memberSearch, ignoreCase = true)
+                    user.name.contains(memberSearch, ignoreCase = true)
         }
         .take(5)
 
