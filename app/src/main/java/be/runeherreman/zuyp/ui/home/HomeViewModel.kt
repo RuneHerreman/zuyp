@@ -135,15 +135,12 @@ class HomeViewModel @Inject constructor(
             longitude = 0.0,
             startDate = startDate,
             endDate = endDate,
-            attendees = members,
+            attendees = emptyList(),
             creator = creator,
             private = !isPublic
         )
         viewModelScope.launch {
-            createHangoutUseCase(hangout)
-            members.forEach { member ->
-                updateAttendanceUseCase(hangoutId, member.id, AttendanceStatus.GOING)
-            }
+            createHangoutUseCase(hangout, members)
             _uiState.update { it.copy(isCreateHangoutOpen = false) }
         }
     }
