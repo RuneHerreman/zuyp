@@ -103,6 +103,7 @@ rabbitmq-amqp-client = { group = "com.rabbitmq", name = "amqp-client", version.r
 # Maps
 mapbox-maps = { module = "com.mapbox.maps:android", version.ref = "mapbox" }
 mapbox-search = { module = "com.mapbox.search:mapbox-search-android", version.ref = "mapboxSearch" }
+mapbox-search-autocomplete = { module = "com.mapbox.search:place-autocomplete", version.ref = "mapboxSearch" }
 mapbox-maps-compose = { module = "com.mapbox.extension:maps-compose-ndk27", version.ref = "mapbox" }
 
 # Testing

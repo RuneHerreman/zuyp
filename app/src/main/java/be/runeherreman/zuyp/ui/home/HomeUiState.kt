@@ -1,6 +1,8 @@
 package be.runeherreman.zuyp.ui.home
 
+import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.model.Hangout
+import be.runeherreman.zuyp.domain.model.ResolvedAddress
 import be.runeherreman.zuyp.domain.model.User
 import java.util.UUID
 
@@ -10,6 +12,11 @@ data class HomeUiState(
     val isRefreshing: Boolean = false,
     val isCreateHangoutOpen: Boolean = false,
     val availableFriends: List<User> = emptyList(),
+    // Address autocomplete state for the create-hangout form
+    val addressQuery: String = "",
+    val addressSuggestions: List<AddressSuggestion> = emptyList(),
+    val isAddressLoading: Boolean = false,
+    val selectedAddress: ResolvedAddress? = null,
     val phrases: List<String> = listOf(
         "Voorlopig bitter hard alleen",
         "Tafel voor geen!",

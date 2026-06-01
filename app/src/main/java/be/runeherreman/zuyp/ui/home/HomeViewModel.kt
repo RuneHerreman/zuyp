@@ -3,6 +3,7 @@ package be.runeherreman.zuyp.ui.home
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.useCases.CreateHangoutUseCase
@@ -10,12 +11,18 @@ import be.runeherreman.zuyp.domain.useCases.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.GetFriendAttendeesByHangoutUseCase
 import be.runeherreman.zuyp.domain.useCases.GetFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.GetHangoutsUseCase
+import be.runeherreman.zuyp.domain.useCases.ResolveAddressUseCase
+import be.runeherreman.zuyp.domain.useCases.SearchAddressesUseCase
 import be.runeherreman.zuyp.domain.useCases.UpdateAttendanceUseCase
 import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import be.runeherreman.zuyp.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
@@ -25,6 +32,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getHangoutsUseCase: GetHangoutsUseCase,
@@ -34,6 +42,8 @@ class HomeViewModel @Inject constructor(
     private val getFriendsUseCase: GetFriendsUseCase,
     private val createHangoutUseCase: CreateHangoutUseCase,
     private val updateAttendanceUseCase: UpdateAttendanceUseCase,
+    private val searchAddressesUseCase: SearchAddressesUseCase,
+    private val resolveAddressUseCase: ResolveAddressUseCase,
     private val userRepository: UserRepository
 ): ViewModel() {
     private val currentUserId = UUID.fromString("01234566-8f09-4567-4af8-def000000014")
@@ -43,9 +53,30 @@ class HomeViewModel @Inject constructor(
     private var allHangouts: List<Hangout> = emptyList()
     private var currentUser: User? = null
 
+    /** Drives debounced address lookups so we don't hit the API on every keystroke. */
+    private val addressQueryFlow = MutableStateFlow("")
+
     init {
         viewModelScope.launch {
             currentUser = userRepository.getUserById(currentUserId)
+        }
+        viewModelScope.launch {
+            addressQueryFlow
+                .debounce(300)
+                .distinctUntilChanged()
+                .collectLatest { query ->
+                    if (query.isBlank()) {
+                        _uiState.update {
+                            it.copy(addressSuggestions = emptyList(), isAddressLoading = false)
+                        }
+                        return@collectLatest
+                    }
+                    _uiState.update { it.copy(isAddressLoading = true) }
+                    val results = searchAddressesUseCase(query)
+                    _uiState.update {
+                        it.copy(addressSuggestions = results, isAddressLoading = false)
+                    }
+                }
         }
         viewModelScope.launch {
             getHangoutsUseCase().collect { items ->
@@ -107,22 +138,60 @@ class HomeViewModel @Inject constructor(
     fun openCreateHangout() {
         viewModelScope.launch {
             val allUsers = userRepository.getAllUsers().filter { it.id != currentUserId }
-            _uiState.update { it.copy(isCreateHangoutOpen = true, availableFriends = allUsers) }
+            _uiState.update {
+                it.copy(isCreateHangoutOpen = true, availableFriends = allUsers)
+            }
         }
     }
 
     fun closeCreateHangout() {
         _uiState.update { it.copy(isCreateHangoutOpen = false) }
+        clearAddress()
+    }
+
+    fun onAddressQueryChange(query: String) {
+        // Any edit invalidates a previously confirmed address — the user must
+        // pick a real suggestion again, which is what enforces "it has to exist".
+        _uiState.update { it.copy(addressQuery = query, selectedAddress = null) }
+        addressQueryFlow.value = query
+    }
+
+    fun selectAddress(suggestion: AddressSuggestion) {
+        viewModelScope.launch {
+            val resolved = resolveAddressUseCase(suggestion.id) ?: return@launch
+            _uiState.update {
+                it.copy(
+                    selectedAddress = resolved,
+                    addressQuery = resolved.fullAddress,
+                    addressSuggestions = emptyList(),
+                    isAddressLoading = false
+                )
+            }
+            addressQueryFlow.value = resolved.fullAddress
+        }
+    }
+
+    fun clearAddress() {
+        _uiState.update {
+            it.copy(
+                addressQuery = "",
+                addressSuggestions = emptyList(),
+                selectedAddress = null,
+                isAddressLoading = false
+            )
+        }
+        addressQueryFlow.value = ""
     }
 
     fun createHangout(
         title: String,
         date: LocalDate,
-        location: String,
         members: List<User>,
         isPublic: Boolean
     ) {
         val creator = currentUser ?: return
+        // Guard: only allow creation with a resolved, existing address.
+        val address = _uiState.value.selectedAddress ?: return
         val hangoutId = UUID.randomUUID()
         val startDate = date.atTime(12, 0)
         val endDate = startDate.plusHours(2)
@@ -130,9 +199,9 @@ class HomeViewModel @Inject constructor(
             id = hangoutId,
             title = title,
             description = "",
-            locationName = location,
-            latitude = 0.0,
-            longitude = 0.0,
+            locationName = address.fullAddress,
+            latitude = address.latitude,
+            longitude = address.longitude,
             startDate = startDate,
             endDate = endDate,
             attendees = emptyList(),
@@ -142,6 +211,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             createHangoutUseCase(hangout, members)
             _uiState.update { it.copy(isCreateHangoutOpen = false) }
+            clearAddress()
         }
     }
 

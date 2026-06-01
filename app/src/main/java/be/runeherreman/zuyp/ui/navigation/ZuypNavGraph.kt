@@ -53,6 +53,9 @@ fun ZuypNavGraph(
                 onZuypAlertClick = homeViewModel::sendZuypAlert,
                 onCreateHangoutOpen = homeViewModel::openCreateHangout,
                 onCreateHangoutClose = homeViewModel::closeCreateHangout,
+                onAddressQueryChange = homeViewModel::onAddressQueryChange,
+                onAddressSelect = homeViewModel::selectAddress,
+                onAddressClear = homeViewModel::clearAddress,
                 onCreateHangout = homeViewModel::createHangout
             )
         }

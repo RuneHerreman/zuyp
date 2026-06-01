@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.ui.theme.errorContainerLight
 import be.runeherreman.zuyp.ui.theme.onErrorContainerLight
@@ -70,7 +71,10 @@ fun HomeScreen(
     onRefresh: () -> Unit = {},
     onCreateHangoutOpen: () -> Unit = {},
     onCreateHangoutClose: () -> Unit = {},
-    onCreateHangout: (String, LocalDate, String, List<User>, Boolean) -> Unit = { _, _, _, _, _ -> }
+    onAddressQueryChange: (String) -> Unit = {},
+    onAddressSelect: (AddressSuggestion) -> Unit = {},
+    onAddressClear: () -> Unit = {},
+    onCreateHangout: (String, LocalDate, List<User>, Boolean) -> Unit = { _, _, _, _ -> }
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         PullToRefreshBox(
@@ -159,6 +163,13 @@ fun HomeScreen(
         if (uiState.isCreateHangoutOpen) {
             CreateHangoutPopup(
                 availableFriends = uiState.availableFriends,
+                addressQuery = uiState.addressQuery,
+                addressSuggestions = uiState.addressSuggestions,
+                isAddressLoading = uiState.isAddressLoading,
+                isAddressSelected = uiState.selectedAddress != null,
+                onAddressQueryChange = onAddressQueryChange,
+                onAddressSelect = onAddressSelect,
+                onAddressClear = onAddressClear,
                 onDismiss = onCreateHangoutClose,
                 onCreate = onCreateHangout
             )

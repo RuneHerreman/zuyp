@@ -31,8 +31,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.model.User
 import coil.compose.AsyncImage
 import java.time.Instant
@@ -75,12 +80,18 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun CreateHangoutPopup(
     availableFriends: List<User>,
+    addressQuery: String,
+    addressSuggestions: List<AddressSuggestion>,
+    isAddressLoading: Boolean,
+    isAddressSelected: Boolean,
+    onAddressQueryChange: (String) -> Unit,
+    onAddressSelect: (AddressSuggestion) -> Unit,
+    onAddressClear: () -> Unit,
     onDismiss: () -> Unit,
-    onCreate: (title: String, date: LocalDate, location: String, members: List<User>, isPublic: Boolean) -> Unit
+    onCreate: (title: String, date: LocalDate, members: List<User>, isPublic: Boolean) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    var location by remember { mutableStateOf("") }
     var memberSearch by remember { mutableStateOf("") }
     var selectedMembers by remember { mutableStateOf<List<User>>(emptyList()) }
     var isPublic by remember { mutableStateOf(false) }
@@ -151,14 +162,14 @@ fun CreateHangoutPopup(
 
                 // Location
                 LabeledField(label = "Where is it?") {
-                    OutlinedTextField(
-                        value = location,
-                        onValueChange = { location = it },
-                        placeholder = { Text("Ex. Langestraat 28, 8000 Brugge, België", style = MaterialTheme.typography.labelLarge) },
-                        modifier = Modifier.fillMaxWidth(),
-                        maxLines = 2,
-                        shape = RoundedCornerShape(12.dp),
-                        textStyle = MaterialTheme.typography.labelLarge
+                    AddressSelector(
+                        query = addressQuery,
+                        suggestions = addressSuggestions,
+                        isLoading = isAddressLoading,
+                        isSelected = isAddressSelected,
+                        onQueryChange = onAddressQueryChange,
+                        onSuggestionClick = onAddressSelect,
+                        onClear = onAddressClear
                     )
                 }
 
@@ -201,9 +212,9 @@ fun CreateHangoutPopup(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = { onCreate(title, selectedDate, location, selectedMembers, isPublic) },
+                        onClick = { onCreate(title, selectedDate, selectedMembers, isPublic) },
                         modifier = Modifier.weight(1f),
-                        enabled = title.isNotBlank()
+                        enabled = title.isNotBlank() && isAddressSelected
                     ) {
                         Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
@@ -259,6 +270,151 @@ private fun LabeledField(label: String, content: @Composable () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         content()
+    }
+}
+
+@Composable
+private fun AddressSelector(
+    query: String,
+    suggestions: List<AddressSuggestion>,
+    isLoading: Boolean,
+    isSelected: Boolean,
+    onQueryChange: (String) -> Unit,
+    onSuggestionClick: (AddressSuggestion) -> Unit,
+    onClear: () -> Unit
+) {
+    // Results only show while the user is searching (not after confirming a pick).
+    val showResults = !isSelected && query.isNotBlank() && suggestions.isNotEmpty()
+    val searchShape = if (showResults)
+        RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp)
+    else
+        RoundedCornerShape(14.dp)
+
+    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+        // Search bar — turns into a "confirmed" state once a real address is picked.
+        Surface(
+            shape = searchShape,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = if (isSelected) 1.5.dp else 1.dp,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.outlineVariant,
+                    shape = searchShape
+                )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 13.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Icon(
+                    imageVector = if (isSelected) Icons.Default.LocationOn else Icons.Default.Search,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                BasicTextField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    modifier = Modifier.weight(1f),
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    decorationBox = { innerTextField ->
+                        if (query.isEmpty()) {
+                            Text(
+                                "Ex. Langestraat 28, 8000 Brugge…",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        innerTextField()
+                    }
+                )
+                when {
+                    isLoading -> CircularProgressIndicator(
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(18.dp),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    isSelected -> Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Valid address",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    query.isNotEmpty() -> Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Clear",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp).clickable { onClear() }
+                    )
+                }
+            }
+        }
+
+        // Suggestion list — animates in/out below the search bar while typing.
+        AnimatedVisibility(
+            visible = showResults,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top)
+        ) {
+            val resultsShape = RoundedCornerShape(bottomStart = 14.dp, bottomEnd = 14.dp)
+            Surface(
+                shape = resultsShape,
+                color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(1.dp, MaterialTheme.colorScheme.outlineVariant, resultsShape)
+            ) {
+                Column {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    suggestions.forEachIndexed { index, suggestion ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onSuggestionClick(suggestion) }
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.LocationOn,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = suggestion.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                if (suggestion.fullAddress != suggestion.name) {
+                                    Text(
+                                        text = suggestion.fullAddress,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        if (index < suggestions.size - 1) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = 46.dp, end = 14.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

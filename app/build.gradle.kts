@@ -108,4 +108,5 @@ dependencies {
     implementation(libs.mapbox.maps)
     implementation(libs.mapbox.maps.compose)
     implementation(libs.mapbox.search)
+    implementation(libs.mapbox.search.autocomplete)
 }
