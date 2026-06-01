@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open in Zuyp</title>
+    <style>
+        :root {
+            --bg: #1b1b1f;
+            --surface: #2a2a30;
+            --on-surface: #e5e1e6;
+            --on-surface-variant: #c8c5ca;
+            --primary: #c9bfff;
+            --on-primary: #312178;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--on-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 32px 28px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+        }
+        h1 { font-size: 22px; margin: 0 0 8px; }
+        p { color: var(--on-surface-variant); font-size: 15px; line-height: 1.5; margin: 0 0 24px; }
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: var(--on-primary);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 14px 28px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+        }
+        .hint { margin-top: 20px; font-size: 13px; color: var(--on-surface-variant); }
+        .logo { font-size: 40px; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">🍻</div>
+        <h1>Open this hangout in Zuyp</h1>
+        <p id="subtitle">Tap the button below to open the Zuyp app.</p>
+        <a class="btn" id="openBtn" href="#">Open in Zuyp</a>
+        <div class="hint" id="hint"></div>
+    </div>
+
+    <script>
+        // Resolve the hangout id from either:
+        //   - query string:  ?h=<id>  or  ?id=<id>
+        //   - clean path:     /Zuyp/hangout/<id>   (served via 404.html fallback)
+        function resolveHangoutId() {
+            var params = new URLSearchParams(location.search);
+            var id = params.get("h") || params.get("id");
+            if (!id) {
+                var parts = location.pathname.split("/").filter(Boolean);
+                var idx = parts.indexOf("hangout");
+                if (idx >= 0 && parts[idx + 1]) id = parts[idx + 1];
+            }
+            return id;
+        }
+
+        var id = resolveHangoutId();
+        var openBtn = document.getElementById("openBtn");
+        var subtitle = document.getElementById("subtitle");
+        var hint = document.getElementById("hint");
+
+        if (id) {
+            var target = "zuyp://hangout/" + encodeURIComponent(id);
+            openBtn.href = target;
+            hint.textContent = "Don't have the app? This link only works on a device with Zuyp installed.";
+            // Try to open the app automatically.
+            window.location.replace(target);
+        } else {
+            subtitle.textContent = "No hangout was specified in this link.";
+            openBtn.style.display = "none";
+        }
+    </script>
+</body>
+</html>
