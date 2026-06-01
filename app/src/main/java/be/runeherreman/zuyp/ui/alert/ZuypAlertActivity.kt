@@ -42,7 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import be.runeherreman.zuyp.data.fake.data.FakeUsers
+import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.data.workers.NotificationWorker
 import be.runeherreman.zuyp.ui.theme.ZuypTheme
 
@@ -90,7 +90,7 @@ class ZuypAlertActivity : ComponentActivity() {
                         finish()
                     },
                     onJoin = {
-                        viewModel.join(FakeUsers.userKoen.id) {
+                        viewModel.join(CurrentUser.id) {
                             getSystemService(NotificationManager::class.java)
                                 .cancel(NotificationWorker.ZUYP_ALERT_ID)
                             finish()

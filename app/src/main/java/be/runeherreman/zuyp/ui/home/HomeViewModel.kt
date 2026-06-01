@@ -12,8 +12,8 @@ import be.runeherreman.zuyp.domain.useCases.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.GetAllUsersUseCase
 import be.runeherreman.zuyp.domain.useCases.GetFriendAttendeesByHangoutUseCase
 import be.runeherreman.zuyp.domain.useCases.GetHangoutsUseCase
-import be.runeherreman.zuyp.domain.useCases.GetUserByIdUserCase
 import be.runeherreman.zuyp.domain.useCases.ResolveAddressUseCase
+import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.domain.useCases.SearchAddressesUseCase
 import be.runeherreman.zuyp.domain.useCases.SendZuypAlertUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,22 +40,17 @@ class HomeViewModel @Inject constructor(
     private val searchAddressesUseCase: SearchAddressesUseCase,
     private val resolveAddressUseCase: ResolveAddressUseCase,
     private val getAllUsersUseCase: GetAllUsersUseCase,
-    private val getUserByIdUserCase: GetUserByIdUserCase
 ): ViewModel() {
-    private val currentUserId = UUID.fromString("01234566-8f09-4567-4af8-def000000014")
+    private val currentUserId: UUID = CurrentUser.id
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
 
     private var allHangouts: List<Hangout> = emptyList()
-    private var currentUser: User? = null
 
     /** Drives debounced address lookups so we don't hit the API on every keystroke. */
     private val addressQueryFlow = MutableStateFlow("")
 
     init {
-        viewModelScope.launch {
-            currentUser = getUserByIdUserCase(currentUserId)
-        }
         viewModelScope.launch {
             addressQueryFlow
                 .debounce(300)
@@ -88,9 +83,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // filter out private non-attending events
+    // filter out private events unless you created one or are attending it
     private fun isVisibleToCurrentUser(hangout: Hangout): Boolean =
-        !hangout.private || hangout.attendees.any { it.id == currentUserId }
+        !hangout.private ||
+        hangout.creator.id == currentUserId ||
+        hangout.attendees.any { it.id == currentUserId }
 
     fun refresh() {
         viewModelScope.launch {
@@ -191,7 +188,7 @@ class HomeViewModel @Inject constructor(
         members: List<User>,
         isPublic: Boolean
     ) {
-        val creator = currentUser ?: return
+        val creator = CurrentUser.user
         // only allow creation with a existing address.
         val address = _uiState.value.selectedAddress ?: return
         val hangoutId = UUID.randomUUID()

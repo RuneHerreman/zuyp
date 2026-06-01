@@ -3,6 +3,7 @@ package be.runeherreman.zuyp.ui.hangout
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.ui.graphics.vector.ImageVector
+import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
@@ -24,12 +25,7 @@ data class HangoutUiState(
         creator = User(UUID.randomUUID(), "KoenK", LocalDate.of(2002, 7, 20), "koen@gmail.com"),
         private = false,
     ),
-    val currentUser: User = User(
-        UUID.fromString("01234566-8f09-4567-4af8-def000000014"),
-        "Koen Koreman",
-        LocalDate.of(2002, 7, 20),
-        "koen.koreman@gmail.com"
-    ),
+    val currentUser: User = CurrentUser.user,
     val friendShipMapping: Map<UUID, Boolean> = emptyMap(),
     val weatherPrediction: String = "",
     val isLoadingWeather: Boolean = true,

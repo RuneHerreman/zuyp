@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import be.runeherreman.zuyp.data.fake.data.FakeUsers
+import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.data.workers.NotificationWorker
 import be.runeherreman.zuyp.ui.permissions.AppPermission
 import be.runeherreman.zuyp.ui.permissions.toAndroidPermissions
@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
 
     private fun startNotificationWorker() {
         val request = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setInputData(workDataOf(NotificationWorker.KEY_USER_ID to FakeUsers.userKoen.id.toString()))
+            .setInputData(workDataOf(NotificationWorker.KEY_USER_ID to CurrentUser.id.toString()))
             .build()
         WorkManager.getInstance(this).enqueueUniqueWork(
             NotificationWorker.WORK_NAME,
