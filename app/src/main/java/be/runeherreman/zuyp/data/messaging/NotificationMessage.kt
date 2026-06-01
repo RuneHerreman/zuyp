@@ -20,7 +20,7 @@ sealed class NotificationMessage {
     ) : NotificationMessage()
 
     // =========================================
-    // Add different types of notifications here
+    // Add different types of notifications here -> this comment is not AI generated, just looks better
     // =========================================
     companion object {
         fun fromJson(raw: String): NotificationMessage? = try {

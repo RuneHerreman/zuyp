@@ -11,6 +11,7 @@ import android.content.Intent
 import android.hardware.camera2.CameraManager
 import android.media.AudioAttributes
 import android.media.RingtoneManager
+import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
@@ -46,7 +47,7 @@ class NotificationWorker @AssistedInject constructor(
 
         createNotificationChannels()
         // =========================================
-        // Add reaction to nofication types here
+        // Add reaction to nofication types here -> this comment is not AI generated, just looks better (again, to reitterate)
         // =========================================
         messageConsumer.onMessageReceived = { raw ->
             when (val message = NotificationMessage.fromJson(raw)) {
@@ -141,7 +142,7 @@ class NotificationWorker @AssistedInject constructor(
             NotificationManager.IMPORTANCE_HIGH,
         )
 
-        val alertSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+        val alertSoundUri = Uri.parse("android.resource://${applicationContext.packageName}/raw/zuyp_alert")
         val alertChannel = NotificationChannel(
             CHANNEL_ZUYP_ALERT,
             "Zuyp Alerts",
