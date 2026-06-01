@@ -244,6 +244,11 @@ private fun WhenSection(
 ) {
     LabeledField(label = "When is it?") {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            ToggleRow(
+                label = "All day",
+                checked = isAllDay,
+                onCheckedChange = onAllDayChange
+            )
             DateTimeRow(
                 label = "Start",
                 dateText = startDateTime.format(dateFormatter),
@@ -259,11 +264,6 @@ private fun WhenSection(
                 showTime = !isAllDay,
                 onDateClick = { onPickerSelect(PickerTarget.EndDate) },
                 onTimeClick = { onPickerSelect(PickerTarget.EndTime) }
-            )
-            ToggleRow(
-                label = "All day",
-                checked = isAllDay,
-                onCheckedChange = onAllDayChange
             )
         }
     }
