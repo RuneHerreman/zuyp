@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Devices
@@ -22,8 +23,15 @@ import be.runeherreman.zuyp.ui.theme.ZuypTheme
 
 @Composable
 fun ZuypApp(
-    hangoutViewModel: HangoutViewModel = viewModel()
+    hangoutViewModel: HangoutViewModel = viewModel(),
+    initialHangoutId: String? = null,
 ) {
+    LaunchedEffect(initialHangoutId) {
+        if (initialHangoutId != null) {
+            hangoutViewModel.selectHangout(initialHangoutId)
+        }
+    }
+
     ZuypTheme {
         val navController = rememberNavController()
         val navBackStackEntry by navController.currentBackStackEntryAsState()

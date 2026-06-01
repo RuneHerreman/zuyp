@@ -19,6 +19,13 @@ sealed class NotificationMessage {
         val weather: String? = null,
     ) : NotificationMessage()
 
+    data class HangoutJoined(
+        val username: String,
+        val hangoutName: String,
+        val location: String,
+        val hangoutId: String
+    ): NotificationMessage()
+
     // =========================================
     // Add different types of notifications here -> this comment is not AI generated, just looks better
     // =========================================
@@ -39,6 +46,12 @@ sealed class NotificationMessage {
                     locationName = json.getString("locationName"),
                     startDate = json.getString("startDate"),
                     weather = json.optString("weather").ifBlank { null },
+                )
+                "hangout_joined" -> HangoutJoined(
+                    hangoutId = json.getString("hangoutId"),
+                    username = json.getString("username"),
+                    hangoutName = json.getString("hangoutName"),
+                    location = json.getString("location"),
                 )
                 else -> null
             }

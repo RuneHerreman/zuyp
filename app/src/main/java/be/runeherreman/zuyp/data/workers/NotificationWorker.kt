@@ -10,17 +10,18 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.camera2.CameraManager
 import android.media.AudioAttributes
-import android.media.RingtoneManager
 import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import be.runeherreman.zuyp.MainActivity
 import be.runeherreman.zuyp.ui.alert.ZuypAlertActivity
 import be.runeherreman.zuyp.data.messaging.MessageConsumer
 import be.runeherreman.zuyp.data.receivers.JoinHangoutReceiver
 import be.runeherreman.zuyp.data.messaging.NotificationMessage
+import com.mapbox.maps.extension.style.expressions.dsl.generated.not
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
@@ -56,7 +57,8 @@ class NotificationWorker @AssistedInject constructor(
                     showZuypAlertNotification(message)
                     CoroutineScope(Dispatchers.IO).launch { flashFlashlight() }
                 }
-                null -> Log.w("Messagebroker", "Unknown message: $raw")
+                is NotificationMessage.HangoutJoined -> showHangoutJoinedNotification(message)
+                null -> Log.w("Messagebroker", "Unknown, message: $raw")
             }
         }
         messageConsumer.startConsuming(userId)
@@ -74,6 +76,8 @@ class NotificationWorker @AssistedInject constructor(
             message.weather?.let { append("\n$it") }
         }
         val notificationId = message.hangoutId.hashCode()
+
+        // JOIN HANGOUT QUICK ACTION THINGY
         val joinIntent = Intent(applicationContext, JoinHangoutReceiver::class.java).apply {
             putExtra("hangoutId", message.hangoutId)
             putExtra("userId", currentUserId)
@@ -86,6 +90,10 @@ class NotificationWorker @AssistedInject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
+        // OPEN HANGOUT
+        val openHangoutIntent = buildOpenHangoutIntent(message.hangoutId, notificationId)
+
+        // ACTUAL NOTIFICATION
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_HANGOUT)
             .setContentTitle("Invite: ${message.title}")
             .setContentText("📍 ${message.locationName} · ${message.startDate}")
@@ -93,9 +101,24 @@ class NotificationWorker @AssistedInject constructor(
             .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setLargeIcon(BitmapFactory.decodeResource(applicationContext.resources, R.mipmap.ic_launcher))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(openHangoutIntent)
             .addAction(0, "Join", joinPendingIntent)
+            .setAutoCancel(true)
             .build()
         notificationManager.notify(notificationId, notification)
+    }
+
+    private fun buildOpenHangoutIntent(hangoutId: String, notificationId: Int): PendingIntent {
+        val intent = Intent(applicationContext, MainActivity::class.java).apply {
+            putExtra(EXTRA_HANGOUT_ID, hangoutId)
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        return PendingIntent.getActivity(
+            applicationContext,
+            notificationId,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
     }
 
     @SuppressLint("FullScreenIntentPolicy")
@@ -121,6 +144,7 @@ class NotificationWorker @AssistedInject constructor(
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_CALL)
             .setFullScreenIntent(pendingIntent, true)
+            .setAutoCancel(true)
             .build()
         notificationManager.notify(ZUYP_ALERT_ID, notification)
     }
@@ -133,6 +157,23 @@ class NotificationWorker @AssistedInject constructor(
             delay(300)
         }
         cameraManager.setTorchMode(cameraId, false)
+    }
+
+
+    private fun showHangoutJoinedNotification(message: NotificationMessage.HangoutJoined) {
+        val notificationId = (message.hangoutId + "_joined").hashCode()
+        val openHangoutIntent = buildOpenHangoutIntent(message.hangoutId, notificationId)
+
+        val notification = NotificationCompat.Builder(applicationContext, CHANNEL_HANGOUT)
+            .setContentTitle("${message.username} joined ${message.hangoutName}")
+            .setContentText("📍 ${message.location}")
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)
+            .setLargeIcon(BitmapFactory.decodeResource(applicationContext.resources, R.mipmap.ic_launcher))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(openHangoutIntent)
+            .setAutoCancel(true)
+            .build()
+        notificationManager.notify(notificationId, notification)
     }
 
     private fun createNotificationChannels() {
@@ -164,6 +205,7 @@ class NotificationWorker @AssistedInject constructor(
     companion object {
         const val WORK_NAME = "notification_worker"
         const val KEY_USER_ID = "userId"
+        const val EXTRA_HANGOUT_ID = "hangoutId"
         const val CHANNEL_HANGOUT = "zuyp_hangout_invites"
         const val CHANNEL_ZUYP_ALERT = "zuyp_alerts"
         const val ZUYP_ALERT_ID = 1

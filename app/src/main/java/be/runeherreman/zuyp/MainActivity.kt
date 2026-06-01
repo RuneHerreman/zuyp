@@ -9,6 +9,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
@@ -21,6 +24,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private var pendingHangoutId by mutableStateOf<String?>(null)
+
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) {
@@ -31,14 +36,21 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        pendingHangoutId = intent.getStringExtra(NotificationWorker.EXTRA_HANGOUT_ID)
         val permissions = (
                 AppPermission.NOTIFICATION.toAndroidPermissions()
                         +
                 AppPermission.LOCATION.toAndroidPermissions()).toTypedArray()
         requestPermissionsLauncher.launch(permissions)
         setContent {
-            ZuypApp()
+            ZuypApp(initialHangoutId = pendingHangoutId)
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        pendingHangoutId = intent.getStringExtra(NotificationWorker.EXTRA_HANGOUT_ID)
     }
 
     private fun requestFullScreenIntentPermission() {
