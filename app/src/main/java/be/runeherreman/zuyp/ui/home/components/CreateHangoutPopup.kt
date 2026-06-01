@@ -158,41 +158,15 @@ fun CreateHangoutPopup(
                 }
 
                 // Date & time
-                LabeledField(label = "When is it?") {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        DateTimeRow(
-                            label = "Start",
-                            dateText = startDateTime.format(dateFormatter),
-                            timeText = startDateTime.format(timeFormatter),
-                            showTime = !isAllDay,
-                            onDateClick = { activePicker = PickerTarget.StartDate },
-                            onTimeClick = { activePicker = PickerTarget.StartTime }
-                        )
-                        DateTimeRow(
-                            label = "End",
-                            dateText = endDateTime.format(dateFormatter),
-                            timeText = endDateTime.format(timeFormatter),
-                            showTime = !isAllDay,
-                            onDateClick = { activePicker = PickerTarget.EndDate },
-                            onTimeClick = { activePicker = PickerTarget.EndTime }
-                        )
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "All day",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Switch(
-                                checked = isAllDay,
-                                onCheckedChange = { isAllDay = it }
-                            )
-                        }
-                    }
-                }
+                WhenSection(
+                    startDateTime = startDateTime,
+                    endDateTime = endDateTime,
+                    isAllDay = isAllDay,
+                    dateFormatter = dateFormatter,
+                    timeFormatter = timeFormatter,
+                    onAllDayChange = { isAllDay = it },
+                    onPickerSelect = { activePicker = it }
+                )
 
                 // Location
                 LabeledField(label = "Where is it?") {
@@ -224,57 +198,140 @@ fun CreateHangoutPopup(
                 }
 
                 // Public toggle
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Set hangout as public?",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Switch(
-                        checked = isPublic,
-                        onCheckedChange = { isPublic = it }
-                    )
-                }
+                ToggleRow(
+                    label = "Set hangout as public?",
+                    checked = isPublic,
+                    onCheckedChange = { isPublic = it }
+                )
 
                 // Buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            val finalStart = if (isAllDay)
-                                startDateTime.toLocalDate().atStartOfDay()
-                            else startDateTime
-                            val finalEnd = if (isAllDay)
-                                endDateTime.toLocalDate().atTime(23, 59)
-                            else endDateTime
-                            onCreate(title, finalStart, finalEnd, selectedMembers, isPublic)
-                        },
-                        modifier = Modifier.weight(1f),
-                        enabled = title.isNotBlank() && isAddressSelected
-                    ) {
-                        Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Create")
-                    }
-                    OutlinedButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Close")
-                    }
-                }
+                CreateHangoutActions(
+                    canCreate = title.isNotBlank() && isAddressSelected,
+                    onCreate = {
+                        val finalStart = if (isAllDay)
+                            startDateTime.toLocalDate().atStartOfDay()
+                        else startDateTime
+                        val finalEnd = if (isAllDay)
+                            endDateTime.toLocalDate().atTime(23, 59)
+                        else endDateTime
+                        onCreate(title, finalStart, finalEnd, selectedMembers, isPublic)
+                    },
+                    onDismiss = onDismiss
+                )
             }
         }
     }
 
+    DateTimePickers(
+        activePicker = activePicker,
+        startDateTime = startDateTime,
+        endDateTime = endDateTime,
+        onStartChange = { startDateTime = it },
+        onEndChange = { endDateTime = it },
+        onDismissPicker = { activePicker = null }
+    )
+}
+
+@Composable
+private fun WhenSection(
+    startDateTime: LocalDateTime,
+    endDateTime: LocalDateTime,
+    isAllDay: Boolean,
+    dateFormatter: DateTimeFormatter,
+    timeFormatter: DateTimeFormatter,
+    onAllDayChange: (Boolean) -> Unit,
+    onPickerSelect: (PickerTarget) -> Unit
+) {
+    LabeledField(label = "When is it?") {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            DateTimeRow(
+                label = "Start",
+                dateText = startDateTime.format(dateFormatter),
+                timeText = startDateTime.format(timeFormatter),
+                showTime = !isAllDay,
+                onDateClick = { onPickerSelect(PickerTarget.StartDate) },
+                onTimeClick = { onPickerSelect(PickerTarget.StartTime) }
+            )
+            DateTimeRow(
+                label = "End",
+                dateText = endDateTime.format(dateFormatter),
+                timeText = endDateTime.format(timeFormatter),
+                showTime = !isAllDay,
+                onDateClick = { onPickerSelect(PickerTarget.EndDate) },
+                onTimeClick = { onPickerSelect(PickerTarget.EndTime) }
+            )
+            ToggleRow(
+                label = "All day",
+                checked = isAllDay,
+                onCheckedChange = onAllDayChange
+            )
+        }
+    }
+}
+
+@Composable
+private fun ToggleRow(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+    }
+}
+
+@Composable
+private fun CreateHangoutActions(
+    canCreate: Boolean,
+    onCreate: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Button(
+            onClick = onCreate,
+            modifier = Modifier.weight(1f),
+            enabled = canCreate
+        ) {
+            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("Create")
+        }
+        OutlinedButton(
+            onClick = onDismiss,
+            modifier = Modifier.weight(1f)
+        ) {
+            Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("Close")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DateTimePickers(
+    activePicker: PickerTarget?,
+    startDateTime: LocalDateTime,
+    endDateTime: LocalDateTime,
+    onStartChange: (LocalDateTime) -> Unit,
+    onEndChange: (LocalDateTime) -> Unit,
+    onDismissPicker: () -> Unit
+) {
     when (activePicker) {
         PickerTarget.StartDate, PickerTarget.EndDate -> {
             val isStart = activePicker == PickerTarget.StartDate
@@ -286,7 +343,7 @@ fun CreateHangoutPopup(
                     .toEpochMilli()
             )
             DatePickerDialog(
-                onDismissRequest = { activePicker = null },
+                onDismissRequest = onDismissPicker,
                 confirmButton = {
                     TextButton(onClick = {
                         pickerState.selectedDateMillis?.let { millis ->
@@ -296,17 +353,17 @@ fun CreateHangoutPopup(
                             if (isStart) {
                                 val newStart = startDateTime.with(pickedDate)
                                 val (s, e) = adjustStart(startDateTime, newStart, endDateTime)
-                                startDateTime = s
-                                endDateTime = e
+                                onStartChange(s)
+                                onEndChange(e)
                             } else {
-                                endDateTime = adjustEnd(startDateTime, endDateTime.with(pickedDate))
+                                onEndChange(adjustEnd(startDateTime, endDateTime.with(pickedDate)))
                             }
                         }
-                        activePicker = null
+                        onDismissPicker()
                     }) { Text("OK") }
                 },
                 dismissButton = {
-                    TextButton(onClick = { activePicker = null }) { Text("Cancel") }
+                    TextButton(onClick = onDismissPicker) { Text("Cancel") }
                 }
             ) {
                 DatePicker(state = pickerState)
@@ -321,19 +378,19 @@ fun CreateHangoutPopup(
                 is24Hour = true
             )
             TimePickerDialog(
-                onDismiss = { activePicker = null },
+                onDismiss = onDismissPicker,
                 onConfirm = {
                     val pickedTime = current
                         .withHour(timeState.hour)
                         .withMinute(timeState.minute)
                     if (isStart) {
                         val (s, e) = adjustStart(startDateTime, pickedTime, endDateTime)
-                        startDateTime = s
-                        endDateTime = e
+                        onStartChange(s)
+                        onEndChange(e)
                     } else {
-                        endDateTime = adjustEnd(startDateTime, pickedTime)
+                        onEndChange(adjustEnd(startDateTime, pickedTime))
                     }
-                    activePicker = null
+                    onDismissPicker()
                 }
             ) {
                 TimePicker(state = timeState)

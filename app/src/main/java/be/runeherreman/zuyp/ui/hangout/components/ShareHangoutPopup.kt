@@ -86,131 +86,185 @@ fun ShareHangoutPopup(
                 modifier = Modifier.padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(
-                        text = "Invite people",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "Select who you want to invite to this hangout",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                ShareHeader()
 
                 if (users.isEmpty()) {
-                    Text(
-                        text = "Everyone's already invited",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 24.dp)
-                    )
+                    EmptyMessage(text = "Everyone's already invited")
                 } else {
-                    OutlinedTextField(
-                        value = query,
-                        onValueChange = { query = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Search people…") },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                        trailingIcon = {
-                            if (query.isNotEmpty()) {
-                                IconButton(onClick = { query = "" }) {
-                                    Icon(Icons.Default.Close, contentDescription = "Clear search")
-                                }
-                            }
-                        },
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp)
+                    InviteSearchField(
+                        query = query,
+                        onQueryChange = { query = it }
                     )
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "${selectedIds.size} selected",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        if (selectedIds.isNotEmpty()) {
-                            TextButton(
-                                onClick = onClearSelection,
-                                enabled = !isSending
-                            ) {
-                                Text("Clear selection")
-                            }
-                        }
-                    }
+                    SelectionBar(
+                        selectedCount = selectedIds.size,
+                        clearEnabled = !isSending,
+                        onClearSelection = onClearSelection
+                    )
 
                     if (filteredUsers.isEmpty()) {
-                        Text(
-                            text = "No people match \"$query\"",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 24.dp)
-                        )
+                        EmptyMessage(text = "No people match \"$query\"")
                     } else {
-                        LazyColumn(
-                            modifier = Modifier.heightIn(max = 400.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            items(filteredUsers, key = { it.id }) { user ->
-                                UserSelectRow(
-                                    user = user,
-                                    isSelected = selectedIds.contains(user.id),
-                                    onToggle = { onToggle(user.id) }
-                                )
-                            }
-                        }
+                        UserList(
+                            users = filteredUsers,
+                            selectedIds = selectedIds,
+                            onToggle = onToggle
+                        )
                     }
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
-                        enabled = !isSending,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Close")
-                    }
-                    Button(
-                        onClick = onInvite,
-                        enabled = selectedIds.isNotEmpty() && !isSending,
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        if (isSending) {
-                            CircularProgressIndicator(
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Inviting…")
-                        } else {
-                            Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = if (selectedIds.isEmpty()) "Invite selected"
-                                else "Invite selected (${selectedIds.size})"
-                            )
-                        }
-                    }
+                ShareActionButtons(
+                    selectedCount = selectedIds.size,
+                    isSending = isSending,
+                    onInvite = onInvite,
+                    onDismiss = onDismiss
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShareHeader() {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            text = "Invite people",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = "Select who you want to invite to this hangout",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun EmptyMessage(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp)
+    )
+}
+
+@Composable
+private fun InviteSearchField(
+    query: String,
+    onQueryChange: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        modifier = Modifier.fillMaxWidth(),
+        placeholder = { Text("Search people…") },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(Icons.Default.Close, contentDescription = "Clear search")
                 }
+            }
+        },
+        singleLine = true,
+        shape = RoundedCornerShape(12.dp)
+    )
+}
+
+@Composable
+private fun SelectionBar(
+    selectedCount: Int,
+    clearEnabled: Boolean,
+    onClearSelection: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "$selectedCount selected",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (selectedCount > 0) {
+            TextButton(
+                onClick = onClearSelection,
+                enabled = clearEnabled
+            ) {
+                Text("Clear selection")
+            }
+        }
+    }
+}
+
+@Composable
+private fun UserList(
+    users: List<User>,
+    selectedIds: Set<UUID>,
+    onToggle: (UUID) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier.heightIn(max = 400.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        items(users, key = { it.id }) { user ->
+            UserSelectRow(
+                user = user,
+                isSelected = selectedIds.contains(user.id),
+                onToggle = { onToggle(user.id) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ShareActionButtons(
+    selectedCount: Int,
+    isSending: Boolean,
+    onInvite: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        OutlinedButton(
+            onClick = onDismiss,
+            enabled = !isSending,
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(6.dp))
+            Text("Close")
+        }
+        Button(
+            onClick = onInvite,
+            enabled = selectedCount > 0 && !isSending,
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            if (isSending) {
+                CircularProgressIndicator(
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Inviting…")
+            } else {
+                Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = if (selectedCount == 0) "Invite selected"
+                    else "Invite selected ($selectedCount)"
+                )
             }
         }
     }
