@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -54,7 +57,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -112,7 +117,10 @@ fun CreateHangoutPopup(
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
     ) {
         Surface(
             shape = RoundedCornerShape(20.dp),
@@ -121,6 +129,7 @@ fun CreateHangoutPopup(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
+                .imePadding()
         ) {
             Column(
                 modifier = Modifier
@@ -605,6 +614,7 @@ private fun AddressSelector(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MembersSelector(
     availableUsers: List<User>,
@@ -622,6 +632,12 @@ private fun MembersSelector(
         .take(5)
 
     val showResults = memberSearch.isNotEmpty() && filtered.isNotEmpty()
+    // Keep the results dropdown above the keyboard: scroll it into view once it
+    // appears (and whenever the result count changes its height).
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    LaunchedEffect(showResults, filtered.size) {
+        if (showResults) bringIntoViewRequester.bringIntoView()
+    }
     val searchShape = if (showResults)
         RoundedCornerShape(topStart = 14.dp, topEnd = 14.dp)
     else
@@ -692,6 +708,7 @@ private fun MembersSelector(
                 color = MaterialTheme.colorScheme.surfaceContainerHigh,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .bringIntoViewRequester(bringIntoViewRequester)
                     .border(1.dp, MaterialTheme.colorScheme.outlineVariant, resultsShape)
             ) {
                 Column {
