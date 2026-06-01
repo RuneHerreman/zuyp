@@ -76,16 +76,21 @@ class HomeViewModel @Inject constructor(
         }
         viewModelScope.launch {
             getHangoutsUseCase().collect { items ->
-                val friendAttendees = getFriendAttendeesByHangoutUseCase(currentUserId, items)
-                _uiState.update { it.copy(hangouts = items, friendAttendees = friendAttendees) }
+                val visible = items.filter(::isVisibleToCurrentUser)
+                val friendAttendees = getFriendAttendeesByHangoutUseCase(currentUserId, visible)
+                _uiState.update { it.copy(hangouts = visible, friendAttendees = friendAttendees) }
             }
         }
         viewModelScope.launch {
             getAllHangoutsUseCase().collect { items ->
-                allHangouts = items
+                allHangouts = items.filter(::isVisibleToCurrentUser)
             }
         }
     }
+
+    // filter out private non-attending events
+    private fun isVisibleToCurrentUser(hangout: Hangout): Boolean =
+        !hangout.private || hangout.attendees.any { it.id == currentUserId }
 
     fun refresh() {
         viewModelScope.launch {
