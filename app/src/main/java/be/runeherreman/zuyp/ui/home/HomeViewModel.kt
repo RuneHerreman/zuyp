@@ -1,6 +1,7 @@
 package be.runeherreman.zuyp.ui.home
 
 import android.content.Intent
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.runeherreman.zuyp.domain.model.AddressSuggestion
@@ -8,14 +9,13 @@ import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.useCases.CreateHangoutUseCase
 import be.runeherreman.zuyp.domain.useCases.GetAllHangoutsUseCase
+import be.runeherreman.zuyp.domain.useCases.GetAllUsersUseCase
 import be.runeherreman.zuyp.domain.useCases.GetFriendAttendeesByHangoutUseCase
-import be.runeherreman.zuyp.domain.useCases.GetFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.GetHangoutsUseCase
+import be.runeherreman.zuyp.domain.useCases.GetUserByIdUserCase
 import be.runeherreman.zuyp.domain.useCases.ResolveAddressUseCase
 import be.runeherreman.zuyp.domain.useCases.SearchAddressesUseCase
-import be.runeherreman.zuyp.domain.useCases.UpdateAttendanceUseCase
-import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
-import be.runeherreman.zuyp.domain.repository.UserRepository
+import be.runeherreman.zuyp.domain.useCases.SendZuypAlertUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +25,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import androidx.core.net.toUri
-import be.runeherreman.zuyp.domain.useCases.SendZuypAlertUseCase
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.inject.Inject
@@ -38,12 +36,11 @@ class HomeViewModel @Inject constructor(
     private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
     private val getFriendAttendeesByHangoutUseCase: GetFriendAttendeesByHangoutUseCase,
     private val sendZuypAlertUseCase: SendZuypAlertUseCase,
-    private val getFriendsUseCase: GetFriendsUseCase,
     private val createHangoutUseCase: CreateHangoutUseCase,
-    private val updateAttendanceUseCase: UpdateAttendanceUseCase,
     private val searchAddressesUseCase: SearchAddressesUseCase,
     private val resolveAddressUseCase: ResolveAddressUseCase,
-    private val userRepository: UserRepository
+    private val getAllUsersUseCase: GetAllUsersUseCase,
+    private val getUserByIdUserCase: GetUserByIdUserCase
 ): ViewModel() {
     private val currentUserId = UUID.fromString("01234566-8f09-4567-4af8-def000000014")
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -57,7 +54,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            currentUser = userRepository.getUserById(currentUserId)
+            currentUser = getUserByIdUserCase(currentUserId)
         }
         viewModelScope.launch {
             addressQueryFlow
@@ -136,7 +133,7 @@ class HomeViewModel @Inject constructor(
 
     fun openCreateHangout() {
         viewModelScope.launch {
-            val allUsers = userRepository.getAllUsers().filter { it.id != currentUserId }
+            val allUsers = getAllUsersUseCase().filter { it.id != currentUserId }
             _uiState.update {
                 it.copy(isCreateHangoutOpen = true, availableUsers = allUsers)
             }
@@ -190,7 +187,7 @@ class HomeViewModel @Inject constructor(
         isPublic: Boolean
     ) {
         val creator = currentUser ?: return
-        // Guard: only allow creation with a resolved, existing address.
+        // only allow creation with a existing address.
         val address = _uiState.value.selectedAddress ?: return
         val hangoutId = UUID.randomUUID()
         val hangout = Hangout(

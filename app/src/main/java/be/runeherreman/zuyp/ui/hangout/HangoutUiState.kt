@@ -35,7 +35,13 @@ data class HangoutUiState(
     val isLoadingWeather: Boolean = true,
     val weatherIcon: ImageVector = Icons.Filled.Thermostat,
     val isError: Boolean = false,
-    val selectedHangoutId: String? = null
+    val selectedHangoutId: String? = null,
+
+    // Invite variables for popup thing
+    val isShareSheetOpen: Boolean = false,
+    val allUsers: List<User> = emptyList(),
+    val selectedInviteeIds: Set<UUID> = emptySet(),
+    val isSendingInvites: Boolean = false,
 ) {
     fun currentUserAttendanceStatus(): AttendanceStatus? =
         hangout.attendees.firstOrNull { it.id == currentUser.id }?.attendanceStatus

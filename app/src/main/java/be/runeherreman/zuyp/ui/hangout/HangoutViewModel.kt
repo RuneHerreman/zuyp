@@ -11,12 +11,14 @@ import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.Weather
 import be.runeherreman.zuyp.domain.model.generateWeatherPrediction
+import be.runeherreman.zuyp.domain.repository.UserRepository
 import be.runeherreman.zuyp.domain.useCases.AddFriendshipUseCase
 import be.runeherreman.zuyp.domain.useCases.AreFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.DeleteHangoutUseCase
 import be.runeherreman.zuyp.domain.useCases.GetHangoutByIdUseCase
 import be.runeherreman.zuyp.domain.useCases.GetWeatherForecastUseCase
 import be.runeherreman.zuyp.domain.useCases.RemoveFriendshipUseCase
+import be.runeherreman.zuyp.domain.useCases.SendHangoutInviteUseCase
 import be.runeherreman.zuyp.domain.useCases.UpdateAttendanceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +37,8 @@ class HangoutViewModel @Inject constructor(
     private val removeFriendshipUseCase: RemoveFriendshipUseCase,
     private val getWeatherUseCase: GetWeatherForecastUseCase,
     private val updateAttendanceUseCase: UpdateAttendanceUseCase,
-    private val deleteHangoutUseCase: DeleteHangoutUseCase
+    private val deleteHangoutUseCase: DeleteHangoutUseCase,
+    private val sendHangoutInviteUseCase: SendHangoutInviteUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow(HangoutUiState())
     val uiState: StateFlow<HangoutUiState> = _uiState
@@ -149,5 +152,15 @@ class HangoutViewModel @Inject constructor(
         weatherPrediction.contains("Heavy rain", ignoreCase = true) -> Icons.Default.Grain
         weatherPrediction.contains("Light rain", ignoreCase = true) -> Icons.Default.Cloud
         else -> Icons.Default.WbSunny
+    }
+
+    // ==============
+    // INVITES
+    // ===============
+    fun openShareSheet() {
+        _uiState.update { it.copy(isShareSheetOpen = true) }
+        viewModelScope.launch {
+
+        }
     }
 }
