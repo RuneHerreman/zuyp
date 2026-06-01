@@ -27,6 +27,7 @@ fun ActionButtons(
     attendanceStatus: AttendanceStatus?,
     toggleGoingClick: () -> Unit = {},
     toggleNotInterestedClick: () -> Unit = {},
+    onShareClick: () -> Unit = {},
 ) {
     val isUserGoing = attendanceStatus == AttendanceStatus.GOING
     val isUserNotInterested = attendanceStatus == AttendanceStatus.NOT_INTERESTED
@@ -73,7 +74,7 @@ fun ActionButtons(
             }
         }
         Button(
-            onClick = { /* TODO */ },
+            onClick = onShareClick,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant, contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
             shape = RoundedCornerShape(8.dp),
             contentPadding = PaddingValues(horizontal = 12.dp)

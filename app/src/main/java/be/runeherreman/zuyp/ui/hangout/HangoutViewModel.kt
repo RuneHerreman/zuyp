@@ -15,6 +15,7 @@ import be.runeherreman.zuyp.domain.repository.UserRepository
 import be.runeherreman.zuyp.domain.useCases.AddFriendshipUseCase
 import be.runeherreman.zuyp.domain.useCases.AreFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.DeleteHangoutUseCase
+import be.runeherreman.zuyp.domain.useCases.GetAllUsersUseCase
 import be.runeherreman.zuyp.domain.useCases.GetHangoutByIdUseCase
 import be.runeherreman.zuyp.domain.useCases.GetWeatherForecastUseCase
 import be.runeherreman.zuyp.domain.useCases.RemoveFriendshipUseCase
@@ -38,7 +39,8 @@ class HangoutViewModel @Inject constructor(
     private val getWeatherUseCase: GetWeatherForecastUseCase,
     private val updateAttendanceUseCase: UpdateAttendanceUseCase,
     private val deleteHangoutUseCase: DeleteHangoutUseCase,
-    private val sendHangoutInviteUseCase: SendHangoutInviteUseCase
+    private val sendHangoutInviteUseCase: SendHangoutInviteUseCase,
+    private val getAllUsersUseCase: GetAllUsersUseCase,
 ): ViewModel() {
     private val _uiState = MutableStateFlow(HangoutUiState())
     val uiState: StateFlow<HangoutUiState> = _uiState
@@ -160,7 +162,45 @@ class HangoutViewModel @Inject constructor(
     fun openShareSheet() {
         _uiState.update { it.copy(isShareSheetOpen = true) }
         viewModelScope.launch {
+            val currentUserId = _uiState.value.currentUser.id
+            val attendeeIds = _uiState.value.hangout.attendees.map { it.id }.toSet()
+            val allUsers = getAllUsersUseCase().filter {
+                it.id != currentUserId && it.id !in attendeeIds
+            }
+            _uiState.update { it.copy(allUsers = allUsers) }
+        }
+    }
 
+    fun closeShareSheet() {
+        _uiState.update { it.copy(isShareSheetOpen = false, selectedInviteeIds = emptySet()) }
+    }
+
+    fun clearInviteeSelection() {
+        _uiState.update { it.copy(selectedInviteeIds = emptySet()) }
+    }
+
+    fun toggleInvitee(userId: UUID) {
+        _uiState.update {
+            val newSelection = if (userId in it.selectedInviteeIds) {
+                it.selectedInviteeIds - userId
+            } else {
+                it.selectedInviteeIds + userId
+            }
+            it.copy(selectedInviteeIds = newSelection)
+        }
+    }
+
+    fun sendInvites() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSendingInvites = true) }
+            _uiState.value.selectedInviteeIds.forEach { inviteeId ->
+                sendHangoutInviteUseCase(
+                    inviteeId,
+                    _uiState.value.hangout.id
+                )
+            }
+            _uiState.update { it.copy(isSendingInvites = false) }
+            closeShareSheet()
         }
     }
 }

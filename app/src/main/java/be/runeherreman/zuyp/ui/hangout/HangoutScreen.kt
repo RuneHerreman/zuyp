@@ -38,6 +38,7 @@ import be.runeherreman.zuyp.ui.hangout.components.DeleteButton
 import be.runeherreman.zuyp.ui.hangout.components.ExpensesSection
 import be.runeherreman.zuyp.ui.hangout.components.HangoutHeader
 import be.runeherreman.zuyp.ui.hangout.components.PrivateBadge
+import be.runeherreman.zuyp.ui.hangout.components.ShareHangoutPopup
 import java.util.UUID
 
 @Composable
@@ -47,6 +48,11 @@ fun HangoutOverlay(
     onFriendClick: (UUID) -> Unit,
     onDeleteClick: (UUID) -> Unit,
     onUpdateAttendanceStatus: (Hangout, AttendanceStatus?) -> Unit,
+    onShareClick: () -> Unit = {},
+    onToggleInvitee: (UUID) -> Unit = {},
+    onSendInvites: () -> Unit = {},
+    onClearInvitees: () -> Unit = {},
+    onCloseShare: () -> Unit = {},
 ) {
     AnimatedVisibility(
         visible = uiState.selectedHangoutId != null,
@@ -63,9 +69,22 @@ fun HangoutOverlay(
                 onBackClick = onDismiss,
                 onFriendClick = onFriendClick,
                 onUpdateAttendanceStatus = onUpdateAttendanceStatus,
-                onDeleteClick = onDeleteClick
+                onDeleteClick = onDeleteClick,
+                onShareClick = onShareClick
             )
         }
+    }
+
+    if (uiState.isShareSheetOpen) {
+        ShareHangoutPopup(
+            users = uiState.allUsers,
+            selectedIds = uiState.selectedInviteeIds,
+            isSending = uiState.isSendingInvites,
+            onToggle = onToggleInvitee,
+            onInvite = onSendInvites,
+            onClearSelection = onClearInvitees,
+            onDismiss = onCloseShare
+        )
     }
 }
 
@@ -76,6 +95,7 @@ fun HangoutScreen(
     onDeleteClick: (UUID) -> Unit = {},
     onFriendClick: (UUID) -> Unit = {},
     onUpdateAttendanceStatus: (Hangout, AttendanceStatus?) -> Unit = {_, _, ->},
+    onShareClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     // Handle system back press
@@ -129,7 +149,8 @@ fun HangoutScreen(
             },
             toggleNotInterestedClick = {
                 onUpdateAttendanceStatus(uiState.hangout, uiState.nextAttendanceStatus(AttendanceStatus.NOT_INTERESTED))
-            }
+            },
+            onShareClick = onShareClick
         )
 
         Spacer(modifier = Modifier.height(32.dp))

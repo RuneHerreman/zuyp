@@ -63,7 +63,12 @@ fun ZuypApp(
                 onDismiss = hangoutViewModel::dismissHangout,
                 onFriendClick = hangoutViewModel::toggleFriendship,
                 onUpdateAttendanceStatus = hangoutViewModel::toggleGoing,
-                onDeleteClick = hangoutViewModel::deleteHangout
+                onDeleteClick = hangoutViewModel::deleteHangout,
+                onShareClick = hangoutViewModel::openShareSheet,
+                onToggleInvitee = hangoutViewModel::toggleInvitee,
+                onSendInvites = hangoutViewModel::sendInvites,
+                onClearInvitees = hangoutViewModel::clearInviteeSelection,
+                onCloseShare = hangoutViewModel::closeShareSheet
             )
         }
     }
