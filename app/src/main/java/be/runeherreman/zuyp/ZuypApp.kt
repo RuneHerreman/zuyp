@@ -39,32 +39,31 @@ fun ZuypApp(
 
         val hangoutUiState by hangoutViewModel.uiState.collectAsStateWithLifecycle()
 
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.onBackground,
-            bottomBar = {
-                ZuypBottomBar(
-                    navController = navController,
-                    currentDestination = currentDestination
-                )
-            }
-        ) { innerPadding ->
-            Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                bottomBar = {
+                    ZuypBottomBar(
+                        navController = navController,
+                        currentDestination = currentDestination
+                    )
+                }
+            ) { innerPadding ->
                 ZuypNavGraph(
                     navController = navController,
                     modifier = Modifier.padding(innerPadding),
                     hangoutViewModel = hangoutViewModel
                 )
-
-                HangoutOverlay(
-                    uiState = hangoutUiState,
-                    modifier = Modifier.padding(innerPadding),
-                    onDismiss = hangoutViewModel::dismissHangout,
-                    onFriendClick = hangoutViewModel::toggleFriendship,
-                    onUpdateAttendanceStatus = hangoutViewModel::toggleGoing
-                )
             }
+
+            HangoutOverlay(
+                uiState = hangoutUiState,
+                onDismiss = hangoutViewModel::dismissHangout,
+                onFriendClick = hangoutViewModel::toggleFriendship,
+                onUpdateAttendanceStatus = hangoutViewModel::toggleGoing
+            )
         }
     }
 }

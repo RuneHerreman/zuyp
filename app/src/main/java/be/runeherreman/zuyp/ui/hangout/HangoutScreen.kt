@@ -3,6 +3,9 @@ package be.runeherreman.zuyp.ui.hangout
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -48,7 +51,6 @@ fun HangoutOverlay(
     onDismiss: () -> Unit,
     onFriendClick: (UUID) -> Unit,
     onUpdateAttendanceStatus: (Hangout, AttendanceStatus?) -> Unit,
-    modifier: Modifier = Modifier
 ) {
     AnimatedVisibility(
         visible = uiState.selectedHangoutId != null,
@@ -56,10 +58,11 @@ fun HangoutOverlay(
         exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
     ) {
         Surface(
-            modifier = modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
             HangoutScreen(
+                modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
                 uiState = uiState,
                 onBackClick = onDismiss,
                 onFriendClick = onFriendClick,
