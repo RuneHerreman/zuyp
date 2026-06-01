@@ -13,6 +13,7 @@ import be.runeherreman.zuyp.domain.model.Weather
 import be.runeherreman.zuyp.domain.model.generateWeatherPrediction
 import be.runeherreman.zuyp.domain.useCases.AddFriendshipUseCase
 import be.runeherreman.zuyp.domain.useCases.AreFriendsUseCase
+import be.runeherreman.zuyp.domain.useCases.DeleteHangoutUseCase
 import be.runeherreman.zuyp.domain.useCases.GetHangoutByIdUseCase
 import be.runeherreman.zuyp.domain.useCases.GetWeatherForecastUseCase
 import be.runeherreman.zuyp.domain.useCases.RemoveFriendshipUseCase
@@ -33,7 +34,8 @@ class HangoutViewModel @Inject constructor(
     private val addFriendshipUseCase: AddFriendshipUseCase,
     private val removeFriendshipUseCase: RemoveFriendshipUseCase,
     private val getWeatherUseCase: GetWeatherForecastUseCase,
-    private val updateAttendanceUseCase: UpdateAttendanceUseCase
+    private val updateAttendanceUseCase: UpdateAttendanceUseCase,
+    private val deleteHangoutUseCase: DeleteHangoutUseCase
 ): ViewModel() {
     private val _uiState = MutableStateFlow(HangoutUiState())
     val uiState: StateFlow<HangoutUiState> = _uiState
@@ -133,6 +135,13 @@ class HangoutViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("HangoutViewModel", "Error toggling going", e)
             }
+        }
+    }
+
+    fun deleteHangout(hangoutId: UUID) {
+        viewModelScope.launch {
+            deleteHangoutUseCase(hangoutId, _uiState.value.currentUser.id)
+            dismissHangout()
         }
     }
 

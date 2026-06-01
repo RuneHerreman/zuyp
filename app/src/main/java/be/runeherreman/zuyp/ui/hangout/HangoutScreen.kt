@@ -27,6 +27,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -50,6 +51,7 @@ fun HangoutOverlay(
     uiState: HangoutUiState,
     onDismiss: () -> Unit,
     onFriendClick: (UUID) -> Unit,
+    onDeleteClick: (UUID) -> Unit,
     onUpdateAttendanceStatus: (Hangout, AttendanceStatus?) -> Unit,
 ) {
     AnimatedVisibility(
@@ -67,6 +69,7 @@ fun HangoutOverlay(
                 onBackClick = onDismiss,
                 onFriendClick = onFriendClick,
                 onUpdateAttendanceStatus = onUpdateAttendanceStatus,
+                onDeleteClick = onDeleteClick
             )
         }
     }
@@ -76,6 +79,7 @@ fun HangoutOverlay(
 fun HangoutScreen(
     uiState: HangoutUiState,
     onBackClick: () -> Unit = {},
+    onDeleteClick: (UUID) -> Unit = {},
     onFriendClick: (UUID) -> Unit = {},
     onUpdateAttendanceStatus: (Hangout, AttendanceStatus?) -> Unit = {_, _, ->},
     modifier: Modifier = Modifier,
@@ -100,7 +104,16 @@ fun HangoutScreen(
             .pointerInput(Unit) {}
             .padding(16.dp)
     ) {
-        BackButton(onBackClick = onBackClick)
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ){
+            BackButton(onBackClick = onBackClick)
+            if (uiState.hangout.creator.id == uiState.currentUser.id) {
+                DeleteButton(onDeleteClick = { onDeleteClick(uiState.hangout.id) })
+            }
+        }
+
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -142,6 +155,19 @@ fun HangoutScreen(
 
         ExpensesSection()
     }
+}
+
+@Composable
+fun DeleteButton(onDeleteClick: () -> Unit) {
+    IconButton(
+        onClick = onDeleteClick,
+        modifier = Modifier
+            .size(40.dp)
+            .background(MaterialTheme.colorScheme.error, CircleShape)
+    ) {
+        Icon(Icons.Outlined.Delete, contentDescription = "Delete Hangout", tint = MaterialTheme.colorScheme.onError)
+    }
+
 }
 
 @Composable
@@ -277,7 +303,9 @@ fun AttendeesSection(
             text = "No one is going yet",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 16.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth(),
             textAlign = TextAlign.Center)
     } else {
         attendees.forEach { user ->

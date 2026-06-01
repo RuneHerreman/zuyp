@@ -12,4 +12,5 @@ interface HangoutRepository {
     suspend fun updateAttendenceStatus(hangoutId: UUID, userId: UUID, status: AttendanceStatus)
     suspend fun removeAttendee(hangoutId: UUID, userId: UUID)
     suspend fun createOrUpdateHangout(hangout: Hangout)
+    suspend fun removeHangout(hangoutId: UUID)
 }

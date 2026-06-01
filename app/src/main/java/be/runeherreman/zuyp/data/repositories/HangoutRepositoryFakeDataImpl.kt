@@ -51,6 +51,10 @@ class HangoutRepositoryFakeDataImpl @Inject constructor(
     override suspend fun createOrUpdateHangout(hangout: Hangout) {
         TODO("Not yet implemented")
     }
+
+    override suspend fun removeHangout(hangoutId: UUID) {
+        TODO("Not yet implemented")
+    }
 }
 
 private fun HangoutDto.toDomain() = Hangout(

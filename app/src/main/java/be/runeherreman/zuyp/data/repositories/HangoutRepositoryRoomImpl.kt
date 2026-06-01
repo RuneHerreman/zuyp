@@ -53,6 +53,10 @@ class HangoutRepositoryRoomImpl @Inject constructor(
     override suspend fun createOrUpdateHangout(hangout: Hangout) {
         hangoutDao.insert(hangout.toEntity())
     }
+
+    override suspend fun removeHangout(hangoutId: UUID) {
+        hangoutDao.removeHangout(hangoutId)
+    }
 }
 
 private fun Hangout.toEntity(): HangoutEntity {
