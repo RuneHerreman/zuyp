@@ -22,10 +22,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -60,6 +63,7 @@ fun ShareHangoutPopup(
     onToggle: (UUID) -> Unit,
     onInvite: () -> Unit,
     onClearSelection: () -> Unit,
+    onShareExternal: () -> Unit,
     onDismiss: () -> Unit
 ) {
     BackHandler(onBack = onDismiss)
@@ -87,6 +91,19 @@ fun ShareHangoutPopup(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 ShareHeader()
+
+                FilledTonalButton(
+                    onClick = onShareExternal,
+                    enabled = !isSending,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.IosShare, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Share off platform")
+                }
+
+                LabeledDivider(text = "or invite people in the app")
 
                 if (users.isEmpty()) {
                     EmptyMessage(text = "Everyone's already invited")
@@ -138,6 +155,23 @@ private fun ShareHeader() {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun LabeledDivider(text: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 

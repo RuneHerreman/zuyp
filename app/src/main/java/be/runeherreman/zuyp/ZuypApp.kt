@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,10 +26,13 @@ import be.runeherreman.zuyp.ui.theme.ZuypTheme
 fun ZuypApp(
     hangoutViewModel: HangoutViewModel = viewModel(),
     initialHangoutId: String? = null,
+    onHangoutConsumed: () -> Unit = {},
 ) {
     LaunchedEffect(initialHangoutId) {
         if (initialHangoutId != null) {
             hangoutViewModel.selectHangout(initialHangoutId)
+            // Consume the one-shot deep link so re-opening the same id later re-triggers.
+            onHangoutConsumed()
         }
     }
 
@@ -38,6 +42,7 @@ fun ZuypApp(
         val currentDestination = navBackStackEntry?.destination
 
         val hangoutUiState by hangoutViewModel.uiState.collectAsStateWithLifecycle()
+        val context = LocalContext.current
 
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
@@ -68,6 +73,7 @@ fun ZuypApp(
                 onToggleInvitee = hangoutViewModel::toggleInvitee,
                 onSendInvites = hangoutViewModel::sendInvites,
                 onClearInvitees = hangoutViewModel::clearInviteeSelection,
+                onShareExternal = { hangoutViewModel.shareHangoutExternally(hangoutUiState.hangout, context) },
                 onCloseShare = hangoutViewModel::closeShareSheet
             )
         }

@@ -52,6 +52,7 @@ fun HangoutOverlay(
     onToggleInvitee: (UUID) -> Unit = {},
     onSendInvites: () -> Unit = {},
     onClearInvitees: () -> Unit = {},
+    onShareExternal: () -> Unit = {},
     onCloseShare: () -> Unit = {},
 ) {
     AnimatedVisibility(
@@ -83,6 +84,7 @@ fun HangoutOverlay(
             onToggle = onToggleInvitee,
             onInvite = onSendInvites,
             onClearSelection = onClearInvitees,
+            onShareExternal = onShareExternal,
             onDismiss = onCloseShare
         )
     }

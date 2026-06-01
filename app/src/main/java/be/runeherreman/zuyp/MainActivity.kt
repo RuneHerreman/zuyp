@@ -37,21 +37,37 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        pendingHangoutId = intent.getStringExtra(NotificationWorker.EXTRA_HANGOUT_ID)
+        pendingHangoutId = extractHangoutId(intent)
         val permissions = (
                 AppPermission.NOTIFICATION.toAndroidPermissions()
                         +
                 AppPermission.LOCATION.toAndroidPermissions()).toTypedArray()
         requestPermissionsLauncher.launch(permissions)
         setContent {
-            ZuypApp(initialHangoutId = pendingHangoutId)
+            ZuypApp(
+                initialHangoutId = pendingHangoutId,
+                onHangoutConsumed = { pendingHangoutId = null }
+            )
         }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        pendingHangoutId = intent.getStringExtra(NotificationWorker.EXTRA_HANGOUT_ID)
+        pendingHangoutId = extractHangoutId(intent)
+    }
+
+    /**
+     * Resolves the hangout id from either a notification tap
+     * ([NotificationWorker.EXTRA_HANGOUT_ID]) or a shared deep link
+     * (https://zuyp.app/hangout/<id> or zuyp://hangout/<id>).
+     */
+    private fun extractHangoutId(intent: Intent): String? {
+        intent.getStringExtra(NotificationWorker.EXTRA_HANGOUT_ID)?.let { return it }
+        if (intent.action == Intent.ACTION_VIEW) {
+            return intent.data?.lastPathSegment
+        }
+        return null
     }
 
     private fun requestFullScreenIntentPermission() {

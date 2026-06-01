@@ -1,5 +1,6 @@
 package be.runeherreman.zuyp.ui.hangout
 
+import android.content.Intent
 import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
@@ -200,5 +201,24 @@ class HangoutViewModel @Inject constructor(
             _uiState.update { it.copy(isSendingInvites = false) }
             closeShareSheet()
         }
+    }
+
+    fun shareHangoutExternally(hangout: Hangout, context: android.content.Context) {
+        // Clickable https link (GitHub Pages) that redirects to the zuyp:// deep link.
+        val shareLink = "https://runeherreman.github.io/zuyp/hangout/${hangout.id}"
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d 'at' HH:mm")
+        val text = buildString {
+            append("Join me at \"${hangout.title}\"!\n")
+            append("📍 ${hangout.locationName}\n")
+            append("${hangout.startDate.format(dateTimeFormatter)} - ${hangout.endDate.format(dateTimeFormatter)}\n")
+            append(shareLink)
+        }
+
+        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, hangout.title)
+            putExtra(Intent.EXTRA_TEXT, text)
+        }
+        context.startActivity(Intent.createChooser(sendIntent, "Share hangout"))
     }
 }
