@@ -1,27 +1,26 @@
 package be.runeherreman.zuyp.data.workers
 
 import android.annotation.SuppressLint
-import android.graphics.BitmapFactory
-import be.runeherreman.zuyp.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.hardware.camera2.CameraManager
 import android.media.AudioAttributes
-import android.net.Uri
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.net.toUri
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import be.runeherreman.zuyp.MainActivity
-import be.runeherreman.zuyp.ui.alert.ZuypAlertActivity
+import be.runeherreman.zuyp.R
 import be.runeherreman.zuyp.data.messaging.MessageConsumer
-import be.runeherreman.zuyp.data.receivers.JoinHangoutReceiver
 import be.runeherreman.zuyp.data.messaging.NotificationMessage
-import com.mapbox.maps.extension.style.expressions.dsl.generated.not
+import be.runeherreman.zuyp.data.receivers.JoinHangoutReceiver
+import be.runeherreman.zuyp.ui.alert.ZuypAlertActivity
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
@@ -183,7 +182,8 @@ class NotificationWorker @AssistedInject constructor(
             NotificationManager.IMPORTANCE_HIGH,
         )
 
-        val alertSoundUri = Uri.parse("android.resource://${applicationContext.packageName}/raw/zuyp_alert")
+        val alertSoundUri =
+            "android.resource://${applicationContext.packageName}/raw/zuyp_alert".toUri()
         val alertChannel = NotificationChannel(
             CHANNEL_ZUYP_ALERT,
             "Zuyp Alerts",

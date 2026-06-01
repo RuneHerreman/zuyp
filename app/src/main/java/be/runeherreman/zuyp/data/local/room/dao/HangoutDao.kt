@@ -5,9 +5,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
-import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import be.runeherreman.zuyp.data.local.room.entity.HangoutEntity
+import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
 import be.runeherreman.zuyp.data.local.room.entity.HangoutWithDetails
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID

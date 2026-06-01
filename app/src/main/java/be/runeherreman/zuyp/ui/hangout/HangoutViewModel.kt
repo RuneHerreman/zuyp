@@ -9,9 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
-import be.runeherreman.zuyp.domain.model.Weather
 import be.runeherreman.zuyp.domain.model.generateWeatherPrediction
-import be.runeherreman.zuyp.domain.repository.UserRepository
 import be.runeherreman.zuyp.domain.useCases.AddFriendshipUseCase
 import be.runeherreman.zuyp.domain.useCases.AreFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.DeleteHangoutUseCase

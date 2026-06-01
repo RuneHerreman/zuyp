@@ -20,6 +20,7 @@ import be.runeherreman.zuyp.data.workers.NotificationWorker
 import be.runeherreman.zuyp.ui.permissions.AppPermission
 import be.runeherreman.zuyp.ui.permissions.toAndroidPermissions
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.core.net.toUri
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -58,7 +59,7 @@ class MainActivity : ComponentActivity() {
         if (!notificationManager.canUseFullScreenIntent()) {
             val intent = Intent(
                 Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,
-                Uri.parse("package:$packageName"),
+                "package:$packageName".toUri(),
             )
             startActivity(intent)
         }
