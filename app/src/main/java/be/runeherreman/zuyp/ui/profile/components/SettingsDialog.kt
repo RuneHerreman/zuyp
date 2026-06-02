@@ -34,7 +34,6 @@ fun SettingsDialog(
     notificationsEnabled: Boolean,
     locationSharingEnabled: Boolean,
     onEditProfile: () -> Unit,
-    onPrivacySettings: () -> Unit,
     onNotificationsToggle: (Boolean) -> Unit,
     onLocationSharingToggle: (Boolean) -> Unit,
     onDismiss: () -> Unit
@@ -63,13 +62,6 @@ fun SettingsDialog(
                     title = "Edit Profile",
                     subtitle = "Update your personal information",
                     onClick = onEditProfile
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                NavigationSettingRow(
-                    icon = Icons.Default.Shield,
-                    title = "Privacy settings",
-                    subtitle = "Set what person info you want to be public",
-                    onClick = onPrivacySettings
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 ToggleSettingRow(

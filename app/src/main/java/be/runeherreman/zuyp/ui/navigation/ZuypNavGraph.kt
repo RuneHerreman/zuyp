@@ -75,7 +75,6 @@ fun ZuypNavGraph(
                 onSettingsOpen = profileViewModel::openSettings,
                 onSettingsClose = profileViewModel::closeSettings,
                 onEditProfile = profileViewModel::onEditProfile,
-                onPrivacySettings = profileViewModel::onPrivacySettings,
                 onNotificationsToggle = profileViewModel::setNotificationsEnabled,
                 onLocationSharingToggle = profileViewModel::setLocationSharingEnabled,
                 onHangoutClick = profileViewModel::onHangoutClick

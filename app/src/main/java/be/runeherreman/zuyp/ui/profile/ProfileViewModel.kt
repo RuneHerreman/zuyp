@@ -6,6 +6,7 @@ import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
+import be.runeherreman.zuyp.domain.useCases.users.SetUserLocationPreferenceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val getFriendsUseCase: GetFriendsUseCase,
-    private val getAllHangoutsUseCase: GetAllHangoutsUseCase
+    private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
+    private val setNotificationPreferenceUseCase: SetUserLocationPreferenceUseCase,
+    private val setUserLocationPreferenceUseCase: SetUserLocationPreferenceUseCase,
 ) : ViewModel() {
     private val currentUserId: UUID = CurrentUser.id
 
@@ -69,19 +72,21 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun setNotificationsEnabled(enabled: Boolean) {
-        _uiState.update { it.copy(notificationsEnabled = enabled) }
+        viewModelScope.launch {
+            setNotificationsEnabled(enabled)
+            _uiState.update { it.copy(notificationsEnabled = enabled) }
+        }
     }
 
     fun setLocationSharingEnabled(enabled: Boolean) {
-        _uiState.update { it.copy(locationSharingEnabled = enabled) }
+        viewModelScope.launch {
+            setLocationSharingEnabled(enabled)
+            _uiState.update { it.copy(locationSharingEnabled = enabled) }
+        }
     }
 
     fun onEditProfile() {
         // TODO: navigate to an edit-profile flow once it exists
-    }
-
-    fun onPrivacySettings() {
-        // TODO: navigate to a privacy-settings flow once it exists
     }
 
     fun onHangoutClick(hangout: Hangout) {

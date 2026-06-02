@@ -23,7 +23,6 @@ fun ProfileScreen(
     onSettingsOpen: () -> Unit = {},
     onSettingsClose: () -> Unit = {},
     onEditProfile: () -> Unit = {},
-    onPrivacySettings: () -> Unit = {},
     onNotificationsToggle: (Boolean) -> Unit = {},
     onLocationSharingToggle: (Boolean) -> Unit = {},
     onHangoutClick: (Hangout) -> Unit = {}
@@ -66,7 +65,6 @@ fun ProfileScreen(
             notificationsEnabled = uiState.notificationsEnabled,
             locationSharingEnabled = uiState.locationSharingEnabled,
             onEditProfile = onEditProfile,
-            onPrivacySettings = onPrivacySettings,
             onNotificationsToggle = onNotificationsToggle,
             onLocationSharingToggle = onLocationSharingToggle,
             onDismiss = onSettingsClose
