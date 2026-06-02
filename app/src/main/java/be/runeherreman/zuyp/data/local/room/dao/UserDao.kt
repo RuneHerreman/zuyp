@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import be.runeherreman.zuyp.data.local.room.entity.FriendshipEntity
 import be.runeherreman.zuyp.data.local.room.entity.UserEntity
+import be.runeherreman.zuyp.domain.model.User
 import java.util.UUID
 
 @Dao
@@ -35,10 +36,6 @@ interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addFriendships(friendships: List<FriendshipEntity>)
 
-    /**
-     * Check if two users are friends (bidirectional check)
-     * Returns true if either (userId1, userId2) or (userId2, userId1) exists
-     */
     @Query(
         "SELECT EXISTS(SELECT 1 FROM friendships " +
         "WHERE (userId1 = :userId1 AND userId2 = :userId2) OR " +
@@ -46,9 +43,6 @@ interface UserDao {
     )
     suspend fun areFriends(userId1: UUID, userId2: UUID): Boolean
 
-    /**
-     * Get all friends of a user
-     */
     @Query(
         "SELECT u.* FROM users u " +
         "INNER JOIN friendships f ON (" +
@@ -59,18 +53,12 @@ interface UserDao {
     )
     suspend fun getFriendsOfUser(userId: UUID): List<UserEntity>
 
-    /**
-     * Get the count of friends for a user
-     */
     @Query(
         "SELECT COUNT(*) FROM friendships " +
         "WHERE userId1 = :userId OR userId2 = :userId"
     )
     suspend fun getFriendCount(userId: UUID): Int
 
-    /**
-     * Remove a friendship (bidirectional)
-     */
     @Query(
         "DELETE FROM friendships " +
         "WHERE (userId1 = :userId1 AND userId2 = :userId2) OR " +
@@ -80,5 +68,8 @@ interface UserDao {
 
     @Query("DELETE FROM friendships")
     suspend fun deleteAllFriendships()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun editProfile(user: UserEntity)
 }
 

@@ -14,6 +14,7 @@ data class ProfileUiState(
 
     // Settings popup
     val isSettingsOpen: Boolean = false,
+    val isEditProfileOpen: Boolean = false,
     // Route of the screen to open on launch (null = not set / default).
     val startupRoute: String? = null
 )

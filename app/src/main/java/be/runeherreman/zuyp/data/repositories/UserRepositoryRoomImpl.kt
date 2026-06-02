@@ -23,6 +23,10 @@ class UserRepositoryRoomImpl @Inject constructor(
         return userDao.areFriends(userId1, userId2)
     }
 
+    override suspend fun editProfile(user: User) {
+        return userDao.editProfile(user.toEntity())
+    }
+
     override suspend fun getFriendsOfUser(userId: UUID): List<User> {
         return userDao.getFriendsOfUser(userId).map { it.toDomain() }
     }
@@ -40,6 +44,16 @@ class UserRepositoryRoomImpl @Inject constructor(
     override suspend fun removeFriendship(userId1: UUID, userId2: UUID) {
         userDao.removeFriendship(userId1, userId2)
     }
+}
+
+private fun User.toEntity(): UserEntity {
+    return UserEntity(
+        id = id,
+        name = name,
+        birthdate = birthdate,
+        email = email,
+        imageUrl = imageUrl
+    )
 }
 
 private fun UserEntity.toDomain(): User {

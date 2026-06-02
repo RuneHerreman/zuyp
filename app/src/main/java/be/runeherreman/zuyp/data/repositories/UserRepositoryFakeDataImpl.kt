@@ -22,6 +22,10 @@ class UserRepositoryFakeDataImpl @Inject constructor(
         return fakeFriendshipsDataSource.areFriends(userId1, userId2)
     }
 
+    override suspend fun editProfile(user: User) {
+        // No-op: fake data is read-only. The Room implementation is the bound one.
+    }
+
     override suspend fun getFriendsOfUser(userId: UUID): List<User> {
         return fakeFriendshipsDataSource.getFriendsOfUser(userId)
     }

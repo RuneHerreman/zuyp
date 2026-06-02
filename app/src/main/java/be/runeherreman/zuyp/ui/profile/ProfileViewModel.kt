@@ -6,9 +6,12 @@ import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
+import be.runeherreman.zuyp.domain.useCases.users.EditProfileUseCase
 import be.runeherreman.zuyp.domain.useCases.users.GetStartupScreenUseCase
+import be.runeherreman.zuyp.domain.useCases.users.GetUserByIdUserCase
 import be.runeherreman.zuyp.domain.useCases.users.SetStartupScreenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -23,6 +26,8 @@ class ProfileViewModel @Inject constructor(
     private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
     private val getStartupScreenUseCase: GetStartupScreenUseCase,
     private val setStartupScreenUseCase: SetStartupScreenUseCase,
+    private val getUserByIdUseCase: GetUserByIdUserCase,
+    private val editProfileUseCase: EditProfileUseCase,
 ) : ViewModel() {
     private val currentUserId: UUID = CurrentUser.id
 
@@ -63,6 +68,11 @@ class ProfileViewModel @Inject constructor(
                 _uiState.update { it.copy(startupRoute = route) }
             }
         }
+
+        viewModelScope.launch {
+            val user = getUserByIdUseCase(currentUserId) ?: CurrentUser.user
+            _uiState.update { it.copy(user = user) }
+        }
     }
 
     /** Persists which screen the app should open on launch. */
@@ -86,6 +96,22 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onEditProfile() {
-        // TODO: navigate to an edit-profile flow once it exists
+        _uiState.update { it.copy(isSettingsOpen = false, isEditProfileOpen = true) }
+    }
+
+    fun closeEditProfile() {
+        _uiState.update { it.copy(isEditProfileOpen = false) }
+    }
+
+    fun saveProfile(name: String, email: String, birthdate: LocalDate) {
+        val updated = (_uiState.value.user ?: CurrentUser.user).copy(
+            name = name,
+            email = email,
+            birthdate = birthdate
+        )
+        viewModelScope.launch {
+            editProfileUseCase(updated)
+            _uiState.update { it.copy(user = updated, isEditProfileOpen = false) }
+        }
     }
 }

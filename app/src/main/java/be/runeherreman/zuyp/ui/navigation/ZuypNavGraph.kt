@@ -86,6 +86,8 @@ fun ZuypNavGraph(
                 onSettingsOpen = profileViewModel::openSettings,
                 onSettingsClose = profileViewModel::closeSettings,
                 onEditProfile = profileViewModel::onEditProfile,
+                onEditProfileSave = profileViewModel::saveProfile,
+                onEditProfileClose = profileViewModel::closeEditProfile,
                 onStartupScreenSelect = profileViewModel::setStartupScreen,
                 onHangoutClick = { hangoutViewModel.selectHangout(it.id.toString()) }
             )

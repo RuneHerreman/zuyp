@@ -11,7 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import java.time.LocalDate
 import be.runeherreman.zuyp.domain.model.Hangout
+import be.runeherreman.zuyp.ui.profile.components.EditProfileDialog
 import be.runeherreman.zuyp.ui.profile.components.ProfileActivitySection
 import be.runeherreman.zuyp.ui.profile.components.ProfileHeader
 import be.runeherreman.zuyp.ui.profile.components.SettingsDialog
@@ -23,6 +25,8 @@ fun ProfileScreen(
     onSettingsOpen: () -> Unit = {},
     onSettingsClose: () -> Unit = {},
     onEditProfile: () -> Unit = {},
+    onEditProfileSave: (String, String, LocalDate) -> Unit = { _, _, _ -> },
+    onEditProfileClose: () -> Unit = {},
     onStartupScreenSelect: (String) -> Unit = {},
     onHangoutClick: (Hangout) -> Unit = {}
 ) {
@@ -65,6 +69,14 @@ fun ProfileScreen(
             onEditProfile = onEditProfile,
             onStartupScreenSelect = onStartupScreenSelect,
             onDismiss = onSettingsClose
+        )
+    }
+
+    if (uiState.isEditProfileOpen) {
+        EditProfileDialog(
+            user = uiState.user,
+            onSave = onEditProfileSave,
+            onDismiss = onEditProfileClose
         )
     }
 }
