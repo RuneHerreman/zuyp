@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -44,67 +44,88 @@ fun ProfileHeader(
     modifier: Modifier = Modifier,
     onSettingsClick: () -> Unit = {}
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Zuyp!",
-                style = MaterialTheme.typography.headlineSmall,
-                fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+            contentColor = MaterialTheme.colorScheme.onSurface
+        )
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            ProfileIdentityRow(user = user, onSettingsClick = onSettingsClick)
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            ProfileStatsRow(
+                friendsCount = friendsCount,
+                groupsCount = groupsCount,
+                eventsCount = eventsCount
             )
-            IconButton(onClick = onSettingsClick) {
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = "Open settings",
-                    tint = MaterialTheme.colorScheme.primary
+        }
+    }
+}
+
+/** Avatar, name and email, with the settings entry point in the corner. */
+@Composable
+private fun ProfileIdentityRow(
+    user: User?,
+    onSettingsClick: () -> Unit
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        ProfileAvatar(user = user)
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = user?.name ?: "—",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (!user?.email.isNullOrBlank()) {
+                Text(
+                    text = user.email,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
-                contentColor = MaterialTheme.colorScheme.onSurface
-            )
+        IconButton(
+            onClick = onSettingsClick,
+            modifier = Modifier.align(Alignment.Top)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 18.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ProfileAvatar(user = user)
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = user?.name ?: "—",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                        Stat(value = friendsCount, label = "Friends")
-                        Stat(value = groupsCount, label = "Groups")
-                        Stat(value = eventsCount, label = "Events")
-                    }
-                }
-            }
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Open settings",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
+    }
+}
+
+/** The Friends / Groups / Events counts spread evenly across the card. */
+@Composable
+private fun ProfileStatsRow(
+    friendsCount: Int,
+    groupsCount: Int,
+    eventsCount: Int
+) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Stat(value = friendsCount, label = "Friends", modifier = Modifier.weight(1f))
+        StatDivider()
+        Stat(value = groupsCount, label = "Groups", modifier = Modifier.weight(1f))
+        StatDivider()
+        Stat(value = eventsCount, label = "Events", modifier = Modifier.weight(1f))
     }
 }
 
@@ -147,18 +168,36 @@ private fun ProfileAvatar(user: User?) {
 }
 
 @Composable
-private fun Stat(value: Int, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+private fun Stat(
+    value: Int,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(
             text = value.toString(),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
+}
+
+@Composable
+private fun StatDivider() {
+    Box(
+        modifier = Modifier
+            .height(36.dp)
+            .width(1.dp)
+            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+    )
 }
