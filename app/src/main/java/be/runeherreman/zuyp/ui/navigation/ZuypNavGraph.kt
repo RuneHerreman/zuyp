@@ -77,7 +77,7 @@ fun ZuypNavGraph(
                 onEditProfile = profileViewModel::onEditProfile,
                 onNotificationsToggle = profileViewModel::setNotificationsEnabled,
                 onLocationSharingToggle = profileViewModel::setLocationSharingEnabled,
-                onHangoutClick = profileViewModel::onHangoutClick
+                onHangoutClick = { hangoutViewModel.selectHangout(it.id.toString()) }
             )
         }
     }

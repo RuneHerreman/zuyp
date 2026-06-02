@@ -7,6 +7,7 @@ import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.users.SetUserLocationPreferenceUseCase
+import be.runeherreman.zuyp.domain.useCases.users.SetUserNotificationPreferenceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val getFriendsUseCase: GetFriendsUseCase,
     private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
-    private val setNotificationPreferenceUseCase: SetUserLocationPreferenceUseCase,
+    private val setNotificationPreferenceUseCase: SetUserNotificationPreferenceUseCase,
     private val setUserLocationPreferenceUseCase: SetUserLocationPreferenceUseCase,
 ) : ViewModel() {
     private val currentUserId: UUID = CurrentUser.id
@@ -87,9 +88,5 @@ class ProfileViewModel @Inject constructor(
 
     fun onEditProfile() {
         // TODO: navigate to an edit-profile flow once it exists
-    }
-
-    fun onHangoutClick(hangout: Hangout) {
-        // TODO
     }
 }
