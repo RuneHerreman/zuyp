@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,31 +34,6 @@ fun NavigationSettingRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         SettingLabel(icon = icon, title = title, subtitle = subtitle)
-    }
-}
-
-/** A settings row with a trailing toggle. */
-@Composable
-fun ToggleSettingRow(
-    icon: ImageVector,
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        SettingLabel(
-            icon = icon,
-            title = title,
-            subtitle = subtitle,
-            modifier = Modifier.weight(1f)
-        )
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 

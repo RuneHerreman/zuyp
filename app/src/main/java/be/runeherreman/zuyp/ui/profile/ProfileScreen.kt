@@ -23,8 +23,7 @@ fun ProfileScreen(
     onSettingsOpen: () -> Unit = {},
     onSettingsClose: () -> Unit = {},
     onEditProfile: () -> Unit = {},
-    onNotificationsToggle: (Boolean) -> Unit = {},
-    onLocationSharingToggle: (Boolean) -> Unit = {},
+    onStartupScreenSelect: (String) -> Unit = {},
     onHangoutClick: (Hangout) -> Unit = {}
 ) {
     Column(
@@ -62,11 +61,9 @@ fun ProfileScreen(
 
     if (uiState.isSettingsOpen) {
         SettingsDialog(
-            notificationsEnabled = uiState.notificationsEnabled,
-            locationSharingEnabled = uiState.locationSharingEnabled,
+            startupRoute = uiState.startupRoute,
             onEditProfile = onEditProfile,
-            onNotificationsToggle = onNotificationsToggle,
-            onLocationSharingToggle = onLocationSharingToggle,
+            onStartupScreenSelect = onStartupScreenSelect,
             onDismiss = onSettingsClose
         )
     }

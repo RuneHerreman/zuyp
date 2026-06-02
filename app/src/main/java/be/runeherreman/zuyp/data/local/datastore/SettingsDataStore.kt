@@ -3,8 +3,8 @@ package be.runeherreman.zuyp.data.local.datastore
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -18,32 +18,18 @@ class SettingsDataStore(
     private val dataStore: DataStore<Preferences>
 ) {
     companion object {
-        val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
-        val LOCATION_ENABLED = booleanPreferencesKey("location_enabled")
+        val STARTUP_SCREEN = stringPreferencesKey("startup_screen")
     }
 
-    val notificationsEnabled: Flow<Boolean> =
-        dataStore.data.
-        map { prefs ->
-            prefs[NOTIFICATIONS_ENABLED] ?: false
+    /** Route of the screen to open on app start, or null when none is set. */
+    val startupScreen: Flow<String?> =
+        dataStore.data.map { prefs ->
+            prefs[STARTUP_SCREEN]
         }
 
-    val locationEnabled: Flow<Boolean> =
-        dataStore.data.
-        map { prefs ->
-            prefs[LOCATION_ENABLED] ?: false
-        }
-
-
-    suspend fun setNotificationsEnabled(enabled: Boolean) {
+    suspend fun setStartupScreen(route: String) {
         dataStore.edit { prefs ->
-            prefs[NOTIFICATIONS_ENABLED] = enabled
-        }
-    }
-
-    suspend fun setLocationEnabled(enabled: Boolean) {
-        dataStore.edit { prefs ->
-            prefs[LOCATION_ENABLED] = enabled
+            prefs[STARTUP_SCREEN] = route
         }
     }
 }

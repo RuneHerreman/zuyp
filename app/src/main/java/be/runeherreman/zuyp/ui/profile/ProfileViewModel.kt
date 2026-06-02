@@ -6,8 +6,8 @@ import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
-import be.runeherreman.zuyp.domain.useCases.users.SetUserLocationPreferenceUseCase
-import be.runeherreman.zuyp.domain.useCases.users.SetUserNotificationPreferenceUseCase
+import be.runeherreman.zuyp.domain.useCases.users.GetStartupScreenUseCase
+import be.runeherreman.zuyp.domain.useCases.users.SetStartupScreenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,8 +21,8 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val getFriendsUseCase: GetFriendsUseCase,
     private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
-    private val setNotificationPreferenceUseCase: SetUserNotificationPreferenceUseCase,
-    private val setUserLocationPreferenceUseCase: SetUserLocationPreferenceUseCase,
+    private val getStartupScreenUseCase: GetStartupScreenUseCase,
+    private val setStartupScreenUseCase: SetStartupScreenUseCase,
 ) : ViewModel() {
     private val currentUserId: UUID = CurrentUser.id
 
@@ -57,6 +57,19 @@ class ProfileViewModel @Inject constructor(
                 }
             }
         }
+
+        viewModelScope.launch {
+            getStartupScreenUseCase().collect { route ->
+                _uiState.update { it.copy(startupRoute = route) }
+            }
+        }
+    }
+
+    /** Persists which screen the app should open on launch. */
+    fun setStartupScreen(route: String) {
+        viewModelScope.launch {
+            setStartupScreenUseCase(route)
+        }
     }
 
     /** A hangout the current user created or is on the attendee list of. */
@@ -70,20 +83,6 @@ class ProfileViewModel @Inject constructor(
 
     fun closeSettings() {
         _uiState.update { it.copy(isSettingsOpen = false) }
-    }
-
-    fun setNotificationsEnabled(enabled: Boolean) {
-        viewModelScope.launch {
-            setNotificationsEnabled(enabled)
-            _uiState.update { it.copy(notificationsEnabled = enabled) }
-        }
-    }
-
-    fun setLocationSharingEnabled(enabled: Boolean) {
-        viewModelScope.launch {
-            setLocationSharingEnabled(enabled)
-            _uiState.update { it.copy(locationSharingEnabled = enabled) }
-        }
     }
 
     fun onEditProfile() {

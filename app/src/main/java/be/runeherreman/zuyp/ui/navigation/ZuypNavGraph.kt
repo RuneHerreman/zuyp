@@ -2,6 +2,7 @@ package be.runeherreman.zuyp.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,7 +29,8 @@ fun ZuypNavGraph(
     discoverViewModel: DiscoverViewModel = viewModel(),
     friendsViewModel: FriendsViewModel = viewModel(),
     profileViewModel: ProfileViewModel = viewModel(),
-    hangoutViewModel: HangoutViewModel = viewModel()
+    hangoutViewModel: HangoutViewModel = viewModel(),
+    startupViewModel: StartupViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
@@ -36,9 +38,18 @@ fun ZuypNavGraph(
     val friendsUiState by friendsViewModel.uiState.collectAsStateWithLifecycle()
     val profileUiState by profileViewModel.uiState.collectAsStateWithLifecycle()
 
+    // Wait for the stored startup route before building the graph, so the
+    // NavHost starts on the screen saved in DataStore.
+    val startDestination by startupViewModel.startDestination.collectAsStateWithLifecycle()
+    val loadedRoute = startDestination ?: return
+    // Capture the route only once. Later changes from the settings picker are
+    // saved to DataStore for the next launch, but must not re-key the NavHost
+    // (which would navigate away immediately).
+    val startRoute = rememberSaveable { loadedRoute }
+
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route,
+        startDestination = startRoute,
         modifier = modifier
     ) {
         composable(Screen.Home.route) {
@@ -75,8 +86,7 @@ fun ZuypNavGraph(
                 onSettingsOpen = profileViewModel::openSettings,
                 onSettingsClose = profileViewModel::closeSettings,
                 onEditProfile = profileViewModel::onEditProfile,
-                onNotificationsToggle = profileViewModel::setNotificationsEnabled,
-                onLocationSharingToggle = profileViewModel::setLocationSharingEnabled,
+                onStartupScreenSelect = profileViewModel::setStartupScreen,
                 onHangoutClick = { hangoutViewModel.selectHangout(it.id.toString()) }
             )
         }
