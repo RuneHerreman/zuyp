@@ -28,7 +28,17 @@ class GroupRepositoryRoomImpl @Inject constructor(
 
     override suspend fun createGroup(group: Group) {
         groupDao.createGroup(group.toEntity())
-        groupDao.addMembers(listOf(GroupUserMapping(group.id, group.creatorId)))
+        // Persist the creator plus every picked member (deduped in case the
+        // creator is also in the members list).
+        val memberIds = (listOf(group.creatorId) + group.members.map { it.id }).distinct()
+        groupDao.addMembers(memberIds.map { GroupUserMapping(group.id, it) })
+    }
+
+    override suspend fun renameGroup(groupId: UUID, name: String, requesterId: UUID) {
+        val groupWithMembers = groupDao.getGroupById(groupId) ?: return
+        if (groupWithMembers.group.creatorId == requesterId) {
+            groupDao.renameGroup(groupId, name)
+        }
     }
 
     override suspend fun removeGroup(groupId: UUID, requesterId: UUID) {

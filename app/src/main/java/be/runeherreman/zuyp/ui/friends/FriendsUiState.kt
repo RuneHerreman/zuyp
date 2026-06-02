@@ -8,8 +8,10 @@ data class FriendsUiState(
     val friends: List<User> = emptyList(),
     val groups: List<Group> = emptyList(),
     val isLoading: Boolean = false,
-    /** Everyone (minus the current user) available to add to a new group. */
-    val availableUsers: List<User> = emptyList(),
+    /** Users who can still be added as a friend (everyone minus self and current friends). */
+    val addFriendCandidates: List<User> = emptyList(),
     val isCreateGroupOpen: Boolean = false,
-    val isAddFriendOpen: Boolean = false
+    val isAddFriendOpen: Boolean = false,
+    /** The group currently being edited, or null when the edit dialog is closed. */
+    val editingGroup: Group? = null
 )

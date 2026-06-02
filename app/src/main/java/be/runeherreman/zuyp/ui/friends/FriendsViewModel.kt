@@ -7,9 +7,13 @@ import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.useCases.friendship.AddFriendshipUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
+import be.runeherreman.zuyp.domain.useCases.friendship.RemoveFriendshipUseCase
+import be.runeherreman.zuyp.domain.useCases.groups.AddMemberToGroupUseCase
 import be.runeherreman.zuyp.domain.useCases.groups.CreateGroupUseCase
 import be.runeherreman.zuyp.domain.useCases.groups.GetUserGroupsUseCase
 import be.runeherreman.zuyp.domain.useCases.groups.RemoveGroupUseCase
+import be.runeherreman.zuyp.domain.useCases.groups.RemoveMemberFromGroupUseCase
+import be.runeherreman.zuyp.domain.useCases.groups.RenameGroupUseCase
 import be.runeherreman.zuyp.domain.useCases.users.GetAllUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +29,12 @@ class FriendsViewModel @Inject constructor(
     private val getUserGroupsUseCase: GetUserGroupsUseCase,
     private val getAllUsersUseCase: GetAllUsersUseCase,
     private val createGroupUseCase: CreateGroupUseCase,
+    private val renameGroupUseCase: RenameGroupUseCase,
     private val removeGroupUseCase: RemoveGroupUseCase,
-    private val addFriendshipUseCase: AddFriendshipUseCase
+    private val addMemberToGroupUseCase: AddMemberToGroupUseCase,
+    private val removeMemberFromGroupUseCase: RemoveMemberFromGroupUseCase,
+    private val addFriendshipUseCase: AddFriendshipUseCase,
+    private val removeFriendshipUseCase: RemoveFriendshipUseCase
 ) : ViewModel() {
     private val currentUserId: UUID = CurrentUser.id
 
@@ -55,10 +63,8 @@ class FriendsViewModel @Inject constructor(
     }
 
     fun openCreateGroup() {
-        viewModelScope.launch {
-            val available = getAllUsersUseCase().filter { it.id != currentUserId }
-            _uiState.update { it.copy(isCreateGroupOpen = true, availableUsers = available) }
-        }
+        // Group members are picked from the user's friends only (see FriendsScreen).
+        _uiState.update { it.copy(isCreateGroupOpen = true) }
     }
 
     fun closeCreateGroup() {
@@ -80,6 +86,39 @@ class FriendsViewModel @Inject constructor(
         }
     }
 
+    fun openEditGroup(group: Group) {
+        _uiState.update { it.copy(editingGroup = group) }
+    }
+
+    fun closeEditGroup() {
+        _uiState.update { it.copy(editingGroup = null) }
+    }
+
+    fun saveGroupEdits(group: Group, name: String, members: List<User>) {
+        viewModelScope.launch {
+            val trimmed = name.trim()
+            if (trimmed.isNotBlank() && trimmed != group.name) {
+                renameGroupUseCase(group.id, trimmed, currentUserId)
+            }
+
+            val originalIds = group.members.map { it.id }.toSet()
+            val newIds = members.map { it.id }.toSet()
+
+            (newIds - originalIds).forEach { addMemberToGroupUseCase(group.id, it) }
+            (originalIds - newIds)
+                .filter { it != group.creatorId }
+                .forEach { removeMemberFromGroupUseCase(group.id, it, currentUserId) }
+
+            _uiState.update { it.copy(editingGroup = null) }
+        }
+    }
+
+    fun leaveGroup(group: Group) {
+        viewModelScope.launch {
+            removeMemberFromGroupUseCase(group.id, currentUserId, currentUserId)
+        }
+    }
+
     fun deleteGroup(group: Group) {
         viewModelScope.launch {
             removeGroupUseCase(group.id, currentUserId)
@@ -87,24 +126,30 @@ class FriendsViewModel @Inject constructor(
     }
 
     fun openAddFriend() {
-        _uiState.update { it.copy(isAddFriendOpen = true) }
+        viewModelScope.launch {
+            val friendIds = _uiState.value.friends.mapTo(mutableSetOf()) { it.id }
+            val candidates = getAllUsersUseCase()
+                .filter { it.id != currentUserId && it.id !in friendIds }
+            _uiState.update { it.copy(isAddFriendOpen = true, addFriendCandidates = candidates) }
+        }
     }
 
     fun closeAddFriend() {
         _uiState.update { it.copy(isAddFriendOpen = false) }
     }
 
-    fun addFriend(username: String) {
-        val query = username.trim()
-        if (query.isBlank()) return
+    fun addFriend(user: User) {
         viewModelScope.launch {
-            val match = getAllUsersUseCase()
-                .firstOrNull { it.id != currentUserId && it.name.equals(query, ignoreCase = true) }
-            if (match != null) {
-                addFriendshipUseCase(currentUserId, match.id)
-                loadFriends()
-            }
+            addFriendshipUseCase(currentUserId, user.id)
+            loadFriends()
             _uiState.update { it.copy(isAddFriendOpen = false) }
+        }
+    }
+
+    fun removeFriend(friend: User) {
+        viewModelScope.launch {
+            removeFriendshipUseCase(currentUserId, friend.id)
+            loadFriends()
         }
     }
 }

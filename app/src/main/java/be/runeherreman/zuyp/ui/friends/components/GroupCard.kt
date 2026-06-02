@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,12 +34,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.domain.model.Group
 
-/** A single group row: name, member count, a face pile and an overflow menu. */
+/**
+ * A single group row: name, member count, a face pile and an overflow menu.
+ * The menu adapts to ownership: the owner can edit or delete the group, while
+ * other members can leave it.
+ */
 @Composable
 fun GroupCard(
     group: Group,
+    isOwner: Boolean,
     modifier: Modifier = Modifier,
     onClick: (Group) -> Unit = {},
+    onEdit: (Group) -> Unit = {},
+    onLeave: (Group) -> Unit = {},
     onDelete: (Group) -> Unit = {}
 ) {
     var menuOpen by remember { mutableStateOf(false) }
@@ -86,20 +95,51 @@ fun GroupCard(
                     expanded = menuOpen,
                     onDismissRequest = { menuOpen = false }
                 ) {
-                    DropdownMenuItem(
-                        text = { Text("Delete group") },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Delete,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        },
-                        onClick = {
-                            menuOpen = false
-                            onDelete(group)
-                        }
-                    )
+                    if (isOwner) {
+                        DropdownMenuItem(
+                            text = { Text("Edit group") },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
+                            onClick = {
+                                menuOpen = false
+                                onEdit(group)
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Delete group") },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
+                            onClick = {
+                                menuOpen = false
+                                onDelete(group)
+                            }
+                        )
+                    } else {
+                        DropdownMenuItem(
+                            text = { Text("Leave group") },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Logout,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            },
+                            onClick = {
+                                menuOpen = false
+                                onLeave(group)
+                            }
+                        )
+                    }
                 }
             }
         }

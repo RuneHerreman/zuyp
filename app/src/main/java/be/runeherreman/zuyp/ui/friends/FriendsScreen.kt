@@ -25,6 +25,7 @@ import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.ui.friends.components.AddFriendDialog
 import be.runeherreman.zuyp.ui.friends.components.CreateGroupDialog
+import be.runeherreman.zuyp.ui.friends.components.EditGroupDialog
 import be.runeherreman.zuyp.ui.friends.components.FriendRow
 import be.runeherreman.zuyp.ui.friends.components.GroupCard
 import be.runeherreman.zuyp.ui.friends.components.SectionHeader
@@ -36,10 +37,15 @@ fun FriendsScreen(
     onCreateGroupOpen: () -> Unit = {},
     onCreateGroupClose: () -> Unit = {},
     onCreateGroup: (String, List<User>) -> Unit = { _, _ -> },
+    onEditGroupOpen: (Group) -> Unit = {},
+    onEditGroupClose: () -> Unit = {},
+    onSaveGroupEdits: (Group, String, List<User>) -> Unit = { _, _, _ -> },
+    onLeaveGroup: (Group) -> Unit = {},
     onDeleteGroup: (Group) -> Unit = {},
     onAddFriendOpen: () -> Unit = {},
     onAddFriendClose: () -> Unit = {},
-    onSendFriendRequest: (String) -> Unit = {}
+    onAddFriend: (User) -> Unit = {},
+    onRemoveFriend: (User) -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(
@@ -62,13 +68,17 @@ fun FriendsScreen(
             } else {
                 GroupsSection(
                     groups = uiState.groups,
+                    currentUserId = uiState.user?.id,
                     onCreateGroup = onCreateGroupOpen,
+                    onEditGroup = onEditGroupOpen,
+                    onLeaveGroup = onLeaveGroup,
                     onDeleteGroup = onDeleteGroup
                 )
 
                 FriendsSection(
                     friends = uiState.friends,
-                    onAddFriend = onAddFriendOpen
+                    onAddFriend = onAddFriendOpen,
+                    onRemoveFriend = onRemoveFriend
                 )
 
                 // Breathing room above the bottom navigation bar.
@@ -79,7 +89,7 @@ fun FriendsScreen(
 
     if (uiState.isCreateGroupOpen) {
         CreateGroupDialog(
-            availableUsers = uiState.availableUsers,
+            availableUsers = uiState.friends,
             onDismiss = onCreateGroupClose,
             onCreate = onCreateGroup
         )
@@ -87,8 +97,18 @@ fun FriendsScreen(
 
     if (uiState.isAddFriendOpen) {
         AddFriendDialog(
+            candidates = uiState.addFriendCandidates,
             onDismiss = onAddFriendClose,
-            onSendRequest = onSendFriendRequest
+            onAddFriend = onAddFriend
+        )
+    }
+
+    uiState.editingGroup?.let { group ->
+        EditGroupDialog(
+            group = group,
+            friends = uiState.friends,
+            onDismiss = onEditGroupClose,
+            onSave = { name, members -> onSaveGroupEdits(group, name, members) }
         )
     }
 }
@@ -96,7 +116,10 @@ fun FriendsScreen(
 @Composable
 private fun GroupsSection(
     groups: List<Group>,
+    currentUserId: java.util.UUID?,
     onCreateGroup: () -> Unit,
+    onEditGroup: (Group) -> Unit,
+    onLeaveGroup: (Group) -> Unit,
     onDeleteGroup: (Group) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -111,7 +134,13 @@ private fun GroupsSection(
             EmptyHint("No groups yet. Create one to plan together.")
         } else {
             groups.forEach { group ->
-                GroupCard(group = group, onDelete = onDeleteGroup)
+                GroupCard(
+                    group = group,
+                    isOwner = group.creatorId == currentUserId,
+                    onEdit = onEditGroup,
+                    onLeave = onLeaveGroup,
+                    onDelete = onDeleteGroup
+                )
             }
         }
     }
@@ -120,7 +149,8 @@ private fun GroupsSection(
 @Composable
 private fun FriendsSection(
     friends: List<User>,
-    onAddFriend: () -> Unit
+    onAddFriend: () -> Unit,
+    onRemoveFriend: (User) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         SectionHeader(
@@ -134,7 +164,7 @@ private fun FriendsSection(
             EmptyHint("No friends yet. Add someone to get started.")
         } else {
             friends.forEach { friend ->
-                FriendRow(friend = friend)
+                FriendRow(friend = friend, onRemove = onRemoveFriend)
             }
         }
     }

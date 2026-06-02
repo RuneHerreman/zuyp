@@ -8,6 +8,7 @@ interface GroupRepository {
     fun getUserGroups(userId: UUID): Flow<List<Group>>
     suspend fun getGroupById(groupId: UUID): Group?
     suspend fun createGroup(group: Group)
+    suspend fun renameGroup(groupId: UUID, name: String, requesterId: UUID)
     suspend fun removeGroup(groupId: UUID, requesterId: UUID)
     suspend fun addMember(groupId: UUID, userId: UUID)
     suspend fun removeMember(groupId: UUID, memberId: UUID, requesterId: UUID)
