@@ -102,7 +102,7 @@ fun EditGroupDialog(
                 }
 
                 GroupDialogActions(
-                    confirmLabel = "Save changes",
+                    confirmLabel = "Save",
                     confirmIcon = Icons.Default.Check,
                     confirmEnabled = name.isNotBlank(),
                     onConfirm = { onSave(name, selectedMembers) },
