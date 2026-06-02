@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import be.runeherreman.zuyp.domain.useCases.UpdateAttendanceUseCase
+import be.runeherreman.zuyp.domain.useCases.hangouts.UpdateAttendanceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

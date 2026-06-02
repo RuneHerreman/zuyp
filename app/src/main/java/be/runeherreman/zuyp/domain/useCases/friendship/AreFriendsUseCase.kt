@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.domain.useCases
+package be.runeherreman.zuyp.domain.useCases.friendship
 
 import be.runeherreman.zuyp.domain.repository.UserRepository
 import java.util.UUID
@@ -11,4 +11,3 @@ class AreFriendsUseCase @Inject constructor(
         return userRepository.areFriends(userId1, userId2)
     }
 }
-

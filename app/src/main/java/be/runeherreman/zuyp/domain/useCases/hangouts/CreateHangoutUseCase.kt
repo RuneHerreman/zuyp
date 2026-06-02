@@ -1,21 +1,24 @@
-package be.runeherreman.zuyp.domain.useCases
+package be.runeherreman.zuyp.domain.useCases.hangouts
 
 import be.runeherreman.zuyp.data.messaging.MessagePublisher
+import be.runeherreman.zuyp.domain.model.Hangout
+import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.model.generateWeatherPrediction
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
+import be.runeherreman.zuyp.domain.useCases.utils.GetWeatherForecastUseCase
 import org.json.JSONObject
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 import javax.inject.Inject
 
-class SendHangoutInviteUseCase @Inject constructor(
+class CreateHangoutUseCase @Inject constructor(
     private val hangoutRepository: HangoutRepository,
     private val messagePublisher: MessagePublisher,
-    private val getWeatherForecast: GetWeatherForecastUseCase,
+    private val getWeatherForecast: GetWeatherForecastUseCase
 ) {
-    suspend operator fun invoke(recipientId: UUID, hangoutId: UUID) {
-        val hangout = hangoutRepository.getHangoutById(hangoutId) ?: return
-        val formatter = DateTimeFormatter.ofPattern("MMM d yyyy, HH'h'mm")
+    suspend operator fun invoke(hangout: Hangout, invitees: List<User>) {
+        hangoutRepository.createOrUpdateHangout(hangout)
+
+        // NOTIFICATION
         val weather = try {
             val forecast = getWeatherForecast(
                 latitude = hangout.latitude,
@@ -26,19 +29,19 @@ class SendHangoutInviteUseCase @Inject constructor(
                 endDate = hangout.endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
             )
             generateWeatherPrediction(forecast, hangout)
-        } catch (e: Exception) {
-            null
-        }
+        } catch (e: Exception) { null }
 
         val message = JSONObject()
             .put("type", "hangout_invite")
-            .put("hangoutId", hangoutId.toString())
+            .put("hangoutId", hangout.id)
             .put("title", hangout.title)
             .put("locationName", hangout.locationName)
-            .put("startDate", hangout.startDate.format(formatter))
-            .apply { weather?.let { put("weather", it) } }
+            .put("startDate", hangout.startDate)
+            .put("weather", weather)
             .toString()
 
-        messagePublisher.publishMessage(recipientId.toString(), message)
+        invitees.forEach { member ->
+            messagePublisher.publishMessage(member.id.toString(), message)
+        }
     }
 }

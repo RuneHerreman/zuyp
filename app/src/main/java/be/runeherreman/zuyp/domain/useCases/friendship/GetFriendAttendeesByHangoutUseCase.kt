@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.domain.useCases
+package be.runeherreman.zuyp.domain.useCases.friendship
 
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User

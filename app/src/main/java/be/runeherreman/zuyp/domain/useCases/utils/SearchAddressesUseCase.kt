@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.domain.useCases
+package be.runeherreman.zuyp.domain.useCases.utils
 
 import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.repository.AddressRepository

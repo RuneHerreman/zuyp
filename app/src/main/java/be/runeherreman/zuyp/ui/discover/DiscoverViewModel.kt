@@ -3,7 +3,7 @@ package be.runeherreman.zuyp.ui.discover
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.runeherreman.zuyp.domain.model.Marker
-import be.runeherreman.zuyp.domain.useCases.GetHangoutsUseCase
+import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutsUseCase
 import com.mapbox.geojson.Point
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

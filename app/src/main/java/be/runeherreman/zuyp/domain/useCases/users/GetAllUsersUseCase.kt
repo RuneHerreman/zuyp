@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.domain.useCases
+package be.runeherreman.zuyp.domain.useCases.users
 
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.repository.UserRepository

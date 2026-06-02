@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.domain.model.Hangout
-import be.runeherreman.zuyp.domain.useCases.GetAllHangoutsUseCase
-import be.runeherreman.zuyp.domain.useCases.GetFriendsUseCase
+import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
+import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
