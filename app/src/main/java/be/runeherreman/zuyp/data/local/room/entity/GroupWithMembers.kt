@@ -12,7 +12,7 @@ data class GroupWithMembers(
         associateBy = Junction(
             value = GroupUserMapping::class,
             parentColumn = "groupId",
-            childColumn = "userId"
+            entityColumn = "userId"
         )
     )
     val members: List<UserEntity>

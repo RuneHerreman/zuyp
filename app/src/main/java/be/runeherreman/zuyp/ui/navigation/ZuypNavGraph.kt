@@ -78,7 +78,16 @@ fun ZuypNavGraph(
             )
         }
         composable(Screen.Friends.route) {
-            FriendsScreen(uiState = friendsUiState)
+            FriendsScreen(
+                uiState = friendsUiState,
+                onCreateGroupOpen = friendsViewModel::openCreateGroup,
+                onCreateGroupClose = friendsViewModel::closeCreateGroup,
+                onCreateGroup = friendsViewModel::createGroup,
+                onDeleteGroup = friendsViewModel::deleteGroup,
+                onAddFriendOpen = friendsViewModel::openAddFriend,
+                onAddFriendClose = friendsViewModel::closeAddFriend,
+                onSendFriendRequest = friendsViewModel::addFriend
+            )
         }
         composable(Screen.Profile.route) {
             ProfileScreen(

@@ -37,5 +37,5 @@ interface RepositoryModule {
 
     @Binds
     @Singleton
-    fun bindAddressRepository(impl: GroupRepositoryRoomImpl): GroupRepository
+    fun bindGroupRepository(impl: GroupRepositoryRoomImpl): GroupRepository
 }

@@ -8,6 +8,7 @@ import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
 import be.runeherreman.zuyp.data.local.room.dao.UserDao
 import be.runeherreman.zuyp.data.local.room.entity.FriendshipEntity
 import be.runeherreman.zuyp.data.local.room.entity.GroupEntity
+import be.runeherreman.zuyp.data.local.room.entity.GroupUserMapping
 import be.runeherreman.zuyp.data.local.room.entity.HangoutEntity
 import be.runeherreman.zuyp.data.local.room.entity.UserEntity
 import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
@@ -18,8 +19,9 @@ import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
         UserEntity::class,
         HangoutUsersMapping::class,
         FriendshipEntity::class,
-        GroupEntity::class],
-    version = 9,
+        GroupEntity::class,
+        GroupUserMapping::class],
+    version = 11,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
