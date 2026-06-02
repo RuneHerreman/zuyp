@@ -11,6 +11,8 @@ data class HomeUiState(
     val friendAttendees: Map<UUID, List<User>> = emptyMap(),
     val isRefreshing: Boolean = false,
     val isCreateHangoutOpen: Boolean = false,
+    val isZuypHangoutOpen: Boolean = false,
+    val isZuypSending: Boolean = false,
     val availableUsers: List<User> = emptyList(),
     // Address autocomplete state for the create-hangout form
     val addressQuery: String = "",

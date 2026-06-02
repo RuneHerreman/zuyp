@@ -38,6 +38,7 @@ import be.runeherreman.zuyp.ui.home.components.CreateHangoutPopup
 import be.runeherreman.zuyp.ui.home.components.HangoutCard
 import be.runeherreman.zuyp.ui.home.components.SearchOverlay
 import be.runeherreman.zuyp.ui.home.components.ZuypEmergencyButton
+import be.runeherreman.zuyp.ui.home.components.ZuypHangoutOverlay
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,13 +52,15 @@ fun HomeScreen(
     onSearchClose: () -> Unit = {},
     onSearchQueryChange: (String) -> Unit = {},
     onZuypAlertClick: () -> Unit = {},
+    onZuypHangoutClose: () -> Unit = {},
     onRefresh: () -> Unit = {},
     onCreateHangoutOpen: () -> Unit = {},
     onCreateHangoutClose: () -> Unit = {},
     onAddressQueryChange: (String) -> Unit = {},
     onAddressSelect: (AddressSuggestion) -> Unit = {},
     onAddressClear: () -> Unit = {},
-    onCreateHangout: (String, LocalDateTime, LocalDateTime, List<User>, Boolean) -> Unit = { _, _, _, _, _ -> }
+    onCreateHangout: (String, LocalDateTime, LocalDateTime, List<User>, Boolean) -> Unit = { _, _, _, _, _ -> },
+    onCreateZuypHangout: (String, LocalDateTime, List<User>, Boolean) -> Unit = { _, _, _, _ -> }
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         PullToRefreshBox(
@@ -155,6 +158,22 @@ fun HomeScreen(
                 onAddressClear = onAddressClear,
                 onDismiss = onCreateHangoutClose,
                 onCreate = onCreateHangout
+            )
+        }
+
+        if (uiState.isZuypHangoutOpen) {
+            ZuypHangoutOverlay(
+                availableUsers = uiState.availableUsers,
+                addressQuery = uiState.addressQuery,
+                addressSuggestions = uiState.addressSuggestions,
+                isAddressLoading = uiState.isAddressLoading,
+                isAddressSelected = uiState.selectedAddress != null,
+                isSending = uiState.isZuypSending,
+                onAddressQueryChange = onAddressQueryChange,
+                onAddressSelect = onAddressSelect,
+                onAddressClear = onAddressClear,
+                onDismiss = onZuypHangoutClose,
+                onCreateZuyp = onCreateZuypHangout
             )
         }
     }

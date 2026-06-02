@@ -9,6 +9,7 @@ import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.useCases.hangouts.CreateHangoutUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
+import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.users.GetAllUsersUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendAttendeesByHangoutUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutsUseCase
@@ -35,6 +36,7 @@ class HomeViewModel @Inject constructor(
     private val getHangoutsUseCase: GetHangoutsUseCase,
     private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
     private val getFriendAttendeesByHangoutUseCase: GetFriendAttendeesByHangoutUseCase,
+    private val getFriendsUseCase: GetFriendsUseCase,
     private val sendZuypAlertUseCase: SendZuypAlertUseCase,
     private val createHangoutUseCase: CreateHangoutUseCase,
     private val searchAddressesUseCase: SearchAddressesUseCase,
@@ -137,13 +139,27 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val allUsers = getAllUsersUseCase().filter { it.id != currentUserId }
             _uiState.update {
-                it.copy(isCreateHangoutOpen = true, availableUsers = allUsers)
+                it.copy(isCreateHangoutOpen = true, isZuypHangoutOpen = false, availableUsers = allUsers)
+            }
+        }
+    }
+
+    fun openZuypHangout() {
+        viewModelScope.launch {
+            val friends = getFriendsUseCase(currentUserId)
+            _uiState.update {
+                it.copy(isZuypHangoutOpen = true, isCreateHangoutOpen = false, availableUsers = friends)
             }
         }
     }
 
     fun closeCreateHangout() {
         _uiState.update { it.copy(isCreateHangoutOpen = false) }
+        clearAddress()
+    }
+
+    fun closeZuypHangout() {
+        _uiState.update { it.copy(isZuypHangoutOpen = false, isZuypSending = false) }
         clearAddress()
     }
 
@@ -208,6 +224,44 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             createHangoutUseCase(hangout, members)
             _uiState.update { it.copy(isCreateHangoutOpen = false) }
+            clearAddress()
+        }
+    }
+
+    fun createZuypHangout(
+        title: String,
+        start: LocalDateTime,
+        members: List<User>,
+        isPublic: Boolean
+    ) {
+        val now = LocalDateTime.now()
+        val latest = now.plusHours(24)
+        if (!start.isAfter(now) || start.isAfter(latest)) return
+        val creator = CurrentUser.user
+        val address = _uiState.value.selectedAddress ?: return
+        val hangoutId = UUID.randomUUID()
+        val end = if (start.toLocalTime() == java.time.LocalTime.MIDNIGHT)
+            start.toLocalDate().atTime(23, 59)
+        else
+            start.plusHours(2)
+        val hangout = Hangout(
+            id = hangoutId,
+            title = title,
+            description = "",
+            locationName = address.fullAddress,
+            latitude = address.latitude,
+            longitude = address.longitude,
+            startDate = start,
+            endDate = end,
+            attendees = emptyList(),
+            creator = creator,
+            private = !isPublic
+        )
+        viewModelScope.launch {
+            _uiState.update { it.copy(isZuypSending = true) }
+            createHangoutUseCase(hangout, members)
+            sendZuypAlertUseCase(userId = currentUserId, hangoutId = hangoutId)
+            _uiState.update { it.copy(isZuypHangoutOpen = false, isZuypSending = false) }
             clearAddress()
         }
     }

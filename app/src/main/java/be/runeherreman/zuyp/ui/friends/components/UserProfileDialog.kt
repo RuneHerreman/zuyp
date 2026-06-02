@@ -1,15 +1,19 @@
 package be.runeherreman.zuyp.ui.friends.components
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -17,16 +21,20 @@ import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.PersonRemove
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -54,57 +62,100 @@ fun UserProfileDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(28.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                IdentityRow(profile.user)
-
-                StatsRow(
-                    friendsCount = profile.friendsCount,
-                    groupsCount = profile.groupsCount,
-                    eventsCount = profile.eventsCount
+            Box {
+                DismissButton(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(12.dp)
                 )
 
-                if (profile.mutualFriends.isNotEmpty()) {
-                    MutualFriendsRow(profile.mutualFriends)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .padding(top = 28.dp, bottom = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    Identity(profile.user)
+
+                    StatsCard(
+                        friendsCount = profile.friendsCount,
+                        groupsCount = profile.groupsCount,
+                        eventsCount = profile.eventsCount
+                    )
+
+                    if (profile.mutualFriends.isNotEmpty()) {
+                        MutualFriendsRow(profile.mutualFriends)
+                    }
+
+                    FriendActionButton(
+                        profile = profile,
+                        onAddFriend = onAddFriend,
+                        onRemoveFriend = onRemoveFriend
+                    )
                 }
-
-                ProfileActions(
-                    profile = profile,
-                    onAddFriend = onAddFriend,
-                    onRemoveFriend = onRemoveFriend,
-                    onDismiss = onDismiss
-                )
             }
         }
     }
 }
 
 @Composable
-private fun IdentityRow(user: User) {
+private fun DismissButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    FilledTonalIconButton(
+        onClick = onClick,
+        modifier = modifier.size(36.dp),
+        colors = IconButtonDefaults.filledTonalIconButtonColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    ) {
+        Icon(Icons.Default.Close, contentDescription = "Close", modifier = Modifier.size(18.dp))
+    }
+}
+
+@Composable
+private fun Identity(user: User) {
     val age = remember(user.birthdate) { ageFrom(user.birthdate) }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        UserAvatar(user = user, size = 96.dp)
-        Spacer(Modifier.width(20.dp))
-        Column(modifier = Modifier.weight(1f)) {
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        // Avatar with a gradient ring for a bit of pop.
+        Box(
+            modifier = Modifier
+                .size(112.dp)
+                .padding(5.dp)
+                .clip(CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            UserAvatar(user = user, size = 102.dp)
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
             Text(
                 text = user.name,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
             )
             if (age != null) {
                 Text(
                     text = "$age years old",
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -113,53 +164,67 @@ private fun IdentityRow(user: User) {
 }
 
 @Composable
-private fun StatsRow(friendsCount: Int, groupsCount: Int, eventsCount: Int) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        StatCard(value = friendsCount, label = "Friends", modifier = Modifier.weight(1f))
-        StatCard(value = groupsCount, label = "Groups", modifier = Modifier.weight(1f))
-        StatCard(value = eventsCount, label = "Events", modifier = Modifier.weight(1f))
-    }
-}
-
-@Composable
-private fun StatCard(value: Int, label: String, modifier: Modifier = Modifier) {
+private fun StatsCard(friendsCount: Int, groupsCount: Int, eventsCount: Int) {
     Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
-        modifier = modifier.border(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant,
-            RoundedCornerShape(16.dp)
-        )
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier.padding(vertical = 14.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+        Row(
+            modifier = Modifier.padding(vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = value.toString(),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            StatItem(value = friendsCount, label = "Friends", modifier = Modifier.weight(1f))
+            StatDivider()
+            StatItem(value = groupsCount, label = "Groups", modifier = Modifier.weight(1f))
+            StatDivider()
+            StatItem(value = eventsCount, label = "Events", modifier = Modifier.weight(1f))
         }
     }
 }
 
 @Composable
+private fun StatItem(value: Int, label: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        Text(
+            text = value.toString(),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun StatDivider() {
+    Box(
+        modifier = Modifier
+            .height(32.dp)
+            .width(1.dp)
+            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+    )
+}
+
+@Composable
 private fun MutualFriendsRow(mutualFriends: List<User>) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        MemberAvatarCluster(members = mutualFriends, avatarSize = 28.dp, maxVisible = 3)
-        Spacer(Modifier.width(12.dp))
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        MemberAvatarCluster(members = mutualFriends, avatarSize = 26.dp, maxVisible = 3)
+        Spacer(Modifier.width(10.dp))
         Text(
             text = mutualFriendsLabel(mutualFriends),
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
@@ -168,43 +233,34 @@ private fun MutualFriendsRow(mutualFriends: List<User>) {
 }
 
 @Composable
-private fun ProfileActions(
+private fun FriendActionButton(
     profile: UserProfile,
     onAddFriend: (User) -> Unit,
-    onRemoveFriend: (User) -> Unit,
-    onDismiss: () -> Unit
+    onRemoveFriend: (User) -> Unit
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (profile.isFriend) {
-            Button(
-                onClick = { onRemoveFriend(profile.user) },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer
-                )
-            ) {
-                Icon(Icons.Default.PersonRemove, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Remove")
-            }
-        } else {
-            Button(
-                onClick = { onAddFriend(profile.user) },
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(Icons.Default.PersonAdd, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("Add friend")
-            }
-        }
-        OutlinedButton(
-            onClick = onDismiss,
-            modifier = Modifier.weight(1f)
+    if (profile.isFriend) {
+        Button(
+            onClick = { onRemoveFriend(profile.user) },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer
+            )
         ) {
-            Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text("Close")
+            Icon(Icons.Default.PersonRemove, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Remove friend")
+        }
+    } else {
+        Button(
+            onClick = { onAddFriend(profile.user) },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Icon(Icons.Default.PersonAdd, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Add friend")
         }
     }
 }

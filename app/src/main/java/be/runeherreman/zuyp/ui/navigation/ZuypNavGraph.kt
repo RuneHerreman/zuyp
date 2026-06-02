@@ -61,13 +61,15 @@ fun ZuypNavGraph(
                 onSearchClose = homeViewModel::closeSearch,
                 onSearchQueryChange = homeViewModel::onSearchQueryChange,
                 onRefresh = homeViewModel::refresh,
-                onZuypAlertClick = homeViewModel::sendZuypAlert,
+                onZuypAlertClick = homeViewModel::openZuypHangout,
                 onCreateHangoutOpen = homeViewModel::openCreateHangout,
                 onCreateHangoutClose = homeViewModel::closeCreateHangout,
+                onZuypHangoutClose = homeViewModel::closeZuypHangout,
                 onAddressQueryChange = homeViewModel::onAddressQueryChange,
                 onAddressSelect = homeViewModel::selectAddress,
                 onAddressClear = homeViewModel::clearAddress,
-                onCreateHangout = homeViewModel::createHangout
+                onCreateHangout = homeViewModel::createHangout,
+                onCreateZuypHangout = homeViewModel::createZuypHangout
             )
         }
         composable(Screen.Discover.route) {

@@ -1,7 +1,6 @@
 package be.runeherreman.zuyp.ui.friends.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -66,7 +65,6 @@ private fun RingedAvatar(
 ) {
     Box(
         modifier = modifier
-            .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape)
             .clip(CircleShape)
     ) {
         content()

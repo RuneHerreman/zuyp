@@ -29,24 +29,25 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun CreateHangoutPopup(
+fun ZuypHangoutOverlay(
     availableUsers: List<User>,
+    friends: List<User> = availableUsers,
     addressQuery: String,
     addressSuggestions: List<AddressSuggestion>,
     isAddressLoading: Boolean,
     isAddressSelected: Boolean,
+    isSending: Boolean,
     onAddressQueryChange: (String) -> Unit,
     onAddressSelect: (AddressSuggestion) -> Unit,
     onAddressClear: () -> Unit,
     onDismiss: () -> Unit,
-    onCreate: (title: String, start: LocalDateTime, end: LocalDateTime, members: List<User>, isPublic: Boolean) -> Unit
+    onCreateZuyp: (title: String, start: LocalDateTime, members: List<User>, isPublic: Boolean) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
     val nowRounded = remember {
         LocalDateTime.now().withSecond(0).withNano(0).withMinute(0).plusHours(1)
     }
     var startDateTime by remember { mutableStateOf(nowRounded) }
-    var endDateTime by remember { mutableStateOf(nowRounded.plusHours(2)) }
     var isAllDay by remember { mutableStateOf(false) }
     var activePicker by remember { mutableStateOf<PickerTarget?>(null) }
     var memberSearch by remember { mutableStateOf("") }
@@ -103,7 +104,7 @@ fun CreateHangoutPopup(
                 // Date & time
                 WhenSection(
                     startDateTime = startDateTime,
-                    endDateTime = endDateTime,
+                    endDateTime = null,
                     isAllDay = isAllDay,
                     dateFormatter = dateFormatter,
                     timeFormatter = timeFormatter,
@@ -127,7 +128,7 @@ fun CreateHangoutPopup(
                 // Members
                 LabeledField(label = "Add members or groups") {
                     MembersSelector(
-                        availableUsers = availableUsers,
+                        availableUsers = friends,
                         selectedMembers = selectedMembers,
                         memberSearch = memberSearch,
                         onSearchChange = { memberSearch = it },
@@ -136,6 +137,12 @@ fun CreateHangoutPopup(
                                 selectedMembers.filter { it.id != user.id }
                             else
                                 selectedMembers + user
+                        },
+                        showInviteAll = true,
+                        inviteAllUsers = friends,
+                        onInviteAll = { invitees ->
+                            selectedMembers = invitees.distinctBy { it.id }
+                            memberSearch = ""
                         }
                     )
                 }
@@ -148,18 +155,19 @@ fun CreateHangoutPopup(
                 )
 
                 // Buttons
+                val now = remember { LocalDateTime.now() }
+                val within24h = startDateTime.isAfter(now) && !startDateTime.isAfter(now.plusHours(24))
                 CreateHangoutActions(
-                    canCreate = title.isNotBlank() && isAddressSelected,
+                    canCreate = title.isNotBlank() && isAddressSelected && within24h,
                     onCreate = {
                         val finalStart = if (isAllDay)
                             startDateTime.toLocalDate().atStartOfDay()
                         else startDateTime
-                        val finalEnd = if (isAllDay)
-                            endDateTime.toLocalDate().atTime(23, 59)
-                        else endDateTime
-                        onCreate(title, finalStart, finalEnd, selectedMembers, isPublic)
+                        onCreateZuyp(title, finalStart, selectedMembers, isPublic)
                     },
-                    onDismiss = onDismiss
+                    onDismiss = onDismiss,
+                    createLabel = "ZUYP!",
+                    isSending = isSending
                 )
             }
         }
@@ -168,9 +176,9 @@ fun CreateHangoutPopup(
     DateTimePickers(
         activePicker = activePicker,
         startDateTime = startDateTime,
-        endDateTime = endDateTime,
+        endDateTime = null,
         onStartChange = { startDateTime = it },
-        onEndChange = { endDateTime = it },
+        onEndChange = {},
         onDismissPicker = { activePicker = null }
     )
 }
