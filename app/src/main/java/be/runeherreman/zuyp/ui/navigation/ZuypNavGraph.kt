@@ -70,7 +70,16 @@ fun ZuypNavGraph(
             FriendsScreen(uiState = friendsUiState)
         }
         composable(Screen.Profile.route) {
-            ProfileScreen(uiState = profileUiState)
+            ProfileScreen(
+                uiState = profileUiState,
+                onSettingsOpen = profileViewModel::openSettings,
+                onSettingsClose = profileViewModel::closeSettings,
+                onEditProfile = profileViewModel::onEditProfile,
+                onPrivacySettings = profileViewModel::onPrivacySettings,
+                onNotificationsToggle = profileViewModel::setNotificationsEnabled,
+                onLocationSharingToggle = profileViewModel::setLocationSharingEnabled,
+                onHangoutClick = profileViewModel::onHangoutClick
+            )
         }
     }
 }
