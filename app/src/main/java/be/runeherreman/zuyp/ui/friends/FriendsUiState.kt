@@ -13,5 +13,19 @@ data class FriendsUiState(
     val isCreateGroupOpen: Boolean = false,
     val isAddFriendOpen: Boolean = false,
     /** The group currently being edited, or null when the edit dialog is closed. */
-    val editingGroup: Group? = null
+    val editingGroup: Group? = null,
+    /** The group whose members are being shown, or null when that popup is closed. */
+    val viewingGroup: Group? = null,
+    /** The profile being shown in the user info popup, or null when it's closed. */
+    val viewingProfile: UserProfile? = null
+)
+
+/** Aggregated info about a user, shown in the profile popup. */
+data class UserProfile(
+    val user: User,
+    val friendsCount: Int,
+    val groupsCount: Int,
+    val eventsCount: Int,
+    val mutualFriends: List<User>,
+    val isFriend: Boolean
 )

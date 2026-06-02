@@ -28,7 +28,9 @@ import be.runeherreman.zuyp.ui.friends.components.CreateGroupDialog
 import be.runeherreman.zuyp.ui.friends.components.EditGroupDialog
 import be.runeherreman.zuyp.ui.friends.components.FriendRow
 import be.runeherreman.zuyp.ui.friends.components.GroupCard
+import be.runeherreman.zuyp.ui.friends.components.GroupMembersDialog
 import be.runeherreman.zuyp.ui.friends.components.SectionHeader
+import be.runeherreman.zuyp.ui.friends.components.UserProfileDialog
 
 @Composable
 fun FriendsScreen(
@@ -45,7 +47,11 @@ fun FriendsScreen(
     onAddFriendOpen: () -> Unit = {},
     onAddFriendClose: () -> Unit = {},
     onAddFriend: (User) -> Unit = {},
-    onRemoveFriend: (User) -> Unit = {}
+    onRemoveFriend: (User) -> Unit = {},
+    onGroupClick: (Group) -> Unit = {},
+    onGroupMembersClose: () -> Unit = {},
+    onFriendClick: (User) -> Unit = {},
+    onProfileClose: () -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(
@@ -70,6 +76,7 @@ fun FriendsScreen(
                     groups = uiState.groups,
                     currentUserId = uiState.user?.id,
                     onCreateGroup = onCreateGroupOpen,
+                    onGroupClick = onGroupClick,
                     onEditGroup = onEditGroupOpen,
                     onLeaveGroup = onLeaveGroup,
                     onDeleteGroup = onDeleteGroup
@@ -78,6 +85,7 @@ fun FriendsScreen(
                 FriendsSection(
                     friends = uiState.friends,
                     onAddFriend = onAddFriendOpen,
+                    onFriendClick = onFriendClick,
                     onRemoveFriend = onRemoveFriend
                 )
 
@@ -111,6 +119,24 @@ fun FriendsScreen(
             onSave = { name, members -> onSaveGroupEdits(group, name, members) }
         )
     }
+
+    uiState.viewingGroup?.let { group ->
+        GroupMembersDialog(
+            group = group,
+            ownerId = group.creatorId,
+            onDismiss = onGroupMembersClose,
+            onMemberClick = onFriendClick
+        )
+    }
+
+    uiState.viewingProfile?.let { profile ->
+        UserProfileDialog(
+            profile = profile,
+            onDismiss = onProfileClose,
+            onAddFriend = { onAddFriend(it); onProfileClose() },
+            onRemoveFriend = { onRemoveFriend(it); onProfileClose() }
+        )
+    }
 }
 
 @Composable
@@ -118,6 +144,7 @@ private fun GroupsSection(
     groups: List<Group>,
     currentUserId: java.util.UUID?,
     onCreateGroup: () -> Unit,
+    onGroupClick: (Group) -> Unit,
     onEditGroup: (Group) -> Unit,
     onLeaveGroup: (Group) -> Unit,
     onDeleteGroup: (Group) -> Unit
@@ -137,6 +164,7 @@ private fun GroupsSection(
                 GroupCard(
                     group = group,
                     isOwner = group.creatorId == currentUserId,
+                    onClick = onGroupClick,
                     onEdit = onEditGroup,
                     onLeave = onLeaveGroup,
                     onDelete = onDeleteGroup
@@ -150,6 +178,7 @@ private fun GroupsSection(
 private fun FriendsSection(
     friends: List<User>,
     onAddFriend: () -> Unit,
+    onFriendClick: (User) -> Unit,
     onRemoveFriend: (User) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -164,7 +193,7 @@ private fun FriendsSection(
             EmptyHint("No friends yet. Add someone to get started.")
         } else {
             friends.forEach { friend ->
-                FriendRow(friend = friend, onRemove = onRemoveFriend)
+                FriendRow(friend = friend, onClick = onFriendClick, onRemove = onRemoveFriend)
             }
         }
     }

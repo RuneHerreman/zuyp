@@ -14,10 +14,13 @@ import be.runeherreman.zuyp.domain.useCases.groups.GetUserGroupsUseCase
 import be.runeherreman.zuyp.domain.useCases.groups.RemoveGroupUseCase
 import be.runeherreman.zuyp.domain.useCases.groups.RemoveMemberFromGroupUseCase
 import be.runeherreman.zuyp.domain.useCases.groups.RenameGroupUseCase
+import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.users.GetAllUsersUseCase
+import be.runeherreman.zuyp.domain.model.Hangout
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -28,6 +31,7 @@ class FriendsViewModel @Inject constructor(
     private val getFriendsUseCase: GetFriendsUseCase,
     private val getUserGroupsUseCase: GetUserGroupsUseCase,
     private val getAllUsersUseCase: GetAllUsersUseCase,
+    private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
     private val createGroupUseCase: CreateGroupUseCase,
     private val renameGroupUseCase: RenameGroupUseCase,
     private val removeGroupUseCase: RemoveGroupUseCase,
@@ -125,6 +129,14 @@ class FriendsViewModel @Inject constructor(
         }
     }
 
+    fun openGroupMembers(group: Group) {
+        _uiState.update { it.copy(viewingGroup = group) }
+    }
+
+    fun closeGroupMembers() {
+        _uiState.update { it.copy(viewingGroup = null) }
+    }
+
     fun openAddFriend() {
         viewModelScope.launch {
             val friendIds = _uiState.value.friends.mapTo(mutableSetOf()) { it.id }
@@ -152,4 +164,41 @@ class FriendsViewModel @Inject constructor(
             loadFriends()
         }
     }
+
+    /**
+     * Loads the aggregate info for [user] (their friend/group/event counts and
+     * the friends you have in common) and shows the profile popup.
+     */
+    fun openUserProfile(user: User) {
+        viewModelScope.launch {
+            val theirFriends = getFriendsUseCase(user.id)
+            val groupCount = getUserGroupsUseCase(user.id).first().size
+            val eventCount = getAllHangoutsUseCase().first().count { it.involves(user.id) }
+
+            val myFriendIds = _uiState.value.friends.mapTo(mutableSetOf()) { it.id }
+            val mutualFriends = theirFriends.filter { it.id in myFriendIds }
+            val isFriend = user.id in myFriendIds
+
+            _uiState.update {
+                it.copy(
+                    viewingProfile = UserProfile(
+                        user = user,
+                        friendsCount = theirFriends.size,
+                        groupsCount = groupCount,
+                        eventsCount = eventCount,
+                        mutualFriends = mutualFriends,
+                        isFriend = isFriend
+                    )
+                )
+            }
+        }
+    }
+
+    fun closeUserProfile() {
+        _uiState.update { it.copy(viewingProfile = null) }
+    }
+
+    /** Whether [userId] created or is attending this hangout. */
+    private fun Hangout.involves(userId: UUID): Boolean =
+        creator.id == userId || attendees.any { it.id == userId }
 }
