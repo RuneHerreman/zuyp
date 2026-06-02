@@ -186,7 +186,7 @@ private fun ProfileActions(
             ) {
                 Icon(Icons.Default.PersonRemove, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Remove friend")
+                Text("Remove")
             }
         } else {
             Button(

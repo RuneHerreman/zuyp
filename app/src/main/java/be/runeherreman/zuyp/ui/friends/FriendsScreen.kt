@@ -11,8 +11,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.GroupAdd
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,6 +28,7 @@ import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.ui.friends.components.AddFriendDialog
 import be.runeherreman.zuyp.ui.friends.components.CreateGroupDialog
 import be.runeherreman.zuyp.ui.friends.components.EditGroupDialog
+import be.runeherreman.zuyp.ui.friends.components.EmptyState
 import be.runeherreman.zuyp.ui.friends.components.FriendRow
 import be.runeherreman.zuyp.ui.friends.components.GroupCard
 import be.runeherreman.zuyp.ui.friends.components.GroupMembersDialog
@@ -158,7 +161,11 @@ private fun GroupsSection(
             onActionClick = onCreateGroup
         )
         if (groups.isEmpty()) {
-            EmptyHint("No groups yet. Create one to plan together.")
+            EmptyState(
+                icon = Icons.Default.GroupAdd,
+                title = "No groups yet",
+                message = "Create a group to plan things together."
+            )
         } else {
             groups.forEach { group ->
                 GroupCard(
@@ -190,23 +197,17 @@ private fun FriendsSection(
             onActionClick = onAddFriend
         )
         if (friends.isEmpty()) {
-            EmptyHint("No friends yet. Add someone to get started.")
+            EmptyState(
+                icon = Icons.Default.PersonSearch,
+                title = "No friends yet",
+                message = "Find people and add them to get started."
+            )
         } else {
             friends.forEach { friend ->
                 FriendRow(friend = friend, onClick = onFriendClick, onRemove = onRemoveFriend)
             }
         }
     }
-}
-
-@Composable
-private fun EmptyHint(message: String) {
-    Text(
-        text = message,
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(vertical = 8.dp)
-    )
 }
 
 @Composable

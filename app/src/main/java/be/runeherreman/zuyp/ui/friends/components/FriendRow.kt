@@ -45,7 +45,7 @@ fun FriendRow(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
             contentColor = MaterialTheme.colorScheme.onSurface
         )
     ) {
