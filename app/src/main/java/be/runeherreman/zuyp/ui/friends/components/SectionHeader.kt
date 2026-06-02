@@ -55,7 +55,7 @@ fun SectionHeader(
 
         Button(
             onClick = onActionClick,
-            shape = RoundedCornerShape(50),
+            shape = RoundedCornerShape(12.dp),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(
                 horizontal = 16.dp,
                 vertical = 8.dp
