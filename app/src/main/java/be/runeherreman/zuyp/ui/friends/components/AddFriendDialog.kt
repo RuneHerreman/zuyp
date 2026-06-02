@@ -1,24 +1,29 @@
 package be.runeherreman.zuyp.ui.friends.components
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PersonAdd
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,19 +31,31 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import be.runeherreman.zuyp.domain.model.User
 
-/** Dialog for sending a friend request by username. */
+/**
+ * Dialog for adding a friend: search the full list of users (people who aren't
+ * already friends) and tap one to send a request.
+ */
 @Composable
 fun AddFriendDialog(
+    candidates: List<User>,
     onDismiss: () -> Unit,
-    onSendRequest: (username: String) -> Unit
+    onAddFriend: (User) -> Unit
 ) {
-    var username by remember { mutableStateOf("") }
+    var query by remember { mutableStateOf("") }
+
+    val results = remember(query, candidates) {
+        if (query.isBlank()) candidates
+        else candidates.filter { it.name.contains(query, ignoreCase = true) }
+    }
 
     BackHandler(onBack = onDismiss)
 
@@ -69,41 +86,130 @@ fun AddFriendDialog(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                SearchField(
+                    query = query,
+                    onQueryChange = { query = it }
+                )
+
+                UserResults(
+                    users = results,
+                    onPick = onAddFriend
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SearchField(
+    query: String,
+    onQueryChange: (String) -> Unit
+) {
+    val shape = RoundedCornerShape(14.dp)
+    Surface(
+        shape = shape,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+            BasicTextField(
+                value = query,
+                onValueChange = onQueryChange,
+                modifier = Modifier.weight(1f),
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                decorationBox = { innerTextField ->
+                    if (query.isEmpty()) {
+                        Text(
+                            "Search people…",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    innerTextField()
+                }
+            )
+            if (query.isNotEmpty()) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Clear",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .size(18.dp)
+                        .clickable { onQueryChange("") }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun UserResults(
+    users: List<User>,
+    onPick: (User) -> Unit
+) {
+    if (users.isEmpty()) {
+        Text(
+            text = "No people to add.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+        return
+    }
+
+    val shape = RoundedCornerShape(14.dp)
+    Surface(
+        shape = shape,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape)
+    ) {
+        LazyColumn(modifier = Modifier.heightIn(max = 280.dp)) {
+            itemsIndexed(users, key = { _, user -> user.id }) { index, user ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onPick(user) }
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    UserAvatar(user = user, size = 38.dp)
                     Text(
-                        text = "Friend's name",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = user.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.weight(1f)
                     )
-                    OutlinedTextField(
-                        value = username,
-                        onValueChange = { username = it },
-                        placeholder = { Text("Enter a username", style = MaterialTheme.typography.bodyMedium) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        textStyle = MaterialTheme.typography.bodyMedium
+                    Icon(
+                        imageVector = Icons.Default.PersonAdd,
+                        contentDescription = "Add ${user.name}",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(
-                        onClick = { onSendRequest(username) },
-                        modifier = Modifier.weight(1f),
-                        enabled = username.isNotBlank()
-                    ) {
-                        Icon(Icons.Default.PersonAdd, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Send request")
-                    }
-                    OutlinedButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Close")
-                    }
+                if (index < users.size - 1) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(start = 64.dp, end = 14.dp),
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    )
                 }
             }
         }

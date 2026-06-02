@@ -83,10 +83,15 @@ fun ZuypNavGraph(
                 onCreateGroupOpen = friendsViewModel::openCreateGroup,
                 onCreateGroupClose = friendsViewModel::closeCreateGroup,
                 onCreateGroup = friendsViewModel::createGroup,
+                onEditGroupOpen = friendsViewModel::openEditGroup,
+                onEditGroupClose = friendsViewModel::closeEditGroup,
+                onSaveGroupEdits = friendsViewModel::saveGroupEdits,
+                onLeaveGroup = friendsViewModel::leaveGroup,
                 onDeleteGroup = friendsViewModel::deleteGroup,
                 onAddFriendOpen = friendsViewModel::openAddFriend,
                 onAddFriendClose = friendsViewModel::closeAddFriend,
-                onSendFriendRequest = friendsViewModel::addFriend
+                onAddFriend = friendsViewModel::addFriend,
+                onRemoveFriend = friendsViewModel::removeFriend
             )
         }
         composable(Screen.Profile.route) {
@@ -98,7 +103,8 @@ fun ZuypNavGraph(
                 onEditProfileSave = profileViewModel::saveProfile,
                 onEditProfileClose = profileViewModel::closeEditProfile,
                 onStartupScreenSelect = profileViewModel::setStartupScreen,
-                onHangoutClick = { hangoutViewModel.selectHangout(it.id.toString()) }
+                onHangoutClick = { hangoutViewModel.selectHangout(it.id.toString()) },
+                onRefresh = profileViewModel::refresh
             )
         }
     }
