@@ -17,11 +17,10 @@ interface HangoutDao {
     suspend fun insertHangouts(items: List<HangoutEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAttendees(crossRefs: List<HangoutUsersMapping>)
+    suspend fun insertAttendees(hangoutUsers: List<HangoutUsersMapping>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: HangoutEntity)
-
 
     @Transaction
     @Query("SELECT * FROM hangouts")
@@ -44,7 +43,7 @@ interface HangoutDao {
     suspend fun deleteAllHangouts()
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertOrUpdateAttendee(crossRef: HangoutUsersMapping)
+    suspend fun insertOrUpdateAttendee(hangoutUser: HangoutUsersMapping)
 
     @Query("DELETE FROM hangouts_users WHERE hangoutId = :hangoutId AND userId = :userId")
     suspend fun removeAttendee(hangoutId: UUID, userId: UUID)

@@ -1,10 +1,12 @@
 package be.runeherreman.zuyp.di
 
 import be.runeherreman.zuyp.data.repositories.AddressRepositoryMapboxImpl
+import be.runeherreman.zuyp.data.repositories.GroupRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.HangoutRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.UserRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.WeatherRepositoryImpl
 import be.runeherreman.zuyp.domain.repository.AddressRepository
+import be.runeherreman.zuyp.domain.repository.GroupRepository
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import be.runeherreman.zuyp.domain.repository.UserRepository
 import be.runeherreman.zuyp.domain.repository.WeatherRepository
@@ -32,4 +34,8 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindAddressRepository(impl: AddressRepositoryMapboxImpl): AddressRepository
+
+    @Binds
+    @Singleton
+    fun bindAddressRepository(impl: GroupRepositoryRoomImpl): GroupRepository
 }

@@ -29,4 +29,7 @@ object DatabaseModule {
 
     @Provides
     fun provideUserDao(database: AppDatabase) = database.userDao()
+
+    @Provides
+    fun provideGroupDao(database: AppDatabase) = database.groupDao()
 }
