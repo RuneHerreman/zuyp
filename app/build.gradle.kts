@@ -76,6 +76,8 @@ dependencies {
     implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.compose.ui.text.google.fonts)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.datastore.core)
+    implementation(libs.androidx.preferences.datastore)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.hilt.compiler)
     androidTestImplementation(libs.hilt.android.testing)
