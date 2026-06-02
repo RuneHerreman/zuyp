@@ -11,6 +11,7 @@ data class ProfileUiState(
     val ownedHangouts: List<Hangout> = emptyList(),
     val upcomingHangouts: List<Hangout> = emptyList(),
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
 
     // Settings popup
     val isSettingsOpen: Boolean = false,

@@ -6,6 +6,7 @@ import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
+import be.runeherreman.zuyp.domain.useCases.groups.GetUserGroupsUseCase
 import be.runeherreman.zuyp.domain.useCases.users.EditProfileUseCase
 import be.runeherreman.zuyp.domain.useCases.users.GetStartupScreenUseCase
 import be.runeherreman.zuyp.domain.useCases.users.GetUserByIdUserCase
@@ -14,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -23,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val getFriendsUseCase: GetFriendsUseCase,
+    private val getUserGroupsUseCase: GetUserGroupsUseCase,
     private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
     private val getStartupScreenUseCase: GetStartupScreenUseCase,
     private val setStartupScreenUseCase: SetStartupScreenUseCase,
@@ -37,10 +40,7 @@ class ProfileViewModel @Inject constructor(
     val uiState: StateFlow<ProfileUiState> = _uiState
 
     init {
-        viewModelScope.launch {
-            val friendCount = getFriendsUseCase(userId = currentUserId).count()
-            _uiState.update { it.copy(friendsCount = friendCount) }
-        }
+        loadUserAndFriends()
 
         viewModelScope.launch {
             getAllHangoutsUseCase().collect { hangouts ->
@@ -68,11 +68,26 @@ class ProfileViewModel @Inject constructor(
                 _uiState.update { it.copy(startupRoute = route) }
             }
         }
+    }
 
+    /**
+     * Re-fetches the profile data that doesn't arrive via a Flow (the user record
+     * and friend count), so the screen reflects changes made elsewhere — e.g.
+     * after adding or removing friends.
+     */
+    fun refresh() {
         viewModelScope.launch {
-            val user = getUserByIdUseCase(currentUserId) ?: CurrentUser.user
-            _uiState.update { it.copy(user = user) }
+            _uiState.update { it.copy(isRefreshing = true) }
+            loadUserAndFriends().join()
+            _uiState.update { it.copy(isRefreshing = false) }
         }
+    }
+
+    private fun loadUserAndFriends() = viewModelScope.launch {
+        val user = getUserByIdUseCase(currentUserId) ?: CurrentUser.user
+        val friendCount = getFriendsUseCase(userId = currentUserId).count()
+        val groupCount = getUserGroupsUseCase(currentUserId).first().size
+        _uiState.update { it.copy(user = user, friendsCount = friendCount, groupsCount = groupCount) }
     }
 
     /** Persists which screen the app should open on launch. */
