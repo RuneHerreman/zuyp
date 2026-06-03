@@ -58,7 +58,7 @@ fun ExpensesSection() {
 }
 
 @Composable
-fun ExpenseItem(title: String, payerName: String, amount: String) {
+private fun ExpenseItem(title: String, payerName: String, amount: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

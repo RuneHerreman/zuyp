@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 
 @Composable
-fun ActionButtons(
+fun HangoutActionButtons(
     attendanceStatus: AttendanceStatus?,
     toggleGoingClick: () -> Unit = {},
     toggleNotInterestedClick: () -> Unit = {},

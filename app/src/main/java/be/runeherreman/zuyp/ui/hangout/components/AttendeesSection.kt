@@ -71,7 +71,7 @@ fun AttendeesSection(
 }
 
 @Composable
-fun AttendeeItem(
+private fun AttendeeItem(
     user: User,
     friendShips: Map<UUID, Boolean>,
     currentUserId: UUID,
@@ -103,7 +103,7 @@ fun AttendeeItem(
         if (user.id == currentUserId) {
             YouButton()
         } else if (friendShips[user.id] == true) {
-            IsFriendButton(toggleFriendClick = toggleFriendClick)
+            FriendButton(toggleFriendClick = toggleFriendClick)
         } else {
             AddFriendButton(toggleFriendClick = toggleFriendClick)
         }
@@ -111,7 +111,7 @@ fun AttendeeItem(
 }
 
 @Composable
-fun YouButton(){
+private fun YouButton() {
     Surface(
         color = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -132,7 +132,7 @@ fun YouButton(){
 }
 
 @Composable
-fun AddFriendButton(
+private fun AddFriendButton(
     toggleFriendClick: () -> Unit
 ) {
     Button(
@@ -153,7 +153,7 @@ fun AddFriendButton(
 }
 
 @Composable
-fun IsFriendButton(
+private fun FriendButton(
     toggleFriendClick: () -> Unit
 ) {
     Button(

@@ -31,7 +31,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
-import be.runeherreman.zuyp.ui.hangout.components.ActionButtons
+import be.runeherreman.zuyp.ui.hangout.components.HangoutActionButtons
 import be.runeherreman.zuyp.ui.hangout.components.AttendeesSection
 import be.runeherreman.zuyp.ui.hangout.components.BackButton
 import be.runeherreman.zuyp.ui.hangout.components.DeleteButton
@@ -144,7 +144,7 @@ fun HangoutScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        ActionButtons(
+        HangoutActionButtons(
             attendanceStatus = uiState.currentUserAttendanceStatus(),
             toggleGoingClick = {
                 onUpdateAttendanceStatus(uiState.hangout, uiState.nextAttendanceStatus(AttendanceStatus.GOING))

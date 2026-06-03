@@ -71,7 +71,7 @@ fun HangoutHeader(hangout: Hangout, uiState: HangoutUiState) {
 }
 
 @Composable
-fun InfoRow(icon: ImageVector, text: String) {
+private fun InfoRow(icon: ImageVector, text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.width(8.dp))
