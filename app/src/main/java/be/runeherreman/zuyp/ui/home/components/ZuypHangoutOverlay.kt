@@ -53,7 +53,7 @@ fun ZuypHangoutOverlay(
     var activePicker by remember { mutableStateOf<PickerTarget?>(null) }
     var memberSearch by remember { mutableStateOf("") }
     var selectedMembers by remember { mutableStateOf<List<User>>(emptyList()) }
-    var isPublic by remember { mutableStateOf(false) }
+    var isPrivate by remember { mutableStateOf(true) }
 
     val dateFormatter = remember { DateTimeFormatter.ofPattern("EEE, MMM d") }
     val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
@@ -154,11 +154,11 @@ fun ZuypHangoutOverlay(
                     )
                 }
 
-                // Public toggle
+                // Private toggle
                 ToggleRow(
-                    label = "Set hangout as public?",
-                    checked = isPublic,
-                    onCheckedChange = { isPublic = it }
+                    label = "Make this hangout private?",
+                    checked = isPrivate,
+                    onCheckedChange = { isPrivate = it }
                 )
 
                 // Buttons
@@ -170,7 +170,8 @@ fun ZuypHangoutOverlay(
                         val finalStart = if (isAllDay)
                             startDateTime.toLocalDate().atStartOfDay()
                         else startDateTime
-                        onEvent(HomeEvent.CreateZuypHangout(title, finalStart, selectedMembers, !isPublic))
+                        // No negation needed anymore
+                        onEvent(HomeEvent.CreateZuypHangout(title, finalStart, selectedMembers, isPrivate))
                     },
                     onDismiss = { onEvent(HomeEvent.ZuypHangoutClose) },
                     createLabel = "ZUYP!",

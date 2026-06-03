@@ -112,14 +112,14 @@ class HomeViewModel @Inject constructor(
                 title = event.title,
                 start = event.startDate,
                 members = event.users,
-                isPublic = !event.private
+                private = event.private
             )
             is HomeEvent.CreateHangout      -> createHangout(
                 title = event.title,
                 start = event.startDate,
                 end = event.endDate,
                 members = event.users,
-                isPublic = !event.private
+                private = event.private
             )
             is HomeEvent.HangoutClicked     -> Unit
         }
@@ -254,10 +254,9 @@ class HomeViewModel @Inject constructor(
         start: LocalDateTime,
         end: LocalDateTime,
         members: List<User>,
-        isPublic: Boolean
+        private: Boolean
     ) {
         val creator = CurrentUser.user
-        // only allow creation with a existing address.
         val address = _uiState.value.selectedAddress ?: return
         val hangoutId = UUID.randomUUID()
         val hangout = Hangout(
@@ -271,7 +270,7 @@ class HomeViewModel @Inject constructor(
             endDate = end,
             attendees = emptyList(),
             creator = creator,
-            private = !isPublic
+            private = private
         )
         viewModelScope.launch {
             createHangoutUseCase(hangout, members)
@@ -284,7 +283,7 @@ class HomeViewModel @Inject constructor(
         title: String,
         start: LocalDateTime,
         members: List<User>,
-        isPublic: Boolean
+        private: Boolean
     ) {
         val now = LocalDateTime.now()
         val latest = now.plusHours(24)
@@ -307,7 +306,7 @@ class HomeViewModel @Inject constructor(
             endDate = end,
             attendees = emptyList(),
             creator = creator,
-            private = !isPublic
+            private = private
         )
         viewModelScope.launch {
             _uiState.update { it.copy(isZuypSending = true) }

@@ -27,7 +27,6 @@ import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.ui.home.HomeEvent
-import be.runeherreman.zuyp.ui.navigation.Screen
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -53,7 +52,7 @@ fun CreateHangoutPopup(
     var activePicker by remember { mutableStateOf<PickerTarget?>(null) }
     var memberSearch by remember { mutableStateOf("") }
     var selectedMembers by remember { mutableStateOf<List<User>>(emptyList()) }
-    var isPublic by remember { mutableStateOf(false) }
+    var isPrivate by remember { mutableStateOf(true) } // Default to private
 
     val dateFormatter = remember { DateTimeFormatter.ofPattern("EEE, MMM d") }
     val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
@@ -61,7 +60,7 @@ fun CreateHangoutPopup(
     BackHandler(onBack = { onEvent(HomeEvent.CreateHangoutClose) })
 
     Dialog(
-        onDismissRequest = { onEvent(HomeEvent.Dismiss) },
+        onDismissRequest = { onEvent(HomeEvent.CreateHangoutClose) },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             decorFitsSystemWindows = false
@@ -148,11 +147,11 @@ fun CreateHangoutPopup(
                     )
                 }
 
-                // Public toggle
+                // Private toggle
                 ToggleRow(
-                    label = "Set hangout as public?",
-                    checked = isPublic,
-                    onCheckedChange = { isPublic = it }
+                    label = "Make this hangout private?",
+                    checked = isPrivate,
+                    onCheckedChange = { isPrivate = it }
                 )
 
                 // Buttons
@@ -168,9 +167,10 @@ fun CreateHangoutPopup(
                                 startDate = finalStart,
                                 endDate = finalEnd,
                                 users = selectedMembers,
-                                private = !isPublic
+                                private = isPrivate
                             )
-                        )                    },
+                        )
+                    },
                     onDismiss = { onEvent(HomeEvent.CreateHangoutClose) }
                 )
             }

@@ -75,7 +75,7 @@ fun ZuypNavGraph(
                 uiState = homeUiState,
                 onEvent = { event ->
                     when (event) {
-                        is HomeEvent.HangoutClicked -> hangoutViewModel.selectHangout(it.id)
+                        is HomeEvent.HangoutClicked -> hangoutViewModel.selectHangout(event.hangoutId)
                         else -> homeViewModel.onEvent(event, context)
                     }
                 }
