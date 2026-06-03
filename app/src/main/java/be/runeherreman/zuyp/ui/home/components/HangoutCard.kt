@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
-import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import coil.compose.AsyncImage
 import java.time.format.DateTimeFormatter
 import java.util.Locale

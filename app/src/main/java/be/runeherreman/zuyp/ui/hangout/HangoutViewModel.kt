@@ -8,7 +8,7 @@ import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.generateWeatherPrediction
 import be.runeherreman.zuyp.domain.useCases.friendship.AddFriendshipUseCase

@@ -1,7 +1,7 @@
 package be.runeherreman.zuyp.data.fake.data
 
 import be.runeherreman.zuyp.data.fake.dto.HangoutDto
-import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.User
 import java.time.LocalDateTime
 import java.util.UUID

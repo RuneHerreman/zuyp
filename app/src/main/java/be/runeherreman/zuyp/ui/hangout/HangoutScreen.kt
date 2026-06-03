@@ -29,7 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.ui.hangout.components.HangoutActionButtons
 import be.runeherreman.zuyp.ui.hangout.components.AttendeesSection

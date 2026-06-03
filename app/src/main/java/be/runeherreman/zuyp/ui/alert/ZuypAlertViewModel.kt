@@ -2,7 +2,7 @@ package be.runeherreman.zuyp.ui.alert
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import be.runeherreman.zuyp.domain.useCases.hangouts.UpdateAttendanceUseCase

@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
-import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
