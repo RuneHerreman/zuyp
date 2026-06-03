@@ -37,10 +37,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         pendingHangoutId = extractHangoutId(intent)
-        val permissions = (
-                AppPermission.NOTIFICATION.toAndroidPermissions()
-                        +
-                AppPermission.LOCATION.toAndroidPermissions()).toTypedArray()
+        val permissions: Array<String> =
+            listOf(AppPermission.NOTIFICATION.toAndroidPermissions(), AppPermission.LOCATION.toAndroidPermissions()).toTypedArray()
         requestPermissionsLauncher.launch(permissions)
         setContent {
             ZuypApp(
@@ -56,11 +54,6 @@ class MainActivity : ComponentActivity() {
         pendingHangoutId = extractHangoutId(intent)
     }
 
-    /**
-     * Resolves the hangout id from either a notification tap
-     * ([NotificationWorker.EXTRA_HANGOUT_ID]) or a shared deep link
-     * (https://zuyp.app/hangout/<id> or zuyp://hangout/<id>).
-     */
     private fun extractHangoutId(intent: Intent): String? {
         intent.getStringExtra(NotificationWorker.EXTRA_HANGOUT_ID)?.let { return it }
         if (intent.action == Intent.ACTION_VIEW) {

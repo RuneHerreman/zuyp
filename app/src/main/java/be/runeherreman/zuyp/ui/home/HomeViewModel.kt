@@ -12,6 +12,7 @@ import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.users.GetAllUsersUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendAttendeesByHangoutUseCase
+import be.runeherreman.zuyp.domain.useCases.groups.GetUserGroupsUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.utils.ResolveAddressUseCase
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -42,6 +44,7 @@ class HomeViewModel @Inject constructor(
     private val searchAddressesUseCase: SearchAddressesUseCase,
     private val resolveAddressUseCase: ResolveAddressUseCase,
     private val getAllUsersUseCase: GetAllUsersUseCase,
+    private val getUserGroupsUseCase: GetUserGroupsUseCase,
 ): ViewModel() {
     private val currentUserId: UUID = CurrentUser.id
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -138,8 +141,14 @@ class HomeViewModel @Inject constructor(
     fun openCreateHangout() {
         viewModelScope.launch {
             val allUsers = getAllUsersUseCase().filter { it.id != currentUserId }
+            val groups = getUserGroupsUseCase(currentUserId).first()
             _uiState.update {
-                it.copy(isCreateHangoutOpen = true, isZuypHangoutOpen = false, availableUsers = allUsers)
+                it.copy(
+                    isCreateHangoutOpen = true,
+                    isZuypHangoutOpen = false,
+                    availableUsers = allUsers,
+                    availableGroups = groups
+                )
             }
         }
     }
@@ -147,8 +156,14 @@ class HomeViewModel @Inject constructor(
     fun openZuypHangout() {
         viewModelScope.launch {
             val friends = getFriendsUseCase(currentUserId)
+            val groups = getUserGroupsUseCase(currentUserId).first()
             _uiState.update {
-                it.copy(isZuypHangoutOpen = true, isCreateHangoutOpen = false, availableUsers = friends)
+                it.copy(
+                    isZuypHangoutOpen = true,
+                    isCreateHangoutOpen = false,
+                    availableUsers = friends,
+                    availableGroups = groups
+                )
             }
         }
     }

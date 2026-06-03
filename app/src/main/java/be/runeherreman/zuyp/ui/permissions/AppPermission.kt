@@ -8,13 +8,10 @@ enum class AppPermission {
     LOCATION,
 }
 
-fun AppPermission.toAndroidPermissions(): List<String> {
+fun AppPermission.toAndroidPermissions(): String {
     return when (this) {
-        AppPermission.NOTIFICATION -> listOf(Manifest.permission.POST_NOTIFICATIONS)
-        AppPermission.FLASHLIGHT -> listOf(Manifest.permission.CAMERA)
-        AppPermission.LOCATION -> listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
+        AppPermission.NOTIFICATION -> Manifest.permission.POST_NOTIFICATIONS
+        AppPermission.FLASHLIGHT -> Manifest.permission.CAMERA
+        AppPermission.LOCATION -> Manifest.permission.ACCESS_FINE_LOCATION + Manifest.permission.ACCESS_COARSE_LOCATION
     }
 }

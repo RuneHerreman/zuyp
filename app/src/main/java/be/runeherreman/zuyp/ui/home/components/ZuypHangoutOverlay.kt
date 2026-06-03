@@ -24,14 +24,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import be.runeherreman.zuyp.domain.model.AddressSuggestion
+import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.User
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 @Composable
 fun ZuypHangoutOverlay(
     availableUsers: List<User>,
+    currentUserId: UUID,
     friends: List<User> = availableUsers,
+    groups: List<Group> = emptyList(),
     addressQuery: String,
     addressSuggestions: List<AddressSuggestion>,
     isAddressLoading: Boolean,
@@ -137,6 +141,12 @@ fun ZuypHangoutOverlay(
                                 selectedMembers.filter { it.id != user.id }
                             else
                                 selectedMembers + user
+                        },
+                        groups = groups,
+                        onGroupSelect = { group ->
+                            val members = group.members.filter { it.id != currentUserId }
+                            selectedMembers = (selectedMembers + members).distinctBy { it.id }
+                            memberSearch = ""
                         },
                         showInviteAll = true,
                         inviteAllUsers = friends,

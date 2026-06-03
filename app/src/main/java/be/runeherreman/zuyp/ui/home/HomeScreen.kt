@@ -149,6 +149,8 @@ fun HomeScreen(
         if (uiState.isCreateHangoutOpen) {
             CreateHangoutPopup(
                 availableUsers = uiState.availableUsers,
+                currentUserId = be.runeherreman.zuyp.data.fake.data.CurrentUser.id,
+                groups = uiState.availableGroups,
                 addressQuery = uiState.addressQuery,
                 addressSuggestions = uiState.addressSuggestions,
                 isAddressLoading = uiState.isAddressLoading,
@@ -164,6 +166,8 @@ fun HomeScreen(
         if (uiState.isZuypHangoutOpen) {
             ZuypHangoutOverlay(
                 availableUsers = uiState.availableUsers,
+                currentUserId = be.runeherreman.zuyp.data.fake.data.CurrentUser.id,
+                groups = uiState.availableGroups,
                 addressQuery = uiState.addressQuery,
                 addressSuggestions = uiState.addressSuggestions,
                 isAddressLoading = uiState.isAddressLoading,

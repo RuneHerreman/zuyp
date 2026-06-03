@@ -1,6 +1,7 @@
 package be.runeherreman.zuyp.ui.home
 
 import be.runeherreman.zuyp.domain.model.AddressSuggestion
+import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.ResolvedAddress
 import be.runeherreman.zuyp.domain.model.User
@@ -14,6 +15,7 @@ data class HomeUiState(
     val isZuypHangoutOpen: Boolean = false,
     val isZuypSending: Boolean = false,
     val availableUsers: List<User> = emptyList(),
+    val availableGroups: List<Group> = emptyList(),
     // Address autocomplete state for the create-hangout form
     val addressQuery: String = "",
     val addressSuggestions: List<AddressSuggestion> = emptyList(),

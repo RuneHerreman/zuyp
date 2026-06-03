@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -30,6 +31,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -49,6 +51,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.User
 import coil.compose.AsyncImage
 
@@ -64,6 +67,8 @@ internal fun MembersSelector(
     memberSearch: String,
     onSearchChange: (String) -> Unit,
     onMemberToggle: (User) -> Unit,
+    groups: List<Group> = emptyList(),
+    onGroupSelect: (Group) -> Unit = {},
     showInviteAll: Boolean = false,
     inviteAllUsers: List<User> = availableUsers,
     onInviteAll: ((List<User>) -> Unit)? = null
@@ -76,7 +81,11 @@ internal fun MembersSelector(
         }
         .take(5)
 
-    val showResults = memberSearch.isNotEmpty() && filtered.isNotEmpty()
+    val filteredGroups = groups
+        .filter { memberSearch.isNotBlank() && it.name.contains(memberSearch, ignoreCase = true) }
+        .take(3)
+
+    val showResults = memberSearch.isNotEmpty() && (filtered.isNotEmpty() || filteredGroups.isNotEmpty())
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     LaunchedEffect(showResults, filtered.size) {
         if (showResults) bringIntoViewRequester.bringIntoView()
@@ -97,6 +106,7 @@ internal fun MembersSelector(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(min = 48.dp)
                     .padding(horizontal = 14.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -166,6 +176,54 @@ internal fun MembersSelector(
             ) {
                 Column {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    filteredGroups.forEach { group ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onGroupSelect(group); onSearchChange("") }
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.secondaryContainer),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Groups,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = group.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "${group.members.size} members",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Add group",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 62.dp, end = 14.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        )
+                    }
                     filtered.forEachIndexed { index, user ->
                         Row(
                             modifier = Modifier
