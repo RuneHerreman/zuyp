@@ -4,9 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import be.runeherreman.zuyp.data.local.room.entity.FriendshipEntity
-import be.runeherreman.zuyp.data.local.room.entity.UserEntity
-import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.data.local.room.entity.users.FriendshipEntity
+import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
 import java.util.UUID
 
 @Dao

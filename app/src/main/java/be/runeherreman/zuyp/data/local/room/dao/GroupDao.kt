@@ -5,9 +5,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import be.runeherreman.zuyp.data.local.room.entity.GroupEntity
-import be.runeherreman.zuyp.data.local.room.entity.GroupUserMapping
-import be.runeherreman.zuyp.data.local.room.entity.GroupWithMembers
+import be.runeherreman.zuyp.data.local.room.entity.groups.GroupEntity
+import be.runeherreman.zuyp.data.local.room.entity.groups.GroupUserMapping
+import be.runeherreman.zuyp.data.local.room.entity.groups.GroupWithMembers
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 

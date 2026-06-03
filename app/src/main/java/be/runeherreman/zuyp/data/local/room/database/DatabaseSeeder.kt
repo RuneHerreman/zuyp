@@ -4,10 +4,9 @@ import androidx.room.withTransaction
 import be.runeherreman.zuyp.data.fake.data.FakeDataSource
 import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
 import be.runeherreman.zuyp.data.local.room.dao.UserDao
-import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
-import be.runeherreman.zuyp.data.local.room.entity.HangoutEntity
-import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
-import be.runeherreman.zuyp.data.local.room.entity.UserEntity
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutEntity
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutUsersMapping
+import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
