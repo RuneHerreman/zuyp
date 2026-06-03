@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Grain
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -68,7 +69,7 @@ class HangoutViewModel @Inject constructor(
     //       LOADING THE UI
     // ===========================
     fun selectHangout(hangoutId: String) {
-        _uiState.update { it.copy(selectedHangoutId = hangoutId) }
+        _uiState.update { it.copy(selectedHangoutId = hangoutId, isError = false) }
         loadHangoutInfo(hangoutId)
         loadHangoutExpenses(hangoutId)
     }
@@ -106,13 +107,20 @@ class HangoutViewModel @Inject constructor(
         }
     }
     fun loadWeatherForHangout(hangout: Hangout) {
-        if (hangout.endDate.isBefore(LocalDateTime.now())) {
+        val now = LocalDateTime.now()
+        if (hangout.endDate.isBefore(now)) {
             _uiState.update { it.copy(isLoadingWeather = false, weatherPrediction = "No forecast for past events") }
             return
         }
+
+        if (hangout.startDate.isAfter(now.plusDays(14))) {
+            _uiState.update { it.copy(isLoadingWeather = false, weatherPrediction = "Forecast only available 14 days in advance") }
+            return
+        }
+
         _uiState.update { it.copy(isLoadingWeather = true) }
-        try {
-            viewModelScope.launch {
+        viewModelScope.launch {
+            try {
                 val weather = getWeatherUseCase(
                     latitude = hangout.latitude,
                     longitude = hangout.longitude,
@@ -132,10 +140,15 @@ class HangoutViewModel @Inject constructor(
                     )
                 }
                 Log.i("HangoutViewModel", "Weather: ${weather.hourly.temperature2m.min()}°C, rain: ${weather.hourly.rain.max()}mm")
+            } catch (e: Exception) {
+                Log.e("HangoutViewModel", "Error loading weather", e)
+                _uiState.update {
+                    it.copy(
+                        isLoadingWeather = false,
+                        weatherPrediction = "Weather data unavailable"
+                    )
+                }
             }
-        } catch (e: Exception) {
-            Log.e("HangoutViewModel", "Error loading weather", e)
-            _uiState.update { it.copy(isLoadingWeather = false) }
         }
     }
     private fun getWeatherIconFromPrediction(weatherPrediction: String) = when {
