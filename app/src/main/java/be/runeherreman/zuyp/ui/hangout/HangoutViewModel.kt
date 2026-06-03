@@ -252,6 +252,12 @@ class HangoutViewModel @Inject constructor(
     // EXPENSES FUNCTIONSS
     fun openAddExpense() { _uiState.update { it.copy(isAddExpenseOpen = true) } }
 
+    fun closeAddExpense() { _uiState.update { it.copy(isAddExpenseOpen = false) } }
+
+    fun openExpenseDetail(expense: Expense) { _uiState.update { it.copy(selectedExpense = expense) } }
+
+    fun closeExpenseDetail() { _uiState.update { it.copy(selectedExpense = null) } }
+
     fun addExpense(title: String, amount: Double, paidBy: User, shares: List<ExpenseShare>, imageUri: String?) {
         viewModelScope.launch {
             addExpenseUseCase(

@@ -25,16 +25,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.Expense
+import be.runeherreman.zuyp.domain.model.ExpenseShare
 import be.runeherreman.zuyp.domain.model.Hangout
+import be.runeherreman.zuyp.domain.model.PersonBalance
+import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.hangout.components.AddExpenseDialog
 import be.runeherreman.zuyp.ui.hangout.components.HangoutActionButtons
 import be.runeherreman.zuyp.ui.hangout.components.AttendeesSection
 import be.runeherreman.zuyp.ui.hangout.components.BackButton
 import be.runeherreman.zuyp.ui.hangout.components.DeleteButton
+import be.runeherreman.zuyp.ui.hangout.components.ExpenseDetailDialog
 import be.runeherreman.zuyp.ui.hangout.components.ExpensesSection
 import be.runeherreman.zuyp.ui.hangout.components.HangoutHeader
 import be.runeherreman.zuyp.ui.hangout.components.PrivateBadge
@@ -54,6 +61,13 @@ fun HangoutOverlay(
     onClearInvitees: () -> Unit = {},
     onShareExternal: () -> Unit = {},
     onCloseShare: () -> Unit = {},
+    onAddExpenseOpen: () -> Unit = {},
+    onAddExpenseClose: () -> Unit = {},
+    onAddExpense: (String, Double, User, List<ExpenseShare>, String?) -> Unit = { _, _, _, _, _ -> },
+    onExpenseClick: (Expense) -> Unit = {},
+    onExpenseDetailClose: () -> Unit = {},
+    onDeleteExpense: (UUID) -> Unit = {},
+    onSettle: (PersonBalance) -> Unit = {},
 ) {
     AnimatedVisibility(
         visible = uiState.selectedHangoutId != null,
@@ -71,7 +85,14 @@ fun HangoutOverlay(
                 onFriendClick = onFriendClick,
                 onUpdateAttendanceStatus = onUpdateAttendanceStatus,
                 onDeleteClick = onDeleteClick,
-                onShareClick = onShareClick
+                onShareClick = onShareClick,
+                onAddExpenseOpen = onAddExpenseOpen,
+                onAddExpenseClose = onAddExpenseClose,
+                onAddExpense = onAddExpense,
+                onExpenseClick = onExpenseClick,
+                onExpenseDetailClose = onExpenseDetailClose,
+                onDeleteExpense = onDeleteExpense,
+                onSettle = onSettle
             )
         }
     }
@@ -98,6 +119,13 @@ fun HangoutScreen(
     onFriendClick: (UUID) -> Unit = {},
     onUpdateAttendanceStatus: (Hangout, AttendanceStatus?) -> Unit = {_, _, ->},
     onShareClick: () -> Unit = {},
+    onAddExpenseOpen: () -> Unit = {},
+    onAddExpenseClose: () -> Unit = {},
+    onAddExpense: (String, Double, User, List<ExpenseShare>, String?) -> Unit = { _, _, _, _, _ -> },
+    onExpenseClick: (Expense) -> Unit = {},
+    onExpenseDetailClose: () -> Unit = {},
+    onDeleteExpense: (UUID) -> Unit = {},
+    onSettle: (PersonBalance) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     // Handle system back press
@@ -170,6 +198,34 @@ fun HangoutScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        ExpensesSection()
+        ExpensesSection(
+            expenses = uiState.expenses,
+            balances = uiState.balances,
+            currentUserId = uiState.currentUser.id,
+            onAddExpense = onAddExpenseOpen,
+            onExpenseClick = onExpenseClick,
+            onSettle = onSettle
+        )
+
+        if (uiState.isAddExpenseOpen) {
+            val candidates = remember(uiState.hangout.attendees, uiState.currentUser) {
+                (listOf(uiState.currentUser) + uiState.hangout.attendees).distinctBy { it.id }
+            }
+            AddExpenseDialog(
+                candidates = candidates,
+                currentUser = uiState.currentUser,
+                onAdd = onAddExpense,
+                onDismiss = onAddExpenseClose
+            )
+        }
+
+        uiState.selectedExpense?.let { expense ->
+            ExpenseDetailDialog(
+                expense = expense,
+                currentUserId = uiState.currentUser.id,
+                onDelete = onDeleteExpense,
+                onDismiss = onExpenseDetailClose
+            )
+        }
     }
 }

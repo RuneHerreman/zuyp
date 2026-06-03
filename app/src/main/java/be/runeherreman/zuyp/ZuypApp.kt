@@ -74,7 +74,14 @@ fun ZuypApp(
                 onSendInvites = hangoutViewModel::sendInvites,
                 onClearInvitees = hangoutViewModel::clearInviteeSelection,
                 onShareExternal = { hangoutViewModel.shareHangoutExternally(hangoutUiState.hangout, context) },
-                onCloseShare = hangoutViewModel::closeShareSheet
+                onCloseShare = hangoutViewModel::closeShareSheet,
+                onAddExpenseOpen = hangoutViewModel::openAddExpense,
+                onAddExpenseClose = hangoutViewModel::closeAddExpense,
+                onAddExpense = hangoutViewModel::addExpense,
+                onExpenseClick = hangoutViewModel::openExpenseDetail,
+                onExpenseDetailClose = hangoutViewModel::closeExpenseDetail,
+                onDeleteExpense = hangoutViewModel::deleteExpense,
+                onSettle = hangoutViewModel::settleUp
             )
         }
     }
