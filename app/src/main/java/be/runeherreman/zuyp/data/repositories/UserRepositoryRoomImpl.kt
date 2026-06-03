@@ -1,8 +1,8 @@
 package be.runeherreman.zuyp.data.repositories
 
 import be.runeherreman.zuyp.data.local.room.dao.UserDao
-import be.runeherreman.zuyp.data.local.room.entity.FriendshipEntity
-import be.runeherreman.zuyp.data.local.room.entity.UserEntity
+import be.runeherreman.zuyp.data.local.room.entity.users.FriendshipEntity
+import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.repository.UserRepository
 import java.util.UUID

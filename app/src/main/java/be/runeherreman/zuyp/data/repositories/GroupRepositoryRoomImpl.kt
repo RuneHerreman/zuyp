@@ -1,10 +1,10 @@
 package be.runeherreman.zuyp.data.repositories
 
 import be.runeherreman.zuyp.data.local.room.dao.GroupDao
-import be.runeherreman.zuyp.data.local.room.entity.GroupEntity
-import be.runeherreman.zuyp.data.local.room.entity.GroupUserMapping
-import be.runeherreman.zuyp.data.local.room.entity.GroupWithMembers
-import be.runeherreman.zuyp.data.local.room.entity.UserEntity
+import be.runeherreman.zuyp.data.local.room.entity.groups.GroupEntity
+import be.runeherreman.zuyp.data.local.room.entity.groups.GroupUserMapping
+import be.runeherreman.zuyp.data.local.room.entity.groups.GroupWithMembers
+import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
 import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.repository.GroupRepository

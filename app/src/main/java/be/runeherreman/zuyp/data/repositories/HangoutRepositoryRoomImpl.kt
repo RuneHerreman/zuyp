@@ -1,11 +1,11 @@
 package be.runeherreman.zuyp.data.repositories
 
 import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
-import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
-import be.runeherreman.zuyp.data.local.room.entity.HangoutEntity
-import be.runeherreman.zuyp.data.local.room.entity.HangoutUsersMapping
-import be.runeherreman.zuyp.data.local.room.entity.HangoutWithDetails
-import be.runeherreman.zuyp.data.local.room.entity.UserEntity
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutEntity
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutUsersMapping
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutWithDetails
+import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
