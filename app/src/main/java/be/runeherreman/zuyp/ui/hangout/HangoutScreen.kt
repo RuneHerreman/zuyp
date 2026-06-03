@@ -25,49 +25,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
-import be.runeherreman.zuyp.domain.model.Expense
-import be.runeherreman.zuyp.domain.model.Hangout
-import be.runeherreman.zuyp.domain.model.PersonBalance
-import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.ui.hangout.components.AddExpenseDialog
-import be.runeherreman.zuyp.ui.hangout.components.HangoutActionButtons
 import be.runeherreman.zuyp.ui.hangout.components.AttendeesSection
 import be.runeherreman.zuyp.ui.hangout.components.BackButton
 import be.runeherreman.zuyp.ui.hangout.components.DeleteButton
-import be.runeherreman.zuyp.ui.hangout.components.expenses.ExpenseDetailDialog
-import be.runeherreman.zuyp.ui.hangout.components.expenses.ExpensesSection
+import be.runeherreman.zuyp.ui.hangout.components.HangoutActionButtons
 import be.runeherreman.zuyp.ui.hangout.components.HangoutHeader
 import be.runeherreman.zuyp.ui.hangout.components.PrivateBadge
 import be.runeherreman.zuyp.ui.hangout.components.ShareHangoutPopup
+import be.runeherreman.zuyp.ui.hangout.components.expenses.ExpenseDetailDialog
+import be.runeherreman.zuyp.ui.hangout.components.expenses.ExpensesSection
 import java.util.UUID
 
 @Composable
 fun HangoutOverlay(
     uiState: HangoutUiState,
-    onDismiss: () -> Unit,
-    onFriendClick: (UUID) -> Unit,
-    onDeleteClick: (UUID) -> Unit,
-    onUpdateAttendanceStatus: (Hangout, AttendanceStatus?) -> Unit,
-    onShareClick: () -> Unit = {},
-    onToggleInvitee: (UUID) -> Unit = {},
-    onSendInvites: () -> Unit = {},
-    onClearInvitees: () -> Unit = {},
-    onShareExternal: () -> Unit = {},
-    onCloseShare: () -> Unit = {},
-    onAddExpenseOpen: () -> Unit = {},
-    onAddExpenseEvent: (AddExpenseEvent) -> Unit = {},
-    onCameraClick: () -> Unit = {},
-    onGalleryClick: () -> Unit = {},
-    onExpenseClick: (Expense) -> Unit = {},
-    onExpenseDetailClose: () -> Unit = {},
-    onDeleteExpense: (UUID) -> Unit = {},
-    onSettle: (PersonBalance) -> Unit = {},
+    onEvent: (HangoutEvent) -> Unit = {},
 ) {
     AnimatedVisibility(
         visible = uiState.selectedHangoutId != null,
@@ -81,19 +59,7 @@ fun HangoutOverlay(
             HangoutScreen(
                 modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
                 uiState = uiState,
-                onBackClick = onDismiss,
-                onFriendClick = onFriendClick,
-                onUpdateAttendanceStatus = onUpdateAttendanceStatus,
-                onDeleteClick = onDeleteClick,
-                onShareClick = onShareClick,
-                onAddExpenseOpen = onAddExpenseOpen,
-                onAddExpenseEvent = onAddExpenseEvent,
-                onCameraClick = onCameraClick,
-                onGalleryClick = onGalleryClick,
-                onExpenseClick = onExpenseClick,
-                onExpenseDetailClose = onExpenseDetailClose,
-                onDeleteExpense = onDeleteExpense,
-                onSettle = onSettle
+                onEvent = onEvent
             )
         }
     }
@@ -103,11 +69,11 @@ fun HangoutOverlay(
             users = uiState.allUsers,
             selectedIds = uiState.selectedInviteeIds,
             isSending = uiState.isSendingInvites,
-            onToggle = onToggleInvitee,
-            onInvite = onSendInvites,
-            onClearSelection = onClearInvitees,
-            onShareExternal = onShareExternal,
-            onDismiss = onCloseShare
+            onToggle = { onEvent(HangoutEvent.ToggleInvitee(it)) },
+            onInvite = { onEvent(HangoutEvent.SendInvites) },
+            onClearSelection = { onEvent(HangoutEvent.ClearInvitees) },
+            onShareExternal = { onEvent(HangoutEvent.ShareExternal) },
+            onDismiss = { onEvent(HangoutEvent.CloseShare) }
         )
     }
 }
@@ -115,23 +81,11 @@ fun HangoutOverlay(
 @Composable
 fun HangoutScreen(
     uiState: HangoutUiState,
-    onBackClick: () -> Unit = {},
-    onDeleteClick: (UUID) -> Unit = {},
-    onFriendClick: (UUID) -> Unit = {},
-    onUpdateAttendanceStatus: (Hangout, AttendanceStatus?) -> Unit = {_, _, ->},
-    onShareClick: () -> Unit = {},
-    onAddExpenseOpen: () -> Unit = {},
-    onAddExpenseEvent: (AddExpenseEvent) -> Unit = {},
-    onCameraClick: () -> Unit = {},
-    onGalleryClick: () -> Unit = {},
-    onExpenseClick: (Expense) -> Unit = {},
-    onExpenseDetailClose: () -> Unit = {},
-    onDeleteExpense: (UUID) -> Unit = {},
-    onSettle: (PersonBalance) -> Unit = {},
+    onEvent: (HangoutEvent) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     // Handle system back press
-    BackHandler(onBack = onBackClick)
+    BackHandler(onBack = { onEvent( HangoutEvent.BackClicked) })
 
     if (uiState.isError) {
         Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -154,9 +108,9 @@ fun HangoutScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ){
-            BackButton(onBackClick = onBackClick)
+            BackButton(onBackClick = { onEvent( HangoutEvent.BackClicked) })
             if (uiState.hangout.creator.id == uiState.currentUser.id) {
-                DeleteButton(onDeleteClick = { onDeleteClick(uiState.hangout.id) })
+                DeleteButton(onDeleteClick = { onEvent(HangoutEvent.DeleteHangout(uiState.hangout.id)) })
             }
         }
 
@@ -177,12 +131,12 @@ fun HangoutScreen(
         HangoutActionButtons(
             attendanceStatus = uiState.currentUserAttendanceStatus(),
             toggleGoingClick = {
-                onUpdateAttendanceStatus(uiState.hangout, uiState.nextAttendanceStatus(AttendanceStatus.GOING))
+                onEvent(HangoutEvent.UpdateAttendance(uiState.hangout, uiState.nextAttendanceStatus(AttendanceStatus.GOING)))
             },
             toggleNotInterestedClick = {
-                onUpdateAttendanceStatus(uiState.hangout, uiState.nextAttendanceStatus(AttendanceStatus.NOT_INTERESTED))
+                onEvent(HangoutEvent.UpdateAttendance(uiState.hangout, uiState.nextAttendanceStatus(AttendanceStatus.NOT_INTERESTED)))
             },
-            onShareClick = onShareClick
+            onShareClick = { onEvent(HangoutEvent.ShareClicked) }
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -195,7 +149,7 @@ fun HangoutScreen(
             attendees = goingAttendees,
             friendShips = uiState.friendShipMapping,
             currentUserId = uiState.currentUser.id,
-            toggleFriendClick = { onFriendClick(it) }
+            toggleFriendClick = { onEvent(HangoutEvent.FriendClicked(it)) }
         )
 
         if (uiState.currentUserAttendanceStatus() == AttendanceStatus.GOING) {
@@ -204,18 +158,18 @@ fun HangoutScreen(
             ExpensesSection(
                 expenses = uiState.expenses,
                 balances = uiState.balances,
-                onAddExpense = onAddExpenseOpen,
-                onExpenseClick = onExpenseClick,
-                onSettle = onSettle
+                onAddExpense = { onEvent(HangoutEvent.AddExpenseOpen) },
+                onExpenseClick = { onEvent(HangoutEvent.ExpenseClicked(it)) },
+                onSettle = { onEvent(HangoutEvent.Settle(it)) }
             )
 
             uiState.addExpenseForm?.let { form ->
                 AddExpenseDialog(
                     form = form,
                     currentUser = uiState.currentUser,
-                    onEvent = onAddExpenseEvent,
-                    onCameraClick = onCameraClick,
-                    onGalleryClick = onGalleryClick
+                    onEvent = { onEvent(HangoutEvent.Form(it)) },
+                    onCameraClick = { onEvent(HangoutEvent.CameraClicked) },
+                    onGalleryClick = { onEvent(HangoutEvent.GalleryClicked) }
                 )
             }
 
@@ -223,8 +177,8 @@ fun HangoutScreen(
                 ExpenseDetailDialog(
                     expense = expense,
                     currentUserId = uiState.currentUser.id,
-                    onDelete = onDeleteExpense,
-                    onDismiss = onExpenseDetailClose
+                    onDelete = { onEvent(HangoutEvent.DeleteExpense(it)) },
+                    onDismiss = { onEvent(HangoutEvent.ExpenseDetailClose) }
                 )
             }
         }

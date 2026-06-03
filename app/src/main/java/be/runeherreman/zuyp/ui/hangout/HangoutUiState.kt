@@ -54,6 +54,31 @@ data class HangoutUiState(
 
 enum class SplitMode(val label: String) { EQUALLY("Equally"), CUSTOM("Custom") }
 
+sealed interface HangoutEvent {
+    data object BackClicked : HangoutEvent
+    data object ShareClicked : HangoutEvent
+    data object AddExpenseOpen : HangoutEvent
+    data object CameraClicked : HangoutEvent
+    data object GalleryClicked : HangoutEvent
+    data object ExpenseDetailClose : HangoutEvent
+
+    data object SendInvites: HangoutEvent
+    data object ClearInvitees: HangoutEvent
+    data object ShareExternal: HangoutEvent
+    data object CloseShare: HangoutEvent
+
+    data class DeleteHangout(val id: UUID) : HangoutEvent
+    data class FriendClicked(val userId: UUID) : HangoutEvent
+    data class UpdateAttendance(val hangout: Hangout, val status: AttendanceStatus?) : HangoutEvent
+    data class ExpenseClicked(val expense: Expense) : HangoutEvent
+    data class DeleteExpense(val id: UUID) : HangoutEvent
+    data class Settle(val balance: PersonBalance) : HangoutEvent
+    data class ToggleInvitee(val id: UUID): HangoutEvent
+
+    // Form events
+    data class Form(val event: AddExpenseEvent) : HangoutEvent
+}
+
 sealed interface AddExpenseEvent {
     data class TitleChanged(val title: String) : AddExpenseEvent
     data class AmountChanged(val text: String) : AddExpenseEvent
