@@ -36,9 +36,9 @@ import be.runeherreman.zuyp.ui.discover.DiscoverViewModel
 import be.runeherreman.zuyp.ui.discover.components.HangoutPopup
 import be.runeherreman.zuyp.ui.hangout.HangoutOverlay
 import be.runeherreman.zuyp.ui.hangout.HangoutViewModel
-import be.runeherreman.zuyp.ui.hangout.components.expenses.copyImageIntoAppStorage
-import be.runeherreman.zuyp.ui.hangout.components.expenses.expenseImageUri
-import be.runeherreman.zuyp.ui.hangout.components.expenses.newExpenseImageFile
+import be.runeherreman.zuyp.ui.hangout.utils.copyImageIntoAppStorage
+import be.runeherreman.zuyp.ui.hangout.utils.expenseImageUri
+import be.runeherreman.zuyp.ui.hangout.utils.newExpenseImageFile
 import be.runeherreman.zuyp.ui.navigation.ZuypBottomBar
 import be.runeherreman.zuyp.ui.navigation.ZuypNavGraph
 import be.runeherreman.zuyp.ui.permissions.AppPermission

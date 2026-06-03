@@ -76,12 +76,10 @@ fun AddExpenseDialog(
     onCameraClick: () -> Unit,
     onGalleryClick: () -> Unit,
 ) {
-    val scheme = MaterialTheme.colorScheme
-
     Dialog(onDismissRequest = { onEvent(AddExpenseEvent.Dismiss) }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             shape = RoundedCornerShape(28.dp),
-            color = scheme.surface,
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         ) {
@@ -90,59 +88,11 @@ fun AddExpenseDialog(
                     .verticalScroll(rememberScrollState())
                     .padding(20.dp)
             ) {
-                // Header
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "New expense",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = scheme.onSurface
-                    )
-                    IconButton(onClick = { onEvent(AddExpenseEvent.Dismiss) }) {
-                        Icon(Icons.Default.Close, contentDescription = "Close", tint = scheme.error)
-                    }
-                }
+                AddExpenseHeader(onEvent = onEvent)
 
                 Spacer(Modifier.height(8.dp))
 
-                // Centered amount input
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("€", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold, color = scheme.onSurface)
-                    Spacer(Modifier.width(12.dp))
-                    BasicTextField(
-                        value = form.amountText,
-                        onValueChange = { new -> onEvent(AddExpenseEvent.AmountChanged(new.filter { it.isDigit() || it == '.' || it == ',' })) },
-                        textStyle = MaterialTheme.typography.displayMedium.copy(
-                            color = scheme.onSurface,
-                            textAlign = TextAlign.Center
-                        ),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        cursorBrush = SolidColor(scheme.primary),
-                        modifier = Modifier.widthIn(min = 120.dp),
-                        decorationBox = { inner ->
-                            Box(contentAlignment = Alignment.Center) {
-                                if (form.amountText.isEmpty()) {
-                                    Text(
-                                        "0.00",
-                                        style = MaterialTheme.typography.displayMedium,
-                                        color = scheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
-                                inner()
-                            }
-                        }
-                    )
-                }
+                AmountInput(form, onEvent)
 
                 Spacer(Modifier.height(20.dp))
 
@@ -176,84 +126,10 @@ fun AddExpenseDialog(
 
                 Spacer(Modifier.height(16.dp))
 
-                FieldLabel("WITH WHOM?")
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    form.candidates.forEach { user ->
-                        val selected = user.id in form.selectedParticipantIds
-                        FilterChip(
-                            selected = selected,
-                            onClick = { onEvent(AddExpenseEvent.ParticipantToggled(user.id)) },
-                            label = { Text(if (user.id == currentUser.id) "You" else user.name.substringBefore(' ')) },
-                            leadingIcon = if (selected) {
-                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
-                            } else null,
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = scheme.primary,
-                                selectedLabelColor = scheme.onPrimary,
-                                selectedLeadingIconColor = scheme.onPrimary
-                            )
-                        )
-                    }
-                }
+                UserListPicker(form, currentUser, onEvent)
 
                 if (form.shares.isNotEmpty()) {
-                    Spacer(Modifier.height(12.dp))
-                    if (form.splitMode == SplitMode.EQUALLY) {
-                        form.shares.forEach { share ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                UserAvatar(user = share.user, size = 28.dp)
-                                Spacer(Modifier.width(10.dp))
-                                Text(
-                                    if (share.user.id == currentUser.id) "You" else share.user.name,
-                                    modifier = Modifier.weight(1f),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = scheme.onSurface
-                                )
-                                Text(
-                                    "€ ${"%.2f".format(share.amount)}",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = scheme.onSurface
-                                )
-                            }
-                        }
-                    } else {
-                        val amount = form.amountText.replace(',', '.').toDoubleOrNull() ?: 0.0
-                        form.participants.forEach { user ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                UserAvatar(user = user, size = 28.dp)
-                                Spacer(Modifier.width(10.dp))
-                                Text(
-                                    if (user.id == currentUser.id) "You" else user.name,
-                                    modifier = Modifier.weight(1f),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = scheme.onSurface
-                                )
-                                OutlinedTextField(
-                                    value = form.customAmounts[user.id] ?: "",
-                                    onValueChange = { new -> onEvent(AddExpenseEvent.CustomAmountChanged(user.id, new.filter { it.isDigit() || it == '.' || it == ',' })) },
-                                    placeholder = { Text("0.00") },
-                                    prefix = { Text("€ ") },
-                                    singleLine = true,
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.width(120.dp)
-                                )
-                            }
-                        }
-                        Text(
-                            text = "Split total: € ${"%.2f".format(form.customSum)} of € ${"%.2f".format(amount)}",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = if (form.customOk) scheme.onSurfaceVariant else scheme.error,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
+                    ExpenseShares(form, currentUser, onEvent)
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -268,23 +144,188 @@ fun AddExpenseDialog(
 
                 Spacer(Modifier.height(20.dp))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    Button(
-                        onClick = { onEvent(AddExpenseEvent.Submit) },
-                        enabled = form.canAdd,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Add expense")
+                AddExpenseFooter(form, onEvent)
+            }
+        }
+    }
+}
+
+@Composable
+fun UserListPicker(form: AddExpenseForm, currentUser: User, onEvent: (AddExpenseEvent) -> Unit) {
+    FieldLabel("WITH WHOM?")
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        form.candidates.forEach { user ->
+            val selected = user.id in form.selectedParticipantIds
+            FilterChip(
+                selected = selected,
+                onClick = { onEvent(AddExpenseEvent.ParticipantToggled(user.id)) },
+                label = { Text(if (user.id == currentUser.id) "You" else user.name.substringBefore(' ')) },
+                leadingIcon = if (selected) {
+                    { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                } else null,
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun ExpenseShares(form: AddExpenseForm, currentUser: User, onEvent: (AddExpenseEvent) -> Unit) {
+    Spacer(Modifier.height(12.dp))
+    if (form.splitMode == SplitMode.EQUALLY) {
+        form.shares.forEach { share ->
+            EqualSplitRow(share, currentUser)
+        }
+    } else {
+        val amount = form.amountText.replace(',', '.').toDoubleOrNull() ?: 0.0
+        form.participants.forEach { user ->
+            CustomSplitRow(currentUser, user, form, onEvent)
+
+        }
+        Text(
+            text = "Split total: € ${"%.2f".format(form.customSum)} of € ${"%.2f".format(amount)}",
+            style = MaterialTheme.typography.labelMedium,
+            color = if (form.customOk) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+    }
+}
+
+@Composable
+fun AddExpenseFooter(form: AddExpenseForm, onEvent: (AddExpenseEvent) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { onEvent(AddExpenseEvent.Submit) },
+            enabled = form.canAdd,
+            modifier = Modifier.weight(1f)
+        ) {
+            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("Add expense")
+        }
+        OutlinedButton(onClick = { onEvent(AddExpenseEvent.Dismiss) }, modifier = Modifier.weight(1f)) {
+            Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("Cancel")
+        }
+    }
+}
+
+@Composable
+fun CustomSplitRow(
+    currentUser: User,
+    user: User,
+    form: AddExpenseForm,
+    onEvent: (AddExpenseEvent) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        UserAvatar(user = user, size = 28.dp)
+        Spacer(Modifier.width(10.dp))
+        Text(
+            if (user.id == currentUser.id) "You" else user.name,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        OutlinedTextField(
+            value = form.customAmounts[user.id] ?: "",
+            onValueChange = { new -> onEvent(AddExpenseEvent.CustomAmountChanged(user.id, new.filter { it.isDigit() || it == '.' || it == ',' })) },
+            placeholder = { Text("0.00") },
+            prefix = { Text("€ ") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.width(120.dp)
+        )
+    }
+}
+
+@Composable
+fun EqualSplitRow(share: ExpenseShare, currentUser: User) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        UserAvatar(user = share.user, size = 28.dp)
+        Spacer(Modifier.width(10.dp))
+        Text(
+            if (share.user.id == currentUser.id) "You" else share.user.name,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            "€ ${"%.2f".format(share.amount)}",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+fun AmountInput(form: AddExpenseForm, onEvent: (AddExpenseEvent) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("€", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+        Spacer(Modifier.width(12.dp))
+        BasicTextField(
+            value = form.amountText,
+            onValueChange = { new -> onEvent(AddExpenseEvent.AmountChanged(new.filter { it.isDigit() || it == '.' || it == ',' })) },
+            textStyle = MaterialTheme.typography.displayMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center
+            ),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+            modifier = Modifier.widthIn(min = 120.dp),
+            decorationBox = { inner ->
+                Box(contentAlignment = Alignment.Center) {
+                    if (form.amountText.isEmpty()) {
+                        Text(
+                            "0.00",
+                            style = MaterialTheme.typography.displayMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            textAlign = TextAlign.Center
+                        )
                     }
-                    OutlinedButton(onClick = { onEvent(AddExpenseEvent.Dismiss) }, modifier = Modifier.weight(1f)) {
-                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("Cancel")
-                    }
+                    inner()
                 }
             }
+        )
+    }
+}
+
+@Composable
+fun AddExpenseHeader(onEvent: (AddExpenseEvent) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            "New expense",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        IconButton(onClick = { onEvent(AddExpenseEvent.Dismiss) }) {
+            Icon(
+                Icons.Default.Close,
+                contentDescription = "Close",
+                tint = MaterialTheme.colorScheme.error
+            )
         }
     }
 }
@@ -349,7 +390,6 @@ private fun SplitDropdown(selected: SplitMode, onSelect: (SplitMode) -> Unit) {
 
 @Composable
 private fun BillPhotoPicker(imagePath: String?, onCamera: () -> Unit, onGallery: () -> Unit, onRemove: () -> Unit) {
-    val scheme = MaterialTheme.colorScheme
     if (imagePath != null) {
         Box(modifier = Modifier.fillMaxWidth().heightIn(max = 180.dp)) {
             AsyncImage(
@@ -365,9 +405,9 @@ private fun BillPhotoPicker(imagePath: String?, onCamera: () -> Unit, onGallery:
                     .padding(6.dp)
                     .size(32.dp)
                     .clip(RoundedCornerShape(50))
-                    .background(scheme.scrim.copy(alpha = 0.5f))
+                    .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f))
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Remove photo", tint = scheme.inverseOnSurface)
+                Icon(Icons.Default.Close, contentDescription = "Remove photo", tint = MaterialTheme.colorScheme.inverseOnSurface)
             }
         }
     } else {

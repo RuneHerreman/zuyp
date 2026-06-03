@@ -14,39 +14,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-enum class SplitMode(val label: String) { EQUALLY("Equally"), CUSTOM("Custom") }
-
-sealed interface AddExpenseEvent {
-    data class TitleChanged(val title: String) : AddExpenseEvent
-    data class AmountChanged(val text: String) : AddExpenseEvent
-    data class PaidByChanged(val userId: UUID) : AddExpenseEvent
-    data class SplitModeChanged(val mode: SplitMode) : AddExpenseEvent
-    data class ParticipantToggled(val userId: UUID) : AddExpenseEvent
-    data class CustomAmountChanged(val userId: UUID, val text: String) : AddExpenseEvent
-    data object ImageRemoved : AddExpenseEvent
-    data object Submit : AddExpenseEvent
-    data object Dismiss : AddExpenseEvent
-}
-
-data class AddExpenseForm(
-    val title: String = "",
-    val amountText: String = "",
-    val paidById: UUID? = null,
-    val splitMode: SplitMode = SplitMode.EQUALLY,
-    val selectedParticipantIds: Set<UUID> = emptySet(),
-    val customAmounts: Map<UUID, String> = emptyMap(),
-    val imagePath: String? = null,
-    val candidates: List<User> = emptyList(),
-    val paidBy: User? = null,
-    val participants: List<User> = emptyList(),
-    val shares: List<ExpenseShare> = emptyList(),
-    val customSum: Double = 0.0,
-    val customOk: Boolean = true,
-    val canAdd: Boolean = false,
-) {
-    val amount: Double get() = amountText.replace(',', '.').toDoubleOrNull() ?: 0.0
-}
-
 data class HangoutUiState(
     val hangout: Hangout = Hangout(
         id = UUID.randomUUID(),
@@ -79,13 +46,41 @@ data class HangoutUiState(
     val expenses: List<Expense> = emptyList(),
     val balances: List<PersonBalance> = emptyList(),
     val selectedExpense: Expense? = null,
-
-    // Add-expense form; null means the dialog is closed
     val addExpenseForm: AddExpenseForm? = null,
 ) {
-    fun currentUserAttendanceStatus(): AttendanceStatus? =
-        hangout.attendees.firstOrNull { it.id == currentUser.id }?.attendanceStatus
+    fun currentUserAttendanceStatus(): AttendanceStatus? = hangout.attendees.firstOrNull { it.id == currentUser.id }?.attendanceStatus
+    fun nextAttendanceStatus(target: AttendanceStatus): AttendanceStatus? = if (currentUserAttendanceStatus() == target) null else target
+}
 
-    fun nextAttendanceStatus(target: AttendanceStatus): AttendanceStatus? =
-        if (currentUserAttendanceStatus() == target) null else target
+enum class SplitMode(val label: String) { EQUALLY("Equally"), CUSTOM("Custom") }
+
+sealed interface AddExpenseEvent {
+    data class TitleChanged(val title: String) : AddExpenseEvent
+    data class AmountChanged(val text: String) : AddExpenseEvent
+    data class PaidByChanged(val userId: UUID) : AddExpenseEvent
+    data class SplitModeChanged(val mode: SplitMode) : AddExpenseEvent
+    data class ParticipantToggled(val userId: UUID) : AddExpenseEvent
+    data class CustomAmountChanged(val userId: UUID, val text: String) : AddExpenseEvent
+    data object ImageRemoved : AddExpenseEvent
+    data object Submit : AddExpenseEvent
+    data object Dismiss : AddExpenseEvent
+}
+
+data class AddExpenseForm(
+    val title: String = "",
+    val amountText: String = "",
+    val paidById: UUID? = null,
+    val splitMode: SplitMode = SplitMode.EQUALLY,
+    val selectedParticipantIds: Set<UUID> = emptySet(),
+    val customAmounts: Map<UUID, String> = emptyMap(),
+    val imagePath: String? = null,
+    val candidates: List<User> = emptyList(),
+    val paidBy: User? = null,
+    val participants: List<User> = emptyList(),
+    val shares: List<ExpenseShare> = emptyList(),
+    val customSum: Double = 0.0,
+    val customOk: Boolean = true,
+    val canAdd: Boolean = false,
+) {
+    val amount: Double get() = amountText.replace(',', '.').toDoubleOrNull() ?: 0.0
 }

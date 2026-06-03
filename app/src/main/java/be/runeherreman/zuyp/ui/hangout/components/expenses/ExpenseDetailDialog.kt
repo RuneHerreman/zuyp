@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import be.runeherreman.zuyp.domain.model.Expense
+import be.runeherreman.zuyp.domain.model.ExpenseShare
 import be.runeherreman.zuyp.ui.friends.components.UserAvatar
 import coil.compose.AsyncImage
 import java.io.File
@@ -47,13 +48,13 @@ fun ExpenseDetailDialog(
     onDelete: (UUID) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val scheme = MaterialTheme.colorScheme
+
     val canDelete = expense.paidBy.id == currentUserId
 
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             shape = RoundedCornerShape(28.dp),
-            color = scheme.surface,
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
         ) {
@@ -62,51 +63,11 @@ fun ExpenseDetailDialog(
                     .verticalScroll(rememberScrollState())
                     .padding(20.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            expense.title,
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.SemiBold,
-                            color = scheme.onSurface
-                        )
-                        Text(
-                            "Paid by ${expense.paidBy.name}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = scheme.onSurfaceVariant
-                        )
-                    }
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Close")
-                    }
-                }
+                ExpenseDetailHeader(expense, onDismiss)
 
                 Spacer(Modifier.height(8.dp))
 
-                // Total
-                Text(
-                    "€ ${"%.2f".format(expense.amount)}",
-                    style = MaterialTheme.typography.displaySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = scheme.primary
-                )
-
-                if (expense.imageUri != null) {
-                    Spacer(Modifier.height(16.dp))
-                    AsyncImage(
-                        model = File(expense.imageUri),
-                        contentDescription = "Bill photo",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 220.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                    )
-                }
+                TotalPriceAndImage(expense)
 
                 Spacer(Modifier.height(20.dp))
 
@@ -114,64 +75,124 @@ fun ExpenseDetailDialog(
                     "Split (${expense.shares.size})",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = scheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface
                 )
+
                 Spacer(Modifier.height(8.dp))
 
                 expense.shares.forEachIndexed { index, share ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        UserAvatar(user = share.user, size = 36.dp)
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            text = if (share.user.id == currentUserId) "You" else share.user.name,
-                            modifier = Modifier.weight(1f),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = scheme.onSurface
-                        )
-                        if (share.user.id == expense.paidBy.id) {
-                            Text(
-                                "paid",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = scheme.primary,
-                                modifier = Modifier.padding(end = 8.dp)
-                            )
-                        }
-                        Text(
-                            "€ ${"%.2f".format(share.amount)}",
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = scheme.onSurface
-                        )
-                    }
-                    if (index < expense.shares.size - 1) {
-                        HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.5f))
-                    }
+                    WhoPaidWhat(share, index, expense, currentUserId)
                 }
 
                 Spacer(Modifier.height(20.dp))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
-                        Text("Close")
-                    }
-                    if (canDelete) {
-                        Button(
-                            onClick = { onDelete(expense.id) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = scheme.errorContainer,
-                                contentColor = scheme.onErrorContainer
-                            ),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text("Delete")
-                        }
-                    }
-                }
+                ExpenseDetailFooter(canDelete, onDismiss, onDelete, expense.id)
+            }
+        }
+    }
+}
+
+@Composable
+fun ExpenseDetailHeader(expense: Expense, onDismiss: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                expense.title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                "Paid by ${expense.paidBy.name}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        IconButton(onClick = onDismiss) {
+            Icon(Icons.Default.Close, contentDescription = "Close")
+        }
+    }
+}
+
+@Composable
+fun TotalPriceAndImage(expense: Expense) {
+    Text(
+        "€ ${"%.2f".format(expense.amount)}",
+        style = MaterialTheme.typography.displaySmall,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.primary
+    )
+
+    if (expense.imageUri != null) {
+        Spacer(Modifier.height(16.dp))
+        AsyncImage(
+            model = File(expense.imageUri),
+            contentDescription = "Bill photo",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 220.dp)
+                .clip(RoundedCornerShape(16.dp))
+        )
+    }
+}
+
+@Composable
+fun WhoPaidWhat(share: ExpenseShare, index: Int, expense: Expense, currentUserId: UUID) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        UserAvatar(user = share.user, size = 36.dp)
+        Spacer(Modifier.width(12.dp))
+        Text(
+            text = if (share.user.id == currentUserId) "You" else share.user.name,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        if (share.user.id == expense.paidBy.id) {
+            Text(
+                "paid",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+        }
+        Text(
+            "€ ${"%.2f".format(share.amount)}",
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+    if (index < expense.shares.size - 1) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+    }
+}
+
+@Composable
+fun ExpenseDetailFooter(canDelete: Boolean, onDismiss: () -> Unit, onDelete: (UUID) -> Unit, expenseId: UUID) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
+            Text("Close")
+        }
+        if (canDelete) {
+            Button(
+                onClick = { onDelete(expenseId) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer
+                ),
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("Delete")
             }
         }
     }

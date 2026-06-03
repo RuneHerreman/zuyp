@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import be.runeherreman.zuyp.domain.model.Expense
 import be.runeherreman.zuyp.domain.model.PersonBalance
 import be.runeherreman.zuyp.ui.friends.components.UserAvatar
-import java.util.UUID
 import kotlin.math.abs
 
 @Composable
@@ -49,9 +48,38 @@ fun ExpensesSection(
     onExpenseClick: (Expense) -> Unit,
     onSettle: (PersonBalance) -> Unit
 ) {
-    val scheme = MaterialTheme.colorScheme
     var pendingSettle by remember { mutableStateOf<PersonBalance?>(null) }
 
+    ExpenseHeader(onAddExpense)
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    if (balances.isNotEmpty()) {
+        BalanceSummary(balances = balances, onSettleRequest = { pendingSettle = it })
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+
+    if (expenses.isEmpty()) {
+        EmptyExpensesPlaceHolder()
+    } else {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            expenses.forEach { expense ->
+                ExpenseItem(expense = expense, onClick = { onExpenseClick(expense) })
+            }
+        }
+    }
+
+    pendingSettle?.let { balance ->
+        ConfirmMarkAsPaid(
+            balance = balance,
+            onSettle = onSettle,
+            onDismiss = { pendingSettle = null }
+        )
+    }
+}
+
+@Composable
+fun ExpenseHeader(onAddExpense: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -66,72 +94,65 @@ fun ExpensesSection(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .background(scheme.primaryContainer)
+                .background(MaterialTheme.colorScheme.primaryContainer)
                 .clickable(onClick = onAddExpense),
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Add expense", tint = scheme.onPrimaryContainer)
+            Icon(Icons.Default.Add, contentDescription = "Add expense", tint = MaterialTheme.colorScheme.onPrimaryContainer)
         }
     }
+}
 
-    Spacer(modifier = Modifier.height(12.dp))
-
-    if (balances.isNotEmpty()) {
-        BalanceSummary(balances = balances, onSettleRequest = { pendingSettle = it })
-        Spacer(modifier = Modifier.height(12.dp))
-    }
-
-    if (expenses.isEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(scheme.surfaceContainerLow, RoundedCornerShape(16.dp))
-                .padding(vertical = 24.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                "No expenses yet — add the first round!",
-                style = MaterialTheme.typography.bodyMedium,
-                color = scheme.onSurfaceVariant
-            )
-        }
-    } else {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            expenses.forEach { expense ->
-                ExpenseItem(expense = expense, onClick = { onExpenseClick(expense) })
+@Composable
+fun ConfirmMarkAsPaid(
+    balance: PersonBalance,
+    onSettle: (PersonBalance) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Mark as paid?") },
+        text = {
+            Text("Settle your € ${"%.2f".format(abs(balance.net))} debt with ${balance.user.name}?")
+        },
+        confirmButton = {
+            TextButton(onClick = { onSettle(balance); onDismiss() }) {
+                Text("Mark as paid")
             }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
         }
-    }
+    )
+}
 
-    pendingSettle?.let { balance ->
-        AlertDialog(
-            onDismissRequest = { pendingSettle = null },
-            title = { Text("Mark as paid?") },
-            text = {
-                Text("Settle your € ${"%.2f".format(abs(balance.net))} debt with ${balance.user.name}?")
-            },
-            confirmButton = {
-                TextButton(onClick = { onSettle(balance); pendingSettle = null }) {
-                    Text("Mark as paid")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingSettle = null }) { Text("Cancel") }
-            }
+@Composable
+fun EmptyExpensesPlaceHolder() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainerLow, RoundedCornerShape(16.dp))
+            .padding(vertical = 24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            "No expenses yet — add the first round!",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
+
 
 @Composable
 private fun BalanceSummary(
     balances: List<PersonBalance>,
     onSettleRequest: (PersonBalance) -> Unit
 ) {
-    val scheme = MaterialTheme.colorScheme
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(scheme.surfaceContainerLow, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainerLow, RoundedCornerShape(16.dp))
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -140,53 +161,62 @@ private fun BalanceSummary(
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.8.sp,
-            color = scheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         balances.forEach { balance ->
             val theyOweYou = balance.net > 0
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            UserBalanceItem(balance, theyOweYou, onSettleRequest)
+        }
+    }
+}
+
+@Composable
+fun UserBalanceItem(
+    balance: PersonBalance,
+    theyOweYou: Boolean,
+    onSettleRequest: (PersonBalance) -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        UserAvatar(user = balance.user, size = 36.dp)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = balance.user.name,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = if (theyOweYou) "owes you" else "you owe",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Text(
+            text = "€ ${"%.2f".format(abs(balance.net))}",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = if (theyOweYou) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+        )
+        if (!theyOweYou) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .clickable { onSettleRequest(balance) }
+                    .padding(horizontal = 12.dp, vertical = 7.dp)
             ) {
-                UserAvatar(user = balance.user, size = 36.dp)
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = balance.user.name,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = scheme.onSurface,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = if (theyOweYou) "owes you" else "you owe",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = scheme.onSurfaceVariant
-                    )
-                }
                 Text(
-                    text = "€ ${"%.2f".format(abs(balance.net))}",
-                    style = MaterialTheme.typography.titleMedium,
+                    text = "Pay",
+                    style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (theyOweYou) scheme.primary else scheme.error
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
-                if (!theyOweYou) {
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(scheme.primary)
-                            .clickable { onSettleRequest(balance) }
-                            .padding(horizontal = 12.dp, vertical = 7.dp)
-                    ) {
-                        Text(
-                            text = "Pay",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = scheme.onPrimary
-                        )
-                    }
-                }
             }
         }
     }
@@ -194,12 +224,11 @@ private fun BalanceSummary(
 
 @Composable
 private fun ExpenseItem(expense: Expense, onClick: () -> Unit) {
-    val scheme = MaterialTheme.colorScheme
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(scheme.surfaceContainerLow)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .clickable(onClick = onClick)
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -215,7 +244,7 @@ private fun ExpenseItem(expense: Expense, onClick: () -> Unit) {
             Text(
                 text = "paid by ${expense.paidBy.name} • split ${expense.shares.size} ways",
                 style = MaterialTheme.typography.labelSmall,
-                color = scheme.onSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -229,7 +258,7 @@ private fun ExpenseItem(expense: Expense, onClick: () -> Unit) {
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            tint = scheme.onSurfaceVariant
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
