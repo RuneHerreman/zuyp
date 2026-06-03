@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.ui.hangout.components
+package be.runeherreman.zuyp.ui.hangout.components.expenses
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

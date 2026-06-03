@@ -41,8 +41,8 @@ import be.runeherreman.zuyp.ui.hangout.components.HangoutActionButtons
 import be.runeherreman.zuyp.ui.hangout.components.AttendeesSection
 import be.runeherreman.zuyp.ui.hangout.components.BackButton
 import be.runeherreman.zuyp.ui.hangout.components.DeleteButton
-import be.runeherreman.zuyp.ui.hangout.components.ExpenseDetailDialog
-import be.runeherreman.zuyp.ui.hangout.components.ExpensesSection
+import be.runeherreman.zuyp.ui.hangout.components.expenses.ExpenseDetailDialog
+import be.runeherreman.zuyp.ui.hangout.components.expenses.ExpensesSection
 import be.runeherreman.zuyp.ui.hangout.components.HangoutHeader
 import be.runeherreman.zuyp.ui.hangout.components.PrivateBadge
 import be.runeherreman.zuyp.ui.hangout.components.ShareHangoutPopup
@@ -196,36 +196,38 @@ fun HangoutScreen(
             toggleFriendClick = { onFriendClick(it) }
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        if (uiState.currentUserAttendanceStatus() == AttendanceStatus.GOING) {
+            Spacer(modifier = Modifier.height(32.dp))
 
-        ExpensesSection(
-            expenses = uiState.expenses,
-            balances = uiState.balances,
-            currentUserId = uiState.currentUser.id,
-            onAddExpense = onAddExpenseOpen,
-            onExpenseClick = onExpenseClick,
-            onSettle = onSettle
-        )
-
-        if (uiState.isAddExpenseOpen) {
-            val candidates = remember(uiState.hangout.attendees, uiState.currentUser) {
-                (listOf(uiState.currentUser) + uiState.hangout.attendees).distinctBy { it.id }
-            }
-            AddExpenseDialog(
-                candidates = candidates,
-                currentUser = uiState.currentUser,
-                onAdd = onAddExpense,
-                onDismiss = onAddExpenseClose
-            )
-        }
-
-        uiState.selectedExpense?.let { expense ->
-            ExpenseDetailDialog(
-                expense = expense,
+            ExpensesSection(
+                expenses = uiState.expenses,
+                balances = uiState.balances,
                 currentUserId = uiState.currentUser.id,
-                onDelete = onDeleteExpense,
-                onDismiss = onExpenseDetailClose
+                onAddExpense = onAddExpenseOpen,
+                onExpenseClick = onExpenseClick,
+                onSettle = onSettle
             )
+
+            if (uiState.isAddExpenseOpen) {
+                val candidates = remember(uiState.hangout.attendees, uiState.currentUser) {
+                    (listOf(uiState.currentUser) + uiState.hangout.attendees).distinctBy { it.id }
+                }
+                AddExpenseDialog(
+                    candidates = candidates,
+                    currentUser = uiState.currentUser,
+                    onAdd = onAddExpense,
+                    onDismiss = onAddExpenseClose
+                )
+            }
+
+            uiState.selectedExpense?.let { expense ->
+                ExpenseDetailDialog(
+                    expense = expense,
+                    currentUserId = uiState.currentUser.id,
+                    onDelete = onDeleteExpense,
+                    onDismiss = onExpenseDetailClose
+                )
+            }
         }
     }
 }

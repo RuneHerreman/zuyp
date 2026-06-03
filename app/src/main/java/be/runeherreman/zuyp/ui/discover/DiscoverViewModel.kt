@@ -2,10 +2,13 @@ package be.runeherreman.zuyp.ui.discover
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import be.runeherreman.zuyp.data.fake.data.CurrentUser
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.Marker
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutByIdUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutsUseCase
+import be.runeherreman.zuyp.domain.useCases.hangouts.UpdateAttendanceUseCase
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
@@ -21,8 +24,10 @@ import javax.inject.Inject
 @HiltViewModel
 class DiscoverViewModel @Inject constructor(
     private val getHangoutsUseCase: GetHangoutsUseCase,
-    private val getHangoutByIdUseCase: GetHangoutByIdUseCase
+    private val getHangoutByIdUseCase: GetHangoutByIdUseCase,
+    private val updateAttendanceUseCase: UpdateAttendanceUseCase
 ): ViewModel() {
+    private val currentUser = CurrentUser.user
     private val _uiState = MutableStateFlow(DiscoverUiState())
     val uiState: StateFlow<DiscoverUiState> = _uiState
 
@@ -77,5 +82,27 @@ class DiscoverViewModel @Inject constructor(
 
     fun closeHangoutPopup() {
         _uiState.update { it.copy(hangoutPopupOpen = false) }
+    }
+
+    /**
+     * Toggles the current user's attendance for the selected hangout. Tapping the
+     * status the user already holds clears it (mirrors HangoutViewModel.toggleGoing).
+     */
+    fun toggleAttendance(target: AttendanceStatus) {
+        val hangout = _uiState.value.selectedHangout ?: return
+        val current = hangout.attendees
+            .firstOrNull { it.id == currentUser.id }
+            ?.attendanceStatus
+        val next = if (current == target) null else target
+
+        viewModelScope.launch {
+            updateAttendanceUseCase(
+                hangoutId = hangout.id,
+                userId = currentUser.id,
+                attendaceStatus = next
+            )
+            val updated = getHangoutByIdUseCase(hangout.id.toString()) ?: return@launch
+            _uiState.update { it.copy(selectedHangout = updated) }
+        }
     }
 }

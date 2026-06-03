@@ -1,13 +1,20 @@
 package be.runeherreman.zuyp
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
@@ -16,6 +23,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.ui.discover.DiscoverViewModel
+import be.runeherreman.zuyp.ui.discover.components.HangoutPopup
 import be.runeherreman.zuyp.ui.hangout.HangoutOverlay
 import be.runeherreman.zuyp.ui.hangout.HangoutViewModel
 import be.runeherreman.zuyp.ui.navigation.ZuypBottomBar
@@ -25,6 +35,7 @@ import be.runeherreman.zuyp.ui.theme.ZuypTheme
 @Composable
 fun ZuypApp(
     hangoutViewModel: HangoutViewModel = viewModel(),
+    discoverViewModel: DiscoverViewModel = viewModel(),
     initialHangoutId: String? = null,
     onHangoutConsumed: () -> Unit = {},
 ) {
@@ -42,6 +53,7 @@ fun ZuypApp(
         val currentDestination = navBackStackEntry?.destination
 
         val hangoutUiState by hangoutViewModel.uiState.collectAsStateWithLifecycle()
+        val discoverUiState by discoverViewModel.uiState.collectAsStateWithLifecycle()
         val context = LocalContext.current
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -59,8 +71,37 @@ fun ZuypApp(
                 ZuypNavGraph(
                     navController = navController,
                     modifier = Modifier.padding(innerPadding),
-                    hangoutViewModel = hangoutViewModel
+                    hangoutViewModel = hangoutViewModel,
+                    discoverViewModel = discoverViewModel
                 )
+            }
+
+            // Discover marker popup. Rendered here (over the Scaffold) so it covers the bottom bar.
+            val selectedHangout = discoverUiState.selectedHangout
+            AnimatedVisibility(
+                visible = discoverUiState.hangoutPopupOpen && selectedHangout != null,
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                if (selectedHangout != null) {
+                    val currentUserStatus = selectedHangout.attendees
+                        .firstOrNull { it.id == discoverUiState.currentUserId }
+                        ?.attendanceStatus
+
+                    HangoutPopup(
+                        hangout = selectedHangout,
+                        currentUserStatus = currentUserStatus,
+                        onClose = discoverViewModel::closeHangoutPopup,
+                        onOpenDetails = {
+                            hangoutViewModel.selectHangout(selectedHangout.id.toString())
+                            discoverViewModel.closeHangoutPopup()
+                        },
+                        onToggleGoing = { discoverViewModel.toggleAttendance(AttendanceStatus.GOING) },
+                        onToggleNotInterested = { discoverViewModel.toggleAttendance(AttendanceStatus.NOT_INTERESTED) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
 
             HangoutOverlay(

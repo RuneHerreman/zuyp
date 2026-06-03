@@ -66,6 +66,9 @@ import androidx.core.content.ContextCompat
 import be.runeherreman.zuyp.domain.model.ExpenseShare
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.ui.friends.components.UserAvatar
+import be.runeherreman.zuyp.ui.hangout.components.expenses.copyImageIntoAppStorage
+import be.runeherreman.zuyp.ui.hangout.components.expenses.expenseImageUri
+import be.runeherreman.zuyp.ui.hangout.components.expenses.newExpenseImageFile
 import coil.compose.AsyncImage
 import java.io.File
 import java.util.UUID

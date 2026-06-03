@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.ui.hangout.components
+package be.runeherreman.zuyp.ui.hangout.components.expenses
 
 import android.content.Context
 import android.net.Uri
