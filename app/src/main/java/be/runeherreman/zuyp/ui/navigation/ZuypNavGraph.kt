@@ -99,6 +99,7 @@ fun ZuypNavGraph(
                 uiState = discoverUiState,
                 onLocationChanged = discoverViewModel::onUserLocationUpdates,
                 onMarkerClick = discoverViewModel::openHangoutPopup,
+                onMapClick = discoverViewModel::closeHangoutPopup
             )
         }
         composable(Screen.Friends.route) {
