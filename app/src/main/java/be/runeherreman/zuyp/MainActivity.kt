@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         pendingHangoutId = extractHangoutId(intent)
         val permissions: Array<String> =
-            listOf(AppPermission.NOTIFICATION.toAndroidPermissions(), AppPermission.LOCATION.toAndroidPermissions()).toTypedArray()
+            arrayOf(AppPermission.NOTIFICATION.toAndroidPermissions(), AppPermission.LOCATION.toAndroidPermissions())
         requestPermissionsLauncher.launch(permissions)
         setContent {
             ZuypApp(
