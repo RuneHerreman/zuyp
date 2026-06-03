@@ -8,9 +8,19 @@ import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.Expense
+import be.runeherreman.zuyp.domain.model.ExpenseShare
 import be.runeherreman.zuyp.domain.model.Hangout
+import be.runeherreman.zuyp.domain.model.PersonBalance
+import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.model.generateWeatherPrediction
+import be.runeherreman.zuyp.domain.useCases.expenses.AddExpenseUseCase
+import be.runeherreman.zuyp.domain.useCases.expenses.DeleteExpenseUseCase
+import be.runeherreman.zuyp.domain.useCases.expenses.GetEventBalancesUseCase
+import be.runeherreman.zuyp.domain.useCases.expenses.GetHangoutExpensesUseCase
+import be.runeherreman.zuyp.domain.useCases.expenses.SettleDebtUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.AddFriendshipUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.AreFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.DeleteHangoutUseCase
@@ -23,8 +33,10 @@ import be.runeherreman.zuyp.domain.useCases.hangouts.UpdateAttendanceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
@@ -40,7 +52,13 @@ class HangoutViewModel @Inject constructor(
     private val deleteHangoutUseCase: DeleteHangoutUseCase,
     private val sendHangoutInviteUseCase: SendHangoutInviteUseCase,
     private val getAllUsersUseCase: GetAllUsersUseCase,
+    private val getHangoutExpensesUseCase: GetHangoutExpensesUseCase,
+    private val getEventBalancesUseCase: GetEventBalancesUseCase,
+    private val addExpenseUseCase: AddExpenseUseCase,
+    private val deleteExpenseUseCase: DeleteExpenseUseCase,
+    private val settleDebtUseCase: SettleDebtUseCase
 ): ViewModel() {
+    val currentUser = CurrentUser.user
     private val _uiState = MutableStateFlow(HangoutUiState())
     val uiState: StateFlow<HangoutUiState> = _uiState
 
@@ -55,6 +73,15 @@ class HangoutViewModel @Inject constructor(
             _uiState.update { it.copy(hangout = item) }
             loadFriendships(item.attendees.map { it.id })
             loadWeatherForHangout(item)
+        }
+        viewModelScope.launch {
+            combine(
+                getHangoutExpensesUseCase(UUID.fromString(hangoutId)),
+                getEventBalancesUseCase(UUID.fromString(hangoutId), currentUser.id)
+            ) { expenses, balances -> expenses to balances }
+                .collect { (expenses, balances) ->
+                    _uiState.update { it.copy(expenses = expenses, balances = balances) }
+                }
         }
     }
 
@@ -220,5 +247,29 @@ class HangoutViewModel @Inject constructor(
             putExtra(Intent.EXTRA_TEXT, text)
         }
         context.startActivity(Intent.createChooser(sendIntent, "Share hangout"))
+    }
+
+    // EXPENSES FUNCTIONSS
+    fun openAddExpense() { _uiState.update { it.copy(isAddExpenseOpen = true) } }
+    fun addExpense(title: String, amount: Double, paidBy: User, shares: List<ExpenseShare>, imageUri: String?) {
+        viewModelScope.launch {
+            addExpenseUseCase(
+                Expense(
+                    UUID.randomUUID(),
+                    UUID.fromString(_uiState.value.selectedHangoutId),
+                    title,
+                    amount,
+                    paidBy,
+                    imageUri,
+                    LocalDateTime.now(),
+                    shares
+                )
+            )
+            _uiState.update { it.copy(isAddExpenseOpen = false) }
+        }
+    }
+    fun deleteExpense(id: UUID) = viewModelScope.launch { deleteExpenseUseCase(id, currentUser.id) ; _uiState.update { it.copy(selectedExpense = null) } }
+    fun settleUp(person: PersonBalance) = viewModelScope.launch {
+        if (person.net < 0) settleDebtUseCase(UUID.fromString(_uiState.value.selectedHangoutId), currentUser.id, person.user.id, -person.net)
     }
 }

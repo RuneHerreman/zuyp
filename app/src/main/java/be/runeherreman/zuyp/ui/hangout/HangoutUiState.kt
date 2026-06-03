@@ -7,6 +7,8 @@ import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.Expense
+import be.runeherreman.zuyp.domain.model.PersonBalance
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -38,6 +40,12 @@ data class HangoutUiState(
     val allUsers: List<User> = emptyList(),
     val selectedInviteeIds: Set<UUID> = emptySet(),
     val isSendingInvites: Boolean = false,
+
+    // Expenses
+    val expenses: List<Expense> = emptyList(),
+    val balances: List<PersonBalance> = emptyList(),
+    val isAddExpenseOpen: Boolean = false,
+    val selectedExpense: Expense? = null,
 ) {
     fun currentUserAttendanceStatus(): AttendanceStatus? =
         hangout.attendees.firstOrNull { it.id == currentUser.id }?.attendanceStatus
