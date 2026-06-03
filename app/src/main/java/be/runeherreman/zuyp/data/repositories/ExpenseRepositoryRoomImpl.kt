@@ -66,27 +66,26 @@ class ExpenseRepositoryRoomImpl @Inject constructor(
             settlements.forEach { settlement ->
                 val key = settlement.fromUserId to settlement.toUserId
                 settled[key] = (settled[key] ?: 0.0) + settlement.amount
-
             }
 
             fun owe(a: UUID, b: UUID) = (rawOwed[a to b] ?: 0.0) - (settled[a to b] ?: 0.0)
             users.keys.filter { it != forUserId }.mapNotNull { other ->
-                val net = owe(other, forUserId) - owe(forUserId, other)
+                val net = owe(forUserId, other) - owe(other, forUserId)
+
                 if (abs(net) < 0.005) null
                 else PersonBalance(users.getValue(other).toDomain(), net)
             }
-
         }
     }
 
     override suspend fun settleUp(
         hangoutId: UUID,
         fromUserId: UUID,
-        toUserid: UUID,
+        toUserId: UUID,
         amount: Double
     ) {
         expenseDao.insertSettlement(
-            SettlementEntity(UUID.randomUUID(), hangoutId, fromUserId, toUserid, amount, LocalDateTime.now())
+            SettlementEntity(UUID.randomUUID(), hangoutId, fromUserId, toUserId, amount, LocalDateTime.now())
         )
     }
 
