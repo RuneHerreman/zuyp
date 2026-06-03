@@ -1,6 +1,8 @@
 package be.runeherreman.zuyp.ui.navigation
 
+import android.Manifest
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -18,6 +20,9 @@ import be.runeherreman.zuyp.ui.friends.FriendsViewModel
 import be.runeherreman.zuyp.ui.hangout.HangoutViewModel
 import be.runeherreman.zuyp.ui.home.HomeScreen
 import be.runeherreman.zuyp.ui.home.HomeViewModel
+import be.runeherreman.zuyp.ui.permissions.AppPermission
+import be.runeherreman.zuyp.ui.permissions.MainViewModel
+import be.runeherreman.zuyp.ui.permissions.PermissionManager
 import be.runeherreman.zuyp.ui.profile.ProfileScreen
 import be.runeherreman.zuyp.ui.profile.ProfileViewModel
 
@@ -30,13 +35,15 @@ fun ZuypNavGraph(
     friendsViewModel: FriendsViewModel = viewModel(),
     profileViewModel: ProfileViewModel = viewModel(),
     hangoutViewModel: HangoutViewModel = viewModel(),
-    startupViewModel: StartupViewModel = viewModel()
+    startupViewModel: StartupViewModel = viewModel(),
+    mainViewModel: MainViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val discoverUiState by discoverViewModel.uiState.collectAsStateWithLifecycle()
     val friendsUiState by friendsViewModel.uiState.collectAsStateWithLifecycle()
     val profileUiState by profileViewModel.uiState.collectAsStateWithLifecycle()
+    val permissionRequest by mainViewModel.permissionRequest.collectAsStateWithLifecycle()
 
     // Wait for the stored startup route before building the graph, so the
     // NavHost starts on the screen saved in DataStore.
@@ -46,6 +53,17 @@ fun ZuypNavGraph(
     // saved to DataStore for the next launch, but must not re-key the NavHost
     // (which would navigate away immediately).
     val startRoute = rememberSaveable { loadedRoute }
+
+    PermissionManager(
+        permissionRequest = permissionRequest,
+        onPermissionResult = { permission, granted ->
+            mainViewModel.onPermissionResult(permission, granted)
+        }
+    )
+
+    LaunchedEffect(loadedRoute) {
+        mainViewModel.requestPermission(AppPermission.NOTIFICATION)
+    }
 
     NavHost(
         navController = navController,
@@ -73,6 +91,10 @@ fun ZuypNavGraph(
             )
         }
         composable(Screen.Discover.route) {
+            LaunchedEffect(Unit) {
+                mainViewModel.requestPermission(AppPermission.LOCATION)
+            }
+
             DiscoverScreen(
                 uiState = discoverUiState,
                 onLocationChanged = discoverViewModel::onUserLocationUpdates,
