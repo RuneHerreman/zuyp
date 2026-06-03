@@ -106,8 +106,19 @@ fun ZuypNavGraph(
                 onEditProfileClose = profileViewModel::closeEditProfile,
                 onStartupScreenSelect = profileViewModel::setStartupScreen,
                 onHangoutClick = { hangoutViewModel.selectHangout(it.id.toString()) },
-                onRefresh = profileViewModel::refresh
+                onRefresh = profileViewModel::refresh,
+                onFriendsClick = { navController.navigateToTab(Screen.Friends.route) },
+                onGroupsClick = { navController.navigateToTab(Screen.Friends.route) },
+                onEventsClick = { navController.navigateToTab(Screen.Home.route) }
             )
         }
+    }
+}
+
+private fun NavHostController.navigateToTab(route: String) {
+    navigate(route) {
+        popUpTo(graph.startDestinationId) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
     }
 }
