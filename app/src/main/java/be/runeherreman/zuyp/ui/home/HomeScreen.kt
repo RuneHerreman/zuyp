@@ -31,91 +31,76 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import be.runeherreman.zuyp.domain.model.AddressSuggestion
-import be.runeherreman.zuyp.domain.model.Hangout
-import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.ui.home.components.CreateHangoutPopup
 import be.runeherreman.zuyp.ui.home.components.HangoutCard
 import be.runeherreman.zuyp.ui.home.components.SearchOverlay
 import be.runeherreman.zuyp.ui.home.components.ZuypEmergencyButton
 import be.runeherreman.zuyp.ui.home.components.ZuypHangoutOverlay
-import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
     modifier: Modifier = Modifier,
-    onLocationClick: (Hangout) -> Unit = {},
-    onHangoutClick: (Hangout) -> Unit = {},
-    onSearchOpen: () -> Unit = {},
-    onSearchClose: () -> Unit = {},
-    onSearchQueryChange: (String) -> Unit = {},
-    onZuypAlertClick: () -> Unit = {},
-    onZuypHangoutClose: () -> Unit = {},
-    onRefresh: () -> Unit = {},
-    onCreateHangoutOpen: () -> Unit = {},
-    onCreateHangoutClose: () -> Unit = {},
-    onAddressQueryChange: (String) -> Unit = {},
-    onAddressSelect: (AddressSuggestion) -> Unit = {},
-    onAddressClear: () -> Unit = {},
-    onCreateHangout: (String, LocalDateTime, LocalDateTime, List<User>, Boolean) -> Unit = { _, _, _, _, _ -> },
-    onCreateZuypHangout: (String, LocalDateTime, List<User>, Boolean) -> Unit = { _, _, _, _ -> }
+    onEvent: (HomeEvent) -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         PullToRefreshBox(
             isRefreshing = uiState.isRefreshing,
-            onRefresh = onRefresh,
+            onRefresh = { onEvent(HomeEvent.Refresh) },
             modifier = Modifier.fillMaxSize()
         ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                Text(
-                    text = "Upcoming\nEvents",
-                    style = MaterialTheme.typography.displayMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                IconButton(onClick = onSearchOpen) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search events",
-                        tint = MaterialTheme.colorScheme.primary
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = "Upcoming\nEvents",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
                     )
+                    IconButton(onClick = { onEvent(HomeEvent.SearchOpen) }) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search events",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            ZuypEmergencyButton(modifier = Modifier.align(Alignment.End), onClick = onZuypAlertClick)
+                ZuypEmergencyButton(
+                    modifier = Modifier.align(Alignment.End),
+                    onClick = { onEvent(HomeEvent.ZuypAlertClick) }
+                )
 
-            Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(30.dp))
 
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                uiState.hangouts.forEach {
-                    HangoutCard(
-                        hangout = it,
-                        onLocationClick = onLocationClick,
-                        phrases = uiState.phrases,
-                        friendAttendees = uiState.friendAttendees[it.id] ?: emptyList(),
-                        onClick = onHangoutClick
-                    )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    uiState.hangouts.forEach { hangout ->
+                        HangoutCard(
+                            hangout = hangout,
+                            onLocationClick = { onEvent(HomeEvent.LocationClicked(hangout)) },
+                            phrases = uiState.phrases,
+                            friendAttendees = uiState.friendAttendees[hangout.id] ?: emptyList(),
+                            onClick = { onEvent(HomeEvent.HangoutClicked(hangout.id.toString())) }
+                        )
+                    }
                 }
             }
         }
-        } // PullToRefreshBox
 
         AnimatedVisibility(
             visible = uiState.isSearchOpen,
@@ -127,15 +112,12 @@ fun HomeScreen(
                 results = uiState.searchResults,
                 phrases = uiState.phrases,
                 friendAttendees = uiState.friendAttendees,
-                onQueryChange = onSearchQueryChange,
-                onClose = onSearchClose,
-                onLocationClick = onLocationClick,
-                onHangoutClick = onHangoutClick
+                onEvent = onEvent
             )
         }
 
         FloatingActionButton(
-            onClick = onCreateHangoutOpen,
+            onClick = { onEvent(HomeEvent.CreateHangoutOpen) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(6.dp),
@@ -155,11 +137,7 @@ fun HomeScreen(
                 addressSuggestions = uiState.addressSuggestions,
                 isAddressLoading = uiState.isAddressLoading,
                 isAddressSelected = uiState.selectedAddress != null,
-                onAddressQueryChange = onAddressQueryChange,
-                onAddressSelect = onAddressSelect,
-                onAddressClear = onAddressClear,
-                onDismiss = onCreateHangoutClose,
-                onCreate = onCreateHangout
+                onEvent = onEvent
             )
         }
 
@@ -173,11 +151,7 @@ fun HomeScreen(
                 isAddressLoading = uiState.isAddressLoading,
                 isAddressSelected = uiState.selectedAddress != null,
                 isSending = uiState.isZuypSending,
-                onAddressQueryChange = onAddressQueryChange,
-                onAddressSelect = onAddressSelect,
-                onAddressClear = onAddressClear,
-                onDismiss = onZuypHangoutClose,
-                onCreateZuyp = onCreateZuypHangout
+                onEvent = onEvent
             )
         }
     }

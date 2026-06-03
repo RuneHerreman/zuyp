@@ -1,5 +1,6 @@
 package be.runeherreman.zuyp.ui.home
 
+import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
@@ -87,11 +88,42 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // filter out private events unless you created one or are attending it
     private fun isVisibleToCurrentUser(hangout: Hangout): Boolean =
         !hangout.private ||
         hangout.creator.id == currentUserId ||
         hangout.attendees.any { it.id == currentUserId }
+
+    fun onEvent(event: HomeEvent, context: Context) {
+        when (event) {
+            HomeEvent.Refresh               -> refresh()
+            HomeEvent.SearchOpen            -> openSearch()
+            HomeEvent.SearchClose           -> closeSearch()
+            HomeEvent.ZuypAlertClick        -> openZuypHangout()
+            HomeEvent.ZuypHangoutClose      -> closeZuypHangout()
+            HomeEvent.CreateHangoutOpen     -> openCreateHangout()
+            HomeEvent.CreateHangoutClose    -> closeCreateHangout()
+            HomeEvent.AddressClear          -> clearAddress()
+            is HomeEvent.LocationClicked    -> openMapsForHangout(event.hangout, context)
+            is HomeEvent.SearchQueryChange  -> onSearchQueryChange(event.query)
+
+            is HomeEvent.AddressQueryChange -> onAddressQueryChange(event.query)
+            is HomeEvent.AddressSelect      -> selectAddress(event.suggestion)
+            is HomeEvent.CreateZuypHangout  -> createZuypHangout(
+                title = event.title,
+                start = event.startDate,
+                members = event.users,
+                isPublic = !event.private
+            )
+            is HomeEvent.CreateHangout      -> createHangout(
+                title = event.title,
+                start = event.startDate,
+                end = event.endDate,
+                members = event.users,
+                isPublic = !event.private
+            )
+            is HomeEvent.HangoutClicked     -> Unit
+        }
+    }
 
     fun refresh() {
         viewModelScope.launch {

@@ -333,7 +333,6 @@ class HangoutViewModel @Inject constructor(
             is HangoutEvent.ToggleInvitee   -> toggleInvitee(event.id)
             is HangoutEvent.Form            -> onAddExpenseEvent(event.event)
 
-            // UI/platform-bound — handled at the call site, intentional no-ops here.
             HangoutEvent.CameraClicked,
             HangoutEvent.GalleryClicked,
             HangoutEvent.ShareExternal -> Unit

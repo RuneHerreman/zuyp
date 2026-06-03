@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.home.HomeEvent
 import java.util.UUID
 
 @Composable
@@ -41,12 +42,9 @@ fun SearchOverlay(
     results: List<Hangout>,
     phrases: List<String>,
     friendAttendees: Map<UUID, List<User>>,
-    onQueryChange: (String) -> Unit,
-    onClose: () -> Unit,
-    onLocationClick: (Hangout) -> Unit,
-    onHangoutClick: (Hangout) -> Unit
+    onEvent: (HomeEvent) -> Unit
 ) {
-    BackHandler(onBack = onClose)
+    BackHandler(onBack = { onEvent(HomeEvent.SearchClose) })
 
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
@@ -62,12 +60,12 @@ fun SearchOverlay(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(top = 8.dp)
         ) {
-            IconButton(onClick = onClose) {
+            IconButton(onClick = { onEvent(HomeEvent.SearchClose) }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Close search")
             }
             OutlinedTextField(
                 value = query,
-                onValueChange = onQueryChange,
+                onValueChange = { onEvent(HomeEvent.SearchQueryChange(it)) },
                 modifier = Modifier
                     .weight(1f)
                     .focusRequester(focusRequester),
@@ -105,10 +103,13 @@ fun SearchOverlay(
                 items(results) { hangout ->
                     HangoutCard(
                         hangout = hangout,
-                        onLocationClick = onLocationClick,
+                        onLocationClick = { onEvent(HomeEvent.LocationClicked(it)) },
                         phrases = phrases,
                         friendAttendees = friendAttendees[hangout.id] ?: emptyList(),
-                        onClick = { onHangoutClick(it); onClose() }
+                        onClick = { 
+                            onEvent(HomeEvent.HangoutClicked(it.id.toString()))
+                            onEvent(HomeEvent.SearchClose) 
+                        }
                     )
                 }
             }

@@ -26,6 +26,7 @@ import androidx.compose.ui.window.DialogProperties
 import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.home.HomeEvent
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -41,11 +42,7 @@ fun ZuypHangoutOverlay(
     isAddressLoading: Boolean,
     isAddressSelected: Boolean,
     isSending: Boolean,
-    onAddressQueryChange: (String) -> Unit,
-    onAddressSelect: (AddressSuggestion) -> Unit,
-    onAddressClear: () -> Unit,
-    onDismiss: () -> Unit,
-    onCreateZuyp: (title: String, start: LocalDateTime, members: List<User>, isPublic: Boolean) -> Unit
+    onEvent: (HomeEvent) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
     val nowRounded = remember {
@@ -61,10 +58,10 @@ fun ZuypHangoutOverlay(
     val dateFormatter = remember { DateTimeFormatter.ofPattern("EEE, MMM d") }
     val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
 
-    BackHandler(onBack = onDismiss)
+    BackHandler(onBack = { onEvent(HomeEvent.ZuypHangoutClose) })
 
     Dialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { onEvent(HomeEvent.ZuypHangoutClose) },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             decorFitsSystemWindows = false
@@ -123,9 +120,9 @@ fun ZuypHangoutOverlay(
                         suggestions = addressSuggestions,
                         isLoading = isAddressLoading,
                         isSelected = isAddressSelected,
-                        onQueryChange = onAddressQueryChange,
-                        onSuggestionClick = onAddressSelect,
-                        onClear = onAddressClear
+                        onQueryChange = { onEvent(HomeEvent.AddressQueryChange(it)) },
+                        onSuggestionClick = { onEvent(HomeEvent.AddressSelect(it)) },
+                        onClear = { onEvent(HomeEvent.AddressClear) }
                     )
                 }
 
@@ -173,9 +170,9 @@ fun ZuypHangoutOverlay(
                         val finalStart = if (isAllDay)
                             startDateTime.toLocalDate().atStartOfDay()
                         else startDateTime
-                        onCreateZuyp(title, finalStart, selectedMembers, isPublic)
+                        onEvent(HomeEvent.CreateZuypHangout(title, finalStart, selectedMembers, !isPublic))
                     },
-                    onDismiss = onDismiss,
+                    onDismiss = { onEvent(HomeEvent.ZuypHangoutClose) },
                     createLabel = "ZUYP!",
                     isSending = isSending
                 )

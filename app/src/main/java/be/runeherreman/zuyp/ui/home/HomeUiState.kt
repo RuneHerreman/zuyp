@@ -1,10 +1,12 @@
 package be.runeherreman.zuyp.ui.home
 
+import android.content.Context
 import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.ResolvedAddress
 import be.runeherreman.zuyp.domain.model.User
+import java.time.LocalDateTime
 import java.util.UUID
 
 data class HomeUiState(
@@ -41,3 +43,26 @@ data class HomeUiState(
     val searchQuery: String = "",
     val searchResults: List<Hangout> = emptyList()
 )
+
+sealed interface HomeEvent {
+    data class LocationClicked(val hangout: Hangout) : HomeEvent
+    data class HangoutClicked(val hangoutId: String) : HomeEvent
+
+    data object SearchOpen : HomeEvent
+    data object SearchClose : HomeEvent
+    data class SearchQueryChange(val query: String) : HomeEvent
+
+    data object Refresh: HomeEvent
+
+    data object ZuypAlertClick: HomeEvent
+    data object ZuypHangoutClose: HomeEvent
+    data class CreateZuypHangout(val title: String, val startDate: LocalDateTime, val users: List<User>, val private: Boolean): HomeEvent
+
+    data object CreateHangoutOpen: HomeEvent
+    data object CreateHangoutClose: HomeEvent
+    data class CreateHangout(val title: String, val startDate: LocalDateTime, val endDate: LocalDateTime, val users: List<User>, val private: Boolean): HomeEvent
+
+    data class AddressQueryChange(val query: String): HomeEvent
+    data class AddressSelect(val suggestion: AddressSuggestion): HomeEvent
+    data object AddressClear: HomeEvent
+}

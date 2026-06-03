@@ -18,6 +18,7 @@ import be.runeherreman.zuyp.ui.discover.DiscoverViewModel
 import be.runeherreman.zuyp.ui.friends.FriendsScreen
 import be.runeherreman.zuyp.ui.friends.FriendsViewModel
 import be.runeherreman.zuyp.ui.hangout.HangoutViewModel
+import be.runeherreman.zuyp.ui.home.HomeEvent
 import be.runeherreman.zuyp.ui.home.HomeScreen
 import be.runeherreman.zuyp.ui.home.HomeViewModel
 import be.runeherreman.zuyp.ui.permissions.AppPermission
@@ -38,20 +39,19 @@ fun ZuypNavGraph(
     startupViewModel: StartupViewModel = viewModel(),
     mainViewModel: MainViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val discoverUiState by discoverViewModel.uiState.collectAsStateWithLifecycle()
     val friendsUiState by friendsViewModel.uiState.collectAsStateWithLifecycle()
     val profileUiState by profileViewModel.uiState.collectAsStateWithLifecycle()
     val permissionRequest by mainViewModel.permissionRequest.collectAsStateWithLifecycle()
 
-    // Wait for the stored startup route before building the graph, so the
-    // NavHost starts on the screen saved in DataStore.
+    val context = LocalContext.current
+
+    // Start location
     val startDestination by startupViewModel.startDestination.collectAsStateWithLifecycle()
     val loadedRoute = startDestination ?: return
-    // Capture the route only once. Later changes from the settings picker are
-    // saved to DataStore for the next launch, but must not re-key the NavHost
-    // (which would navigate away immediately).
+
+    // make sure selecting new preference doesn't navigate immediately
     val startRoute = rememberSaveable { loadedRoute }
 
     PermissionManager(
@@ -73,21 +73,12 @@ fun ZuypNavGraph(
         composable(Screen.Home.route) {
             HomeScreen(
                 uiState = homeUiState,
-                onLocationClick = { homeViewModel.openMapsForHangout(it, context) },
-                onHangoutClick = { hangoutViewModel.selectHangout(it.id.toString()) },
-                onSearchOpen = homeViewModel::openSearch,
-                onSearchClose = homeViewModel::closeSearch,
-                onSearchQueryChange = homeViewModel::onSearchQueryChange,
-                onRefresh = homeViewModel::refresh,
-                onZuypAlertClick = homeViewModel::openZuypHangout,
-                onCreateHangoutOpen = homeViewModel::openCreateHangout,
-                onCreateHangoutClose = homeViewModel::closeCreateHangout,
-                onZuypHangoutClose = homeViewModel::closeZuypHangout,
-                onAddressQueryChange = homeViewModel::onAddressQueryChange,
-                onAddressSelect = homeViewModel::selectAddress,
-                onAddressClear = homeViewModel::clearAddress,
-                onCreateHangout = homeViewModel::createHangout,
-                onCreateZuypHangout = homeViewModel::createZuypHangout
+                onEvent = { event ->
+                    when (event) {
+                        is HomeEvent.HangoutClicked -> hangoutViewModel.selectHangout(it.id)
+                        else -> homeViewModel.onEvent(event, context)
+                    }
+                }
             )
         }
         composable(Screen.Discover.route) {

@@ -26,6 +26,8 @@ import androidx.compose.ui.window.DialogProperties
 import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.home.HomeEvent
+import be.runeherreman.zuyp.ui.navigation.Screen
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -39,11 +41,7 @@ fun CreateHangoutPopup(
     addressSuggestions: List<AddressSuggestion>,
     isAddressLoading: Boolean,
     isAddressSelected: Boolean,
-    onAddressQueryChange: (String) -> Unit,
-    onAddressSelect: (AddressSuggestion) -> Unit,
-    onAddressClear: () -> Unit,
-    onDismiss: () -> Unit,
-    onCreate: (title: String, start: LocalDateTime, end: LocalDateTime, members: List<User>, isPublic: Boolean) -> Unit
+    onEvent: (HomeEvent) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
     val nowRounded = remember {
@@ -60,10 +58,10 @@ fun CreateHangoutPopup(
     val dateFormatter = remember { DateTimeFormatter.ofPattern("EEE, MMM d") }
     val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
 
-    BackHandler(onBack = onDismiss)
+    BackHandler(onBack = { onEvent(HomeEvent.CreateHangoutClose) })
 
     Dialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { onEvent(HomeEvent.Dismiss) },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             decorFitsSystemWindows = false
@@ -122,9 +120,9 @@ fun CreateHangoutPopup(
                         suggestions = addressSuggestions,
                         isLoading = isAddressLoading,
                         isSelected = isAddressSelected,
-                        onQueryChange = onAddressQueryChange,
-                        onSuggestionClick = onAddressSelect,
-                        onClear = onAddressClear
+                        onQueryChange = { onEvent(HomeEvent.AddressQueryChange(it)) },
+                        onSuggestionClick = { onEvent(HomeEvent.AddressSelect(it)) },
+                        onClear = { onEvent(HomeEvent.AddressClear) }
                     )
                 }
 
@@ -142,8 +140,7 @@ fun CreateHangoutPopup(
                                 selectedMembers + user
                         },
                         groups = groups,
-                        onGroupSelect = { group ->
-                            // Add the whole group (minus yourself), de-duping people already chosen.
+                        onGroupSelect = { group -> // don't add yourself
                             val members = group.members.filter { it.id != currentUserId }
                             selectedMembers = (selectedMembers + members).distinctBy { it.id }
                             memberSearch = ""
@@ -162,15 +159,19 @@ fun CreateHangoutPopup(
                 CreateHangoutActions(
                     canCreate = title.isNotBlank() && isAddressSelected,
                     onCreate = {
-                        val finalStart = if (isAllDay)
-                            startDateTime.toLocalDate().atStartOfDay()
-                        else startDateTime
-                        val finalEnd = if (isAllDay)
-                            endDateTime.toLocalDate().atTime(23, 59)
-                        else endDateTime
-                        onCreate(title, finalStart, finalEnd, selectedMembers, isPublic)
-                    },
-                    onDismiss = onDismiss
+                        val finalStart = if (isAllDay) startDateTime.toLocalDate().atStartOfDay() else startDateTime
+                        val finalEnd = if (isAllDay) endDateTime.toLocalDate().atTime(23, 59) else endDateTime
+
+                        onEvent(
+                            HomeEvent.CreateHangout(
+                                title = title,
+                                startDate = finalStart,
+                                endDate = finalEnd,
+                                users = selectedMembers,
+                                private = !isPublic
+                            )
+                        )                    },
+                    onDismiss = { onEvent(HomeEvent.CreateHangoutClose) }
                 )
             }
         }
