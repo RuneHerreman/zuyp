@@ -251,6 +251,7 @@ class HangoutViewModel @Inject constructor(
 
     // EXPENSES FUNCTIONSS
     fun openAddExpense() { _uiState.update { it.copy(isAddExpenseOpen = true) } }
+
     fun addExpense(title: String, amount: Double, paidBy: User, shares: List<ExpenseShare>, imageUri: String?) {
         viewModelScope.launch {
             addExpenseUseCase(
@@ -268,8 +269,20 @@ class HangoutViewModel @Inject constructor(
             _uiState.update { it.copy(isAddExpenseOpen = false) }
         }
     }
+
     fun deleteExpense(id: UUID) = viewModelScope.launch { deleteExpenseUseCase(id, currentUser.id) ; _uiState.update { it.copy(selectedExpense = null) } }
+
     fun settleUp(person: PersonBalance) = viewModelScope.launch {
         if (person.net < 0) settleDebtUseCase(UUID.fromString(_uiState.value.selectedHangoutId), currentUser.id, person.user.id, -person.net)
+    }
+
+    fun equalShares(participants: List<User>, amount: Double, payer: User): List<ExpenseShare> {
+        val cents = Math.round(amount * 100)
+        val base = cents / participants.size
+        val remainder = (cents % participants.size).toInt()
+        return participants.mapIndexed { i, u ->
+            val extra = if (u.id == payer.id) remainder else 0   // give leftover cents to payer
+            ExpenseShare(u, (base + extra) / 100.0)
+        }
     }
 }
