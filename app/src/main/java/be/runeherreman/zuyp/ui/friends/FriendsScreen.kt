@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -40,21 +41,17 @@ fun FriendsScreen(
     uiState: FriendsUiState,
     modifier: Modifier = Modifier,
     onCreateGroupOpen: () -> Unit = {},
-    onCreateGroupClose: () -> Unit = {},
     onCreateGroup: (String, List<User>) -> Unit = { _, _ -> },
     onEditGroupOpen: (Group) -> Unit = {},
-    onEditGroupClose: () -> Unit = {},
     onSaveGroupEdits: (Group, String, List<User>) -> Unit = { _, _, _ -> },
     onLeaveGroup: (Group) -> Unit = {},
     onDeleteGroup: (Group) -> Unit = {},
     onAddFriendOpen: () -> Unit = {},
-    onAddFriendClose: () -> Unit = {},
     onAddFriend: (User) -> Unit = {},
     onRemoveFriend: (User) -> Unit = {},
     onGroupClick: (Group) -> Unit = {},
-    onGroupMembersClose: () -> Unit = {},
     onFriendClick: (User) -> Unit = {},
-    onProfileClose: () -> Unit = {}
+    onDismissDialog: () -> Unit = {}
 ) {
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Column(
@@ -62,7 +59,7 @@ fun FriendsScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Text(
                 text = "Friends &\ngroups",
@@ -71,6 +68,8 @@ fun FriendsScreen(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(top = 16.dp)
             )
+
+            Spacer(modifier = Modifier.padding(8.dp))
 
             if (uiState.isLoading) {
                 LoadingState()
@@ -98,47 +97,41 @@ fun FriendsScreen(
         }
     }
 
-    if (uiState.isCreateGroupOpen) {
-        CreateGroupDialog(
+    when (val dialog = uiState.dialog) {
+        FriendsDialog.CreateGroup -> CreateGroupDialog(
             availableUsers = uiState.friends,
-            onDismiss = onCreateGroupClose,
+            onDismiss = onDismissDialog,
             onCreate = onCreateGroup
         )
-    }
 
-    if (uiState.isAddFriendOpen) {
-        AddFriendDialog(
-            candidates = uiState.addFriendCandidates,
-            onDismiss = onAddFriendClose,
+        is FriendsDialog.AddFriend -> AddFriendDialog(
+            candidates = dialog.candidates,
+            onDismiss = onDismissDialog,
             onAddFriend = onAddFriend
         )
-    }
 
-    uiState.editingGroup?.let { group ->
-        EditGroupDialog(
-            group = group,
+        is FriendsDialog.EditGroup -> EditGroupDialog(
+            group = dialog.group,
             friends = uiState.friends,
-            onDismiss = onEditGroupClose,
-            onSave = { name, members -> onSaveGroupEdits(group, name, members) }
+            onDismiss = onDismissDialog,
+            onSave = { name, members -> onSaveGroupEdits(dialog.group, name, members) }
         )
-    }
 
-    uiState.viewingGroup?.let { group ->
-        GroupMembersDialog(
-            group = group,
-            ownerId = group.creatorId,
-            onDismiss = onGroupMembersClose,
+        is FriendsDialog.GroupMembers -> GroupMembersDialog(
+            group = dialog.group,
+            ownerId = dialog.group.creatorId,
+            onDismiss = onDismissDialog,
             onMemberClick = onFriendClick
         )
-    }
 
-    uiState.viewingProfile?.let { profile ->
-        UserProfileDialog(
-            profile = profile,
-            onDismiss = onProfileClose,
-            onAddFriend = { onAddFriend(it); onProfileClose() },
-            onRemoveFriend = { onRemoveFriend(it); onProfileClose() }
+        is FriendsDialog.UserProfileDialog -> UserProfileDialog(
+            profile = dialog.profile,
+            onDismiss = onDismissDialog,
+            onAddFriend = { onAddFriend(it); onDismissDialog() },
+            onRemoveFriend = { onRemoveFriend(it); onDismissDialog() }
         )
+
+        null -> Unit
     }
 }
 

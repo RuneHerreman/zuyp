@@ -21,7 +21,7 @@ object DatabaseModule {
         context,
         AppDatabase::class.java,
         "zuyp-db"
-    ).fallbackToDestructiveMigration()
+    ).fallbackToDestructiveMigration(true)
         .build()
 
     @Provides

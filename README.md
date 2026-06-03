@@ -10,6 +10,7 @@ friends, and keeping nights out transparent and safe.
 ## Table of contents
 - [Before this week](#what-i-did-before-the-start-of-the-project-week)
 - [Day 1 (01/06/2026)](#01062026)
+- [Day 2 (02/06/2026)](#02062026)
 - [TO-DO](#what-i-still-need-to-do)
 
 ---
@@ -79,6 +80,30 @@ project week (Apr 10 – May 31).
   screens/popups into smaller composable components, and centralized the
   current user into a single `CurrentUser` object.
 
+## 02/06/2026
+
+- **Profile screen:** built out the profile page — header with avatar/name/email
+  and friends/groups/events stats, owned and upcoming activity sections, and a
+  settings dialog. Added pull-to-refresh to reload the page.
+- **Edit profile:** added an edit-profile dialog (name, email, birthdate date
+  picker) backed by a new `EditProfileUseCase`, persisting changes through the
+  Room user repository.
+- **Settings & preferences:**
+  - Added a Jetpack DataStore for settings with preference use cases and Hilt
+    wiring.
+  - Replaced the old permission toggles with a "launch page" selector — pick
+    which screen opens on startup (persisted in DataStore, applied on next run).
+- **Groups:** introduced groups end-to-end — Room entities/DAO (group +
+  group-member mapping), repository and domain model. Create, edit/rename and
+  leave groups from the Friends screen, with group cards and member avatar
+  clusters.
+- **Friends:** added friend management (add-friend dialog with search, friend
+  rows + requests) and tap-to-view popups for both friends (user profile dialog)
+  and group members.
+- **Refactors & polish:** moved use cases into per-feature folders, shared form
+  components between the create/edit group dialogs, rounded action buttons less
+  aggressively, increased color contrast, and fixed the Zuyp alert overlay.
+
 ## What I still need to do
 
 Against the project requirement checklist:
@@ -99,5 +124,7 @@ Against the project requirement checklist:
 
 **Feature work still open**
 - [ ] Expenses tracking (the expenses section is currently a placeholder).
-- [ ] Profile screen: edit name, photo and IBAN; permission toggles.
-- [ ] Groups management on the Friends screen.
+- [x] Profile screen: edit name, email and birthdate. _(photo and IBAN still
+      open; permission toggles dropped in favour of a launch-page setting)_
+- [x] Groups management on the Friends screen (create, edit/rename, leave).
+- [ ] Profile: edit profile photo and IBAN.

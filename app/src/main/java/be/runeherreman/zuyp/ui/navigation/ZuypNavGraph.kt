@@ -83,21 +83,17 @@ fun ZuypNavGraph(
             FriendsScreen(
                 uiState = friendsUiState,
                 onCreateGroupOpen = friendsViewModel::openCreateGroup,
-                onCreateGroupClose = friendsViewModel::closeCreateGroup,
                 onCreateGroup = friendsViewModel::createGroup,
                 onEditGroupOpen = friendsViewModel::openEditGroup,
-                onEditGroupClose = friendsViewModel::closeEditGroup,
                 onSaveGroupEdits = friendsViewModel::saveGroupEdits,
                 onLeaveGroup = friendsViewModel::leaveGroup,
                 onDeleteGroup = friendsViewModel::deleteGroup,
                 onAddFriendOpen = friendsViewModel::openAddFriend,
-                onAddFriendClose = friendsViewModel::closeAddFriend,
                 onAddFriend = friendsViewModel::addFriend,
                 onRemoveFriend = friendsViewModel::removeFriend,
                 onGroupClick = friendsViewModel::openGroupMembers,
-                onGroupMembersClose = friendsViewModel::closeGroupMembers,
                 onFriendClick = friendsViewModel::openUserProfile,
-                onProfileClose = friendsViewModel::closeUserProfile
+                onDismissDialog = friendsViewModel::dismissDialog
             )
         }
         composable(Screen.Profile.route) {

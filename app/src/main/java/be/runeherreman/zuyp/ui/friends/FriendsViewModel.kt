@@ -42,9 +42,7 @@ class FriendsViewModel @Inject constructor(
 ) : ViewModel() {
     private val currentUserId: UUID = CurrentUser.id
 
-    private val _uiState = MutableStateFlow(
-        FriendsUiState(user = CurrentUser.user, isLoading = true)
-    )
+    private val _uiState = MutableStateFlow(FriendsUiState(user = CurrentUser.user, isLoading = true))
     val uiState: StateFlow<FriendsUiState> = _uiState
 
     init {
@@ -54,10 +52,10 @@ class FriendsViewModel @Inject constructor(
                 _uiState.update { it.copy(groups = groups, isLoading = false) }
             }
         }
-        // Friends are a one-shot fetch; runs in its own coroutine so the groups
-        // collect above (which never completes) doesn't block it.
         loadFriends()
     }
+
+    fun dismissDialog() = _uiState.update { it.copy(dialog = null) }
 
     private fun loadFriends() {
         viewModelScope.launch {
@@ -66,14 +64,7 @@ class FriendsViewModel @Inject constructor(
         }
     }
 
-    fun openCreateGroup() {
-        // Group members are picked from the user's friends only (see FriendsScreen).
-        _uiState.update { it.copy(isCreateGroupOpen = true) }
-    }
-
-    fun closeCreateGroup() {
-        _uiState.update { it.copy(isCreateGroupOpen = false) }
-    }
+    fun openCreateGroup() = _uiState.update { it.copy(dialog = FriendsDialog.CreateGroup) }
 
     fun createGroup(name: String, members: List<User>) {
         if (name.isBlank()) return
@@ -86,17 +77,11 @@ class FriendsViewModel @Inject constructor(
         )
         viewModelScope.launch {
             createGroupUseCase(group)
-            _uiState.update { it.copy(isCreateGroupOpen = false) }
+            dismissDialog()
         }
     }
 
-    fun openEditGroup(group: Group) {
-        _uiState.update { it.copy(editingGroup = group) }
-    }
-
-    fun closeEditGroup() {
-        _uiState.update { it.copy(editingGroup = null) }
-    }
+    fun openEditGroup(group: Group) = _uiState.update { it.copy(dialog = FriendsDialog.EditGroup(group)) }
 
     fun saveGroupEdits(group: Group, name: String, members: List<User>) {
         viewModelScope.launch {
@@ -113,7 +98,7 @@ class FriendsViewModel @Inject constructor(
                 .filter { it != group.creatorId }
                 .forEach { removeMemberFromGroupUseCase(group.id, it, currentUserId) }
 
-            _uiState.update { it.copy(editingGroup = null) }
+            dismissDialog()
         }
     }
 
@@ -123,38 +108,24 @@ class FriendsViewModel @Inject constructor(
         }
     }
 
-    fun deleteGroup(group: Group) {
-        viewModelScope.launch {
-            removeGroupUseCase(group.id, currentUserId)
-        }
-    }
+    fun deleteGroup(group: Group) = viewModelScope.launch { removeGroupUseCase(group.id, currentUserId) }
 
-    fun openGroupMembers(group: Group) {
-        _uiState.update { it.copy(viewingGroup = group) }
-    }
-
-    fun closeGroupMembers() {
-        _uiState.update { it.copy(viewingGroup = null) }
-    }
+    fun openGroupMembers(group: Group) = _uiState.update { it.copy(dialog = FriendsDialog.GroupMembers(group)) }
 
     fun openAddFriend() {
         viewModelScope.launch {
             val friendIds = _uiState.value.friends.mapTo(mutableSetOf()) { it.id }
             val candidates = getAllUsersUseCase()
                 .filter { it.id != currentUserId && it.id !in friendIds }
-            _uiState.update { it.copy(isAddFriendOpen = true, addFriendCandidates = candidates) }
+            _uiState.update { it.copy(dialog = FriendsDialog.AddFriend(candidates)) }
         }
-    }
-
-    fun closeAddFriend() {
-        _uiState.update { it.copy(isAddFriendOpen = false) }
     }
 
     fun addFriend(user: User) {
         viewModelScope.launch {
             addFriendshipUseCase(currentUserId, user.id)
             loadFriends()
-            _uiState.update { it.copy(isAddFriendOpen = false) }
+            dismissDialog()
         }
     }
 
@@ -165,10 +136,6 @@ class FriendsViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Loads the aggregate info for [user] (their friend/group/event counts and
-     * the friends you have in common) and shows the profile popup.
-     */
     fun openUserProfile(user: User) {
         viewModelScope.launch {
             val theirFriends = getFriendsUseCase(user.id)
@@ -181,24 +148,20 @@ class FriendsViewModel @Inject constructor(
 
             _uiState.update {
                 it.copy(
-                    viewingProfile = UserProfile(
-                        user = user,
-                        friendsCount = theirFriends.size,
-                        groupsCount = groupCount,
-                        eventsCount = eventCount,
-                        mutualFriends = mutualFriends,
-                        isFriend = isFriend
+                    dialog = FriendsDialog.UserProfileDialog(
+                        UserProfile(
+                            user = user,
+                            friendsCount = theirFriends.size,
+                            groupsCount = groupCount,
+                            eventsCount = eventCount,
+                            mutualFriends = mutualFriends,
+                            isFriend = isFriend
+                        )
                     )
                 )
             }
         }
     }
 
-    fun closeUserProfile() {
-        _uiState.update { it.copy(viewingProfile = null) }
-    }
-
-    /** Whether [userId] created or is attending this hangout. */
-    private fun Hangout.involves(userId: UUID): Boolean =
-        creator.id == userId || attendees.any { it.id == userId }
+    private fun Hangout.involves(userId: UUID): Boolean = creator.id == userId || attendees.any { it.id == userId }
 }

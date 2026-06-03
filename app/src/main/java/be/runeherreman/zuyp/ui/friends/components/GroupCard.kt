@@ -67,7 +67,7 @@ fun GroupCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = group.name,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

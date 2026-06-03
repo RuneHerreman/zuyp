@@ -8,19 +8,10 @@ data class FriendsUiState(
     val friends: List<User> = emptyList(),
     val groups: List<Group> = emptyList(),
     val isLoading: Boolean = false,
-    /** Users who can still be added as a friend (everyone minus self and current friends). */
-    val addFriendCandidates: List<User> = emptyList(),
-    val isCreateGroupOpen: Boolean = false,
-    val isAddFriendOpen: Boolean = false,
-    /** The group currently being edited, or null when the edit dialog is closed. */
-    val editingGroup: Group? = null,
-    /** The group whose members are being shown, or null when that popup is closed. */
-    val viewingGroup: Group? = null,
-    /** The profile being shown in the user info popup, or null when it's closed. */
-    val viewingProfile: UserProfile? = null
+    val dialog: FriendsDialog? = null   // replaces all 5 flags/payloads
 )
 
-/** Aggregated info about a user, shown in the profile popup. */
+// User info for pop up
 data class UserProfile(
     val user: User,
     val friendsCount: Int,
@@ -29,3 +20,12 @@ data class UserProfile(
     val mutualFriends: List<User>,
     val isFriend: Boolean
 )
+
+// Stands for all popup dialogs
+sealed interface FriendsDialog {
+    data object CreateGroup : FriendsDialog
+    data class AddFriend(val candidates: List<User>) : FriendsDialog
+    data class EditGroup(val group: Group) : FriendsDialog
+    data class GroupMembers(val group: Group) : FriendsDialog
+    data class UserProfileDialog(val profile: UserProfile) : FriendsDialog
+}

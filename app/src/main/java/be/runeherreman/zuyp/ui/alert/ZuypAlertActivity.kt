@@ -228,7 +228,7 @@ private fun ZuypAlertScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "DISMISS",
+                    text = "I AM BORING",
                     color = WhiteDim,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
