@@ -1,18 +1,24 @@
-package be.runeherreman.zuyp.data.local.room.entity
+package be.runeherreman.zuyp.data.local.room.entity.hangouts
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
+import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
 import java.util.UUID
 
+enum class AttendanceStatus {
+    GOING,
+    NOT_INTERESTED,
+}
+
 @Entity(
-    tableName = "groups_users",
-    primaryKeys = ["groupId", "userId"],
+    tableName = "hangouts_users",
+    primaryKeys = ["hangoutId", "userId"],
     foreignKeys = [
         ForeignKey(
-            entity = GroupEntity::class,
+            entity = HangoutEntity::class,
             parentColumns = ["id"],
-            childColumns = ["groupId"],
+            childColumns = ["hangoutId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
@@ -24,7 +30,8 @@ import java.util.UUID
     ],
     indices = [Index(value = ["userId"])]
 )
-data class GroupUserMapping(
-    val groupId: UUID,
-    val userId: UUID
+data class HangoutUsersMapping(
+    val hangoutId: UUID,
+    val userId: UUID,
+    val status: AttendanceStatus?
 )

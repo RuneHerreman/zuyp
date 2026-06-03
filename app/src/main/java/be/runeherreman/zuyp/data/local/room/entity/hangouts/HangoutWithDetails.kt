@@ -1,8 +1,9 @@
-package be.runeherreman.zuyp.data.local.room.entity
+package be.runeherreman.zuyp.data.local.room.entity.hangouts
 
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
+import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
 
 data class HangoutWithDetails(
     @Embedded val hangout: HangoutEntity,

@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.data.local.room.entity
+package be.runeherreman.zuyp.data.local.room.entity.users
 
 import androidx.room.Entity
 import androidx.room.Index

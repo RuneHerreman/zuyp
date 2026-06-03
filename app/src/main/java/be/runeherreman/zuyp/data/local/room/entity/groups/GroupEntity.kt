@@ -1,14 +1,15 @@
-package be.runeherreman.zuyp.data.local.room.entity
+package be.runeherreman.zuyp.data.local.room.entity.groups
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.time.LocalDateTime
+import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
 import java.util.UUID
 
 @Entity(
-    tableName = "hangouts",
+    tableName = "groups",
+    indices = [Index(value = ["id"], unique = true)],
     foreignKeys = [
         ForeignKey(
             entity = UserEntity::class,
@@ -16,18 +17,12 @@ import java.util.UUID
             childColumns = ["creatorId"],
             onDelete = ForeignKey.CASCADE
         )
-    ],
-    indices = [Index("creatorId")]
+    ]
 )
-data class HangoutEntity (
+data class GroupEntity(
     @PrimaryKey val id: UUID,
-    val title: String,
-    val description: String,
-    val locationName: String,
-    val latitude: Double,
-    val longitude: Double,
-    val startDate: LocalDateTime,
-    val endDate: LocalDateTime,
+    val name: String,
     val creatorId: UUID,
-    val private: Boolean
+    val imageUrl: String = "",
+    val description: String = ""
 )
