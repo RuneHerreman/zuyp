@@ -1,8 +1,10 @@
-package be.runeherreman.zuyp.data.local.room.entity
+package be.runeherreman.zuyp.data.local.room.entity.expenses
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutEntity
+import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
 import java.time.LocalDateTime
 import java.util.UUID
 
