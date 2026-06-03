@@ -1,11 +1,9 @@
-package be.runeherreman.zuyp.ui.friends.components
+package be.runeherreman.zuyp.ui.friends.components.friends
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,11 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.friends.components.UserAvatar
 
-/**
- * Dialog for adding a friend: search the full list of users (people who aren't
- * already friends) and tap one to send a request.
- */
+// ======================================
+//  ADD NEW FRIENDS
+// ======================================
 @Composable
 fun AddFriendDialog(
     candidates: List<User>,

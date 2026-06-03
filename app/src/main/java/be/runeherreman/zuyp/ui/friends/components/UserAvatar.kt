@@ -19,11 +19,6 @@ import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.domain.model.User
 import coil.compose.AsyncImage
 
-/**
- * Circular avatar for a [User]: their photo when available, otherwise their
- * initials on a tinted disc. The single source of truth for how a person is
- * rendered across the friends & groups screen.
- */
 @Composable
 fun UserAvatar(
     user: User,
@@ -57,7 +52,6 @@ fun UserAvatar(
     }
 }
 
-/** First letters of up to the first two name parts, e.g. "Koen Koreman" -> "KK". */
 fun String.toInitials(): String =
     trim()
         .split(" ")

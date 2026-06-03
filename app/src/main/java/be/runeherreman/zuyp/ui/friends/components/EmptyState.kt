@@ -19,10 +19,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
-/**
- * A friendly placeholder for an empty section: a tinted icon disc and a short
- * message. The section header already carries the call-to-action.
- */
+// ======================================
+//  EMPTY STATE PLACEHOLDER
+// ======================================
 @Composable
 fun EmptyState(
     icon: ImageVector,

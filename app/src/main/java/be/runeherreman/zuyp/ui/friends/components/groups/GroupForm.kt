@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.ui.friends.components
+package be.runeherreman.zuyp.ui.friends.components.groups
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.friends.components.UserAvatar
 
 /** Confirm + Close button row shared by the create- and edit-group dialogs. */
 @Composable

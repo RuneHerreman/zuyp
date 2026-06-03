@@ -1,8 +1,7 @@
-package be.runeherreman.zuyp.ui.friends.components
+package be.runeherreman.zuyp.ui.friends.components.groups
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -16,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.friends.components.UserAvatar
 
 /**
  * Overlapping stack of member avatars (a "face pile") with a "+N" bubble when

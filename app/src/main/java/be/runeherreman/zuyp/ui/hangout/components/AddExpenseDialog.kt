@@ -60,6 +60,7 @@ import androidx.compose.ui.window.DialogProperties
 import be.runeherreman.zuyp.domain.model.ExpenseShare
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.ui.friends.components.UserAvatar
+import be.runeherreman.zuyp.ui.hangout.AddExpenseEvent
 import be.runeherreman.zuyp.ui.hangout.AddExpenseForm
 import be.runeherreman.zuyp.ui.hangout.SplitMode
 import coil.compose.AsyncImage
@@ -71,21 +72,13 @@ import java.util.UUID
 fun AddExpenseDialog(
     form: AddExpenseForm,
     currentUser: User,
-    onTitleChanged: (String) -> Unit,
-    onAmountChanged: (String) -> Unit,
-    onPaidByChanged: (UUID) -> Unit,
-    onSplitModeChanged: (SplitMode) -> Unit,
-    onParticipantToggled: (UUID) -> Unit,
-    onCustomAmountChanged: (UUID, String) -> Unit,
+    onEvent: (AddExpenseEvent) -> Unit,
     onCameraClick: () -> Unit,
     onGalleryClick: () -> Unit,
-    onRemoveImage: () -> Unit,
-    onAdd: () -> Unit,
-    onDismiss: () -> Unit,
 ) {
     val scheme = MaterialTheme.colorScheme
 
-    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+    Dialog(onDismissRequest = { onEvent(AddExpenseEvent.Dismiss) }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(
             shape = RoundedCornerShape(28.dp),
             color = scheme.surface,
@@ -109,7 +102,7 @@ fun AddExpenseDialog(
                         fontWeight = FontWeight.SemiBold,
                         color = scheme.onSurface
                     )
-                    IconButton(onClick = onDismiss) {
+                    IconButton(onClick = { onEvent(AddExpenseEvent.Dismiss) }) {
                         Icon(Icons.Default.Close, contentDescription = "Close", tint = scheme.error)
                     }
                 }
@@ -126,7 +119,7 @@ fun AddExpenseDialog(
                     Spacer(Modifier.width(12.dp))
                     BasicTextField(
                         value = form.amountText,
-                        onValueChange = { new -> onAmountChanged(new.filter { it.isDigit() || it == '.' || it == ',' }) },
+                        onValueChange = { new -> onEvent(AddExpenseEvent.AmountChanged(new.filter { it.isDigit() || it == '.' || it == ',' })) },
                         textStyle = MaterialTheme.typography.displayMedium.copy(
                             color = scheme.onSurface,
                             textAlign = TextAlign.Center
@@ -156,7 +149,7 @@ fun AddExpenseDialog(
                 FieldLabel("DESCRIPTION")
                 OutlinedTextField(
                     value = form.title,
-                    onValueChange = onTitleChanged,
+                    onValueChange = { onEvent(AddExpenseEvent.TitleChanged(it)) },
                     placeholder = { Text("What was it for?") },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
@@ -172,12 +165,12 @@ fun AddExpenseDialog(
                             selected = form.paidBy ?: currentUser,
                             options = form.candidates,
                             currentUserId = currentUser.id,
-                            onSelect = { onPaidByChanged(it.id) }
+                            onSelect = { onEvent(AddExpenseEvent.PaidByChanged(it.id)) }
                         )
                     }
                     Column(Modifier.weight(1f)) {
                         FieldLabel("SPLIT")
-                        SplitDropdown(selected = form.splitMode, onSelect = onSplitModeChanged)
+                        SplitDropdown(selected = form.splitMode, onSelect = { onEvent(AddExpenseEvent.SplitModeChanged(it)) })
                     }
                 }
 
@@ -189,7 +182,7 @@ fun AddExpenseDialog(
                         val selected = user.id in form.selectedParticipantIds
                         FilterChip(
                             selected = selected,
-                            onClick = { onParticipantToggled(user.id) },
+                            onClick = { onEvent(AddExpenseEvent.ParticipantToggled(user.id)) },
                             label = { Text(if (user.id == currentUser.id) "You" else user.name.substringBefore(' ')) },
                             leadingIcon = if (selected) {
                                 { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
@@ -244,7 +237,7 @@ fun AddExpenseDialog(
                                 )
                                 OutlinedTextField(
                                     value = form.customAmounts[user.id] ?: "",
-                                    onValueChange = { new -> onCustomAmountChanged(user.id, new.filter { it.isDigit() || it == '.' || it == ',' }) },
+                                    onValueChange = { new -> onEvent(AddExpenseEvent.CustomAmountChanged(user.id, new.filter { it.isDigit() || it == '.' || it == ',' })) },
                                     placeholder = { Text("0.00") },
                                     prefix = { Text("€ ") },
                                     singleLine = true,
@@ -270,14 +263,14 @@ fun AddExpenseDialog(
                     imagePath = form.imagePath,
                     onCamera = onCameraClick,
                     onGallery = onGalleryClick,
-                    onRemove = onRemoveImage
+                    onRemove = { onEvent(AddExpenseEvent.ImageRemoved) }
                 )
 
                 Spacer(Modifier.height(20.dp))
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                     Button(
-                        onClick = onAdd,
+                        onClick = { onEvent(AddExpenseEvent.Submit) },
                         enabled = form.canAdd,
                         modifier = Modifier.weight(1f)
                     ) {
@@ -285,7 +278,7 @@ fun AddExpenseDialog(
                         Spacer(Modifier.width(6.dp))
                         Text("Add expense")
                     }
-                    OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
+                    OutlinedButton(onClick = { onEvent(AddExpenseEvent.Dismiss) }, modifier = Modifier.weight(1f)) {
                         Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
                         Text("Cancel")

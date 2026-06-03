@@ -160,14 +160,7 @@ fun ZuypApp(
                 onShareExternal = { hangoutViewModel.shareHangoutExternally(hangoutUiState.hangout, context) },
                 onCloseShare = hangoutViewModel::closeShareSheet,
                 onAddExpenseOpen = hangoutViewModel::openAddExpense,
-                onAddExpenseClose = hangoutViewModel::closeAddExpense,
-                onAddExpense = hangoutViewModel::submitExpense,
-                onExpenseTitleChanged = hangoutViewModel::onExpenseTitleChanged,
-                onExpenseAmountChanged = hangoutViewModel::onExpenseAmountChanged,
-                onExpensePaidByChanged = hangoutViewModel::onExpensePaidByChanged,
-                onExpenseSplitModeChanged = hangoutViewModel::onExpenseSplitModeChanged,
-                onExpenseParticipantToggled = hangoutViewModel::onExpenseParticipantToggled,
-                onExpenseCustomAmountChanged = hangoutViewModel::onExpenseCustomAmountChanged,
+                onAddExpenseEvent = hangoutViewModel::onAddExpenseEvent,
                 onCameraClick = {
                     pendingCameraLaunch = true
                     mainViewModel.requestPermission(AppPermission.CAMERA)
@@ -177,7 +170,6 @@ fun ZuypApp(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                     )
                 },
-                onRemoveImage = hangoutViewModel::onExpenseImageRemoved,
                 onExpenseClick = hangoutViewModel::openExpenseDetail,
                 onExpenseDetailClose = hangoutViewModel::closeExpenseDetail,
                 onDeleteExpense = hangoutViewModel::deleteExpense,

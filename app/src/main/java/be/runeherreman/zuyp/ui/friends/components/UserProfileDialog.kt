@@ -2,7 +2,6 @@ package be.runeherreman.zuyp.ui.friends.components
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,13 +39,13 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.ui.friends.UserProfile
+import be.runeherreman.zuyp.ui.friends.components.groups.MemberAvatarCluster
 import java.time.LocalDate
 import java.time.Period
 
-/**
- * Popup showing a user's profile: avatar, name, age, their friend/group/event
- * counts, the friends you share, and an add/remove friend action.
- */
+// ======================================
+//  POPUP SHOWING A USER'S INFO
+// ======================================
 @Composable
 fun UserProfileDialog(
     profile: UserProfile,
@@ -265,7 +263,6 @@ private fun FriendActionButton(
     }
 }
 
-/** "also friends with A and B" — caps the list and rolls the rest into "N others". */
 private fun mutualFriendsLabel(mutualFriends: List<User>): String {
     val names = mutualFriends.map { it.name }
     val joined = when {

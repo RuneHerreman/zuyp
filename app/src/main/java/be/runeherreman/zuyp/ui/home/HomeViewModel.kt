@@ -52,13 +52,12 @@ class HomeViewModel @Inject constructor(
 
     private var allHangouts: List<Hangout> = emptyList()
 
-    /** Drives debounced address lookups so we don't hit the API on every keystroke. */
     private val addressQueryFlow = MutableStateFlow("")
 
     init {
         viewModelScope.launch {
             addressQueryFlow
-                .debounce(300)
+                .debounce(300) // don't hit api at every keystroke
                 .distinctUntilChanged()
                 .collectLatest { query ->
                     if (query.isBlank()) {
@@ -102,6 +101,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    // ======================================
+    //            SEARCH HANGOUTS
+    // ======================================
     fun openSearch() {
         _uiState.update { it.copy(isSearchOpen = true, searchQuery = "", searchResults = emptyList()) }
     }
@@ -132,12 +134,9 @@ class HomeViewModel @Inject constructor(
         context.startActivity(chooser)
     }
 
-    fun sendZuypAlert() {
-        viewModelScope.launch {
-            sendZuypAlertUseCase(userId = currentUserId, hangoutId = UUID.fromString("10000000-0000-0000-0000-000000000002"))
-        }
-    }
-
+    // ======================================
+    //            open-and-closers
+    // ======================================
     fun openCreateHangout() {
         viewModelScope.launch {
             val allUsers = getAllUsersUseCase().filter { it.id != currentUserId }
@@ -178,6 +177,9 @@ class HomeViewModel @Inject constructor(
         clearAddress()
     }
 
+    // ======================================
+    //            ADDRESSES
+    // ======================================
     fun onAddressQueryChange(query: String) {
         // Any edit invalidates a previously confirmed address — the user must
         // pick a real suggestion again, which is what enforces "it has to exist".
@@ -212,6 +214,9 @@ class HomeViewModel @Inject constructor(
         addressQueryFlow.value = ""
     }
 
+    // ======================================
+    //            CREATION CALLS
+    // ======================================
     fun createHangout(
         title: String,
         start: LocalDateTime,

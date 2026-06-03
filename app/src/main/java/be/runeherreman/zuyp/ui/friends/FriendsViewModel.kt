@@ -142,8 +142,10 @@ class FriendsViewModel @Inject constructor(
             val groupCount = getUserGroupsUseCase(user.id).first().size
             val eventCount = getAllHangoutsUseCase().first().count { it.involves(user.id) }
 
-            val myFriendIds = _uiState.value.friends.mapTo(mutableSetOf()) { it.id }
-            val mutualFriends = theirFriends.filter { it.id in myFriendIds }
+            // Fetch our own friends fresh rather than relying on the UI snapshot,
+            // which may be empty/stale if the profile opens before loadFriends() completes.
+            val myFriendIds = getFriendsUseCase(currentUserId).mapTo(mutableSetOf()) { it.id }
+            val mutualFriends = theirFriends.filter { it.id in myFriendIds && it.id != currentUserId }
             val isFriend = user.id in myFriendIds
 
             _uiState.update {

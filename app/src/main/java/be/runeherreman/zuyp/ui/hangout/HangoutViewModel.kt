@@ -287,6 +287,21 @@ class HangoutViewModel @Inject constructor(
         }
     }
 
+    /** Single entry point for all add-expense form events (MVI-style). */
+    fun onAddExpenseEvent(event: AddExpenseEvent) {
+        when (event) {
+            is AddExpenseEvent.TitleChanged -> onExpenseTitleChanged(event.title)
+            is AddExpenseEvent.AmountChanged -> onExpenseAmountChanged(event.text)
+            is AddExpenseEvent.PaidByChanged -> onExpensePaidByChanged(event.userId)
+            is AddExpenseEvent.SplitModeChanged -> onExpenseSplitModeChanged(event.mode)
+            is AddExpenseEvent.ParticipantToggled -> onExpenseParticipantToggled(event.userId)
+            is AddExpenseEvent.CustomAmountChanged -> onExpenseCustomAmountChanged(event.userId, event.text)
+            AddExpenseEvent.ImageRemoved -> onExpenseImageRemoved()
+            AddExpenseEvent.Submit -> submitExpense()
+            AddExpenseEvent.Dismiss -> closeAddExpense()
+        }
+    }
+
     fun openAddExpense() {
         val state = _uiState.value
         val form = recomputeForm(
@@ -299,7 +314,7 @@ class HangoutViewModel @Inject constructor(
         _uiState.update { it.copy(addExpenseForm = form) }
     }
 
-    fun closeAddExpense() { _uiState.update { it.copy(addExpenseForm = null) } }
+    private fun closeAddExpense() { _uiState.update { it.copy(addExpenseForm = null) } }
 
     fun openExpenseDetail(expense: Expense) { _uiState.update { it.copy(selectedExpense = expense) } }
 
@@ -307,20 +322,20 @@ class HangoutViewModel @Inject constructor(
 
     fun onExpenseImageCaptured(path: String) = updateForm { it.copy(imagePath = path) }
 
-    fun onExpenseImageRemoved() = updateForm { it.copy(imagePath = null) }
+    private fun onExpenseImageRemoved() = updateForm { it.copy(imagePath = null) }
 
-    fun onExpenseTitleChanged(title: String) = updateForm { it.copy(title = title) }
+    private fun onExpenseTitleChanged(title: String) = updateForm { it.copy(title = title) }
 
-    fun onExpenseAmountChanged(text: String) = updateForm { it.copy(amountText = text) }
+    private fun onExpenseAmountChanged(text: String) = updateForm { it.copy(amountText = text) }
 
-    fun onExpensePaidByChanged(userId: UUID) = updateForm { form ->
+    private fun onExpensePaidByChanged(userId: UUID) = updateForm { form ->
         form.copy(
             paidById = userId,
             selectedParticipantIds = form.selectedParticipantIds + userId
         )
     }
 
-    fun onExpenseSplitModeChanged(mode: SplitMode) = updateForm { form ->
+    private fun onExpenseSplitModeChanged(mode: SplitMode) = updateForm { form ->
         var customAmounts = form.customAmounts
         if (mode == SplitMode.CUSTOM) {
             form.shares.forEach { share ->
@@ -332,7 +347,7 @@ class HangoutViewModel @Inject constructor(
         form.copy(splitMode = mode, customAmounts = customAmounts)
     }
 
-    fun onExpenseParticipantToggled(userId: UUID) = updateForm { form ->
+    private fun onExpenseParticipantToggled(userId: UUID) = updateForm { form ->
         if (userId == (form.paidById ?: currentUser.id)) return@updateForm form
         val isSelected = userId in form.selectedParticipantIds
         if (isSelected) {
@@ -351,11 +366,11 @@ class HangoutViewModel @Inject constructor(
         }
     }
 
-    fun onExpenseCustomAmountChanged(userId: UUID, text: String) = updateForm { form ->
+    private fun onExpenseCustomAmountChanged(userId: UUID, text: String) = updateForm { form ->
         form.copy(customAmounts = form.customAmounts + (userId to text))
     }
 
-    fun submitExpense() {
+    private fun submitExpense() {
         val state = _uiState.value
         val form = state.addExpenseForm ?: return
         if (!form.canAdd) return
@@ -396,4 +411,7 @@ class HangoutViewModel @Inject constructor(
     }
 
     private fun String?.toAmount(): Double = this?.replace(',', '.')?.toDoubleOrNull() ?: 0.0
+
+
+
 }

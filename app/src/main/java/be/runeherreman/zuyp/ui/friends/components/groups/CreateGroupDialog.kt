@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.ui.friends.components
+package be.runeherreman.zuyp.ui.friends.components.groups
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -25,9 +25,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import be.runeherreman.zuyp.domain.model.User
 
-/**
- * Dialog for naming a new group and picking its members from the user's friends.
- */
+// ======================================
+//  NAME NEW GROUP, ADD FRIENDS TO IT
+// ======================================
 @Composable
 fun CreateGroupDialog(
     availableUsers: List<User>,
@@ -71,7 +71,12 @@ fun CreateGroupDialog(
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        placeholder = { Text("Ex. Work group", style = MaterialTheme.typography.bodyMedium) },
+                        placeholder = {
+                            Text(
+                                "Ex. Work group",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),

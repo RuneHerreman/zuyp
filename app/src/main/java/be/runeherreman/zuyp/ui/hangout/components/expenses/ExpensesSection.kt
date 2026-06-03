@@ -45,7 +45,6 @@ import kotlin.math.abs
 fun ExpensesSection(
     expenses: List<Expense>,
     balances: List<PersonBalance>,
-    currentUserId: UUID,
     onAddExpense: () -> Unit,
     onExpenseClick: (Expense) -> Unit,
     onSettle: (PersonBalance) -> Unit

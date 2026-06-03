@@ -14,9 +14,10 @@ import java.util.UUID
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class JoinHangoutReceiver @Inject constructor(
-    private val updateAttendanceUseCase: UpdateAttendanceUseCase
-) : BroadcastReceiver() {
+class JoinHangoutReceiver : BroadcastReceiver() {
+    @Inject
+    lateinit var updateAttendanceUseCase: UpdateAttendanceUseCase
+
     override fun onReceive(context: Context, intent: Intent) {
         val hangoutId = intent.getStringExtra("hangoutId") ?: return
         val userId = intent.getStringExtra("userId") ?: return

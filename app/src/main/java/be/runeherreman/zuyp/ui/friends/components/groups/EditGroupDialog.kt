@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.ui.friends.components
+package be.runeherreman.zuyp.ui.friends.components.groups
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -26,11 +26,9 @@ import androidx.compose.ui.window.DialogProperties
 import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.User
 
-/**
- * Dialog for editing an existing group: rename it and add/remove members. The
- * group owner is always kept and isn't shown as a removable chip — new members
- * are picked from [friends].
- */
+// =============================================
+//  EDIT A GROUP: RENAME, ADD/REMOVE FRIENDS
+// =============================================
 @Composable
 fun EditGroupDialog(
     group: Group,
@@ -78,7 +76,12 @@ fun EditGroupDialog(
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        placeholder = { Text("Ex. Work group", style = MaterialTheme.typography.bodyMedium) },
+                        placeholder = {
+                            Text(
+                                "Ex. Work group",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),

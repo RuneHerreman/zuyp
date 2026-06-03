@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.ui.friends.components
+package be.runeherreman.zuyp.ui.friends.components.friends
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.friends.components.UserAvatar
 
 /** A single friend in the "All friends" list: avatar, name and an overflow menu. */
 @Composable

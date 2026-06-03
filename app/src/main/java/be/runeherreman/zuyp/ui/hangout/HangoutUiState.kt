@@ -16,6 +16,18 @@ import java.util.UUID
 
 enum class SplitMode(val label: String) { EQUALLY("Equally"), CUSTOM("Custom") }
 
+sealed interface AddExpenseEvent {
+    data class TitleChanged(val title: String) : AddExpenseEvent
+    data class AmountChanged(val text: String) : AddExpenseEvent
+    data class PaidByChanged(val userId: UUID) : AddExpenseEvent
+    data class SplitModeChanged(val mode: SplitMode) : AddExpenseEvent
+    data class ParticipantToggled(val userId: UUID) : AddExpenseEvent
+    data class CustomAmountChanged(val userId: UUID, val text: String) : AddExpenseEvent
+    data object ImageRemoved : AddExpenseEvent
+    data object Submit : AddExpenseEvent
+    data object Dismiss : AddExpenseEvent
+}
+
 data class AddExpenseForm(
     val title: String = "",
     val amountText: String = "",
@@ -24,7 +36,6 @@ data class AddExpenseForm(
     val selectedParticipantIds: Set<UUID> = emptySet(),
     val customAmounts: Map<UUID, String> = emptyMap(),
     val imagePath: String? = null,
-    // Derived — kept in sync by ViewModel
     val candidates: List<User> = emptyList(),
     val paidBy: User? = null,
     val participants: List<User> = emptyList(),

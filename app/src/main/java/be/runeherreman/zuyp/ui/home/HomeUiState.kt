@@ -16,11 +16,13 @@ data class HomeUiState(
     val isZuypSending: Boolean = false,
     val availableUsers: List<User> = emptyList(),
     val availableGroups: List<Group> = emptyList(),
+
     // Address autocomplete state for the create-hangout form
     val addressQuery: String = "",
     val addressSuggestions: List<AddressSuggestion> = emptyList(),
     val isAddressLoading: Boolean = false,
     val selectedAddress: ResolvedAddress? = null,
+
     val phrases: List<String> = listOf(
         "Voorlopig bitter hard alleen",
         "Tafel voor geen!",

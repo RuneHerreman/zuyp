@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.ui.friends.components
+package be.runeherreman.zuyp.ui.friends.components.groups
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
@@ -24,12 +24,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.friends.components.UserAvatar
+import java.util.UUID
 
 /** Popup listing the members of a group. */
 @Composable
 fun GroupMembersDialog(
     group: Group,
-    ownerId: java.util.UUID,
+    ownerId: UUID,
     onDismiss: () -> Unit,
     onMemberClick: (User) -> Unit = {}
 ) {

@@ -26,13 +26,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.User
-import be.runeherreman.zuyp.ui.friends.components.AddFriendDialog
-import be.runeherreman.zuyp.ui.friends.components.CreateGroupDialog
-import be.runeherreman.zuyp.ui.friends.components.EditGroupDialog
+import be.runeherreman.zuyp.ui.friends.components.friends.AddFriendDialog
+import be.runeherreman.zuyp.ui.friends.components.groups.CreateGroupDialog
+import be.runeherreman.zuyp.ui.friends.components.groups.EditGroupDialog
 import be.runeherreman.zuyp.ui.friends.components.EmptyState
-import be.runeherreman.zuyp.ui.friends.components.FriendRow
-import be.runeherreman.zuyp.ui.friends.components.GroupCard
-import be.runeherreman.zuyp.ui.friends.components.GroupMembersDialog
+import be.runeherreman.zuyp.ui.friends.components.friends.FriendRow
+import be.runeherreman.zuyp.ui.friends.components.groups.GroupCard
+import be.runeherreman.zuyp.ui.friends.components.groups.GroupMembersDialog
 import be.runeherreman.zuyp.ui.friends.components.SectionHeader
 import be.runeherreman.zuyp.ui.friends.components.UserProfileDialog
 
