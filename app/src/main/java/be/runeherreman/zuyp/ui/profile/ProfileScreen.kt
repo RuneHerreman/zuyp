@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -106,6 +107,19 @@ fun ProfileScreen(
                     accentColor = scheme.tertiary,
                     accentContainer = scheme.tertiaryContainer,
                     onAccentContainer = scheme.onTertiaryContainer,
+                    onHangoutClick = onHangoutClick
+                )
+            }
+
+            StaggeredReveal(visible = visible, delayMillis = 180) {
+                ProfileActivitySection(
+                    title = "Previous Activities",
+                    icon = Icons.Filled.History,
+                    hangouts = uiState.previousHangouts,
+                    emptyMessage = "No previous activities. Get outside more!",
+                    accentColor = scheme.secondary,
+                    accentContainer = scheme.secondaryContainer,
+                    onAccentContainer = scheme.onSecondaryContainer,
                     onHangoutClick = onHangoutClick
                 )
             }

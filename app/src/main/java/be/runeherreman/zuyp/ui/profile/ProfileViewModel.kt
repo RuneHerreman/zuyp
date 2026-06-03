@@ -50,12 +50,16 @@ class ProfileViewModel @Inject constructor(
                 val upcoming = hangouts.filter {
                     it.startDate.isAfter(now) && isAttendingOrCreator(it)
                 }
+                val previous = hangouts.filter {
+                    it.endDate.isBefore(now) && isAttendingOrCreator(it)
+                }
                 val eventsCount = hangouts.count(::isAttendingOrCreator)
 
                 _uiState.update {
                     it.copy(
                         ownedHangouts = owned,
                         upcomingHangouts = upcoming,
+                        previousHangouts = previous,
                         eventsCount = eventsCount,
                         isLoading = false
                     )
@@ -70,11 +74,6 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Re-fetches the profile data that doesn't arrive via a Flow (the user record
-     * and friend count), so the screen reflects changes made elsewhere — e.g.
-     * after adding or removing friends.
-     */
     fun refresh() {
         viewModelScope.launch {
             _uiState.update { it.copy(isRefreshing = true) }
@@ -90,14 +89,14 @@ class ProfileViewModel @Inject constructor(
         _uiState.update { it.copy(user = user, friendsCount = friendCount, groupsCount = groupCount) }
     }
 
-    /** Persists which screen the app should open on launch. */
+    // Persists which screen the app should open on launch
     fun setStartupScreen(route: String) {
         viewModelScope.launch {
             setStartupScreenUseCase(route)
         }
     }
 
-    /** A hangout the current user created or is on the attendee list of. */
+    // A hangout the current user created or is on the attendee list
     private fun isAttendingOrCreator(hangout: Hangout): Boolean =
         hangout.creator.id == currentUserId ||
         hangout.attendees.any { it.id == currentUserId }

@@ -10,6 +10,7 @@ data class ProfileUiState(
     val eventsCount: Int = 0,
     val ownedHangouts: List<Hangout> = emptyList(),
     val upcomingHangouts: List<Hangout> = emptyList(),
+    val previousHangouts: List<Hangout> = emptyList(),
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
 
