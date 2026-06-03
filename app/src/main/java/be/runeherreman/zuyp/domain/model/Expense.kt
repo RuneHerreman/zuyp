@@ -1,7 +1,7 @@
 package be.runeherreman.zuyp.domain.model
 
-import com.android.identity.util.UUID
 import java.time.LocalDateTime
+import java.util.UUID
 
 data class Expense(
     val id: UUID,
