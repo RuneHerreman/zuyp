@@ -1,5 +1,6 @@
 package be.runeherreman.zuyp.ui.hangout
 
+import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.compose.material.icons.Icons
@@ -240,7 +241,7 @@ class HangoutViewModel @Inject constructor(
         }
     }
 
-    fun shareHangoutExternally(hangout: Hangout, context: android.content.Context) {
+    fun shareHangoutExternally(hangout: Hangout, context: Context) {
         val shareLink = "https://runeherreman.github.io/zuyp/hangout/${hangout.id}" // redirect via github pages
         val dateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d 'at' HH:mm")
         val text = buildString {

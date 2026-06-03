@@ -1,5 +1,6 @@
 package be.runeherreman.zuyp
 
+import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -34,6 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import be.runeherreman.zuyp.ui.discover.DiscoverViewModel
 import be.runeherreman.zuyp.ui.discover.components.HangoutPopup
+import be.runeherreman.zuyp.ui.hangout.HangoutEvent
 import be.runeherreman.zuyp.ui.hangout.HangoutOverlay
 import be.runeherreman.zuyp.ui.hangout.HangoutViewModel
 import be.runeherreman.zuyp.ui.hangout.utils.copyImageIntoAppStorage
@@ -88,7 +90,7 @@ fun ZuypApp(
         LaunchedEffect(permissionRequest) {
             if (permissionRequest == null && pendingCameraLaunch) {
                 pendingCameraLaunch = false
-                if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA)
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                     == PackageManager.PERMISSION_GRANTED
                 ) {
                     val file = newExpenseImageFile(context)
@@ -149,31 +151,30 @@ fun ZuypApp(
 
             HangoutOverlay(
                 uiState = hangoutUiState,
-                onDismiss = hangoutViewModel::dismissHangout,
-                onFriendClick = hangoutViewModel::toggleFriendship,
-                onUpdateAttendanceStatus = hangoutViewModel::toggleGoing,
-                onDeleteClick = hangoutViewModel::deleteHangout,
-                onShareClick = hangoutViewModel::openShareSheet,
-                onToggleInvitee = hangoutViewModel::toggleInvitee,
-                onSendInvites = hangoutViewModel::sendInvites,
-                onClearInvitees = hangoutViewModel::clearInviteeSelection,
-                onShareExternal = { hangoutViewModel.shareHangoutExternally(hangoutUiState.hangout, context) },
-                onCloseShare = hangoutViewModel::closeShareSheet,
-                onAddExpenseOpen = hangoutViewModel::openAddExpense,
-                onAddExpenseEvent = hangoutViewModel::onAddExpenseEvent,
-                onCameraClick = {
-                    pendingCameraLaunch = true
-                    mainViewModel.requestPermission(AppPermission.CAMERA)
-                },
-                onGalleryClick = {
-                    pickImageLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
-                },
-                onExpenseClick = hangoutViewModel::openExpenseDetail,
-                onExpenseDetailClose = hangoutViewModel::closeExpenseDetail,
-                onDeleteExpense = hangoutViewModel::deleteExpense,
-                onSettle = hangoutViewModel::settleUp
+                onEvent = { event ->
+                    when (event) {
+                        HangoutEvent.CameraClicked  -> { pendingCameraLaunch = true; mainViewModel.requestPermission(AppPermission.CAMERA) }
+                        HangoutEvent.GalleryClicked -> pickImageLauncher.launch(PickVisualMediaRequest(
+                            ActivityResultContracts.PickVisualMedia.ImageOnly
+                        ))
+                        is HangoutEvent.Form            -> hangoutViewModel.onAddExpenseEvent(event.event)
+                        HangoutEvent.BackClicked        -> hangoutViewModel.dismissHangout()
+                        HangoutEvent.ShareClicked       -> hangoutViewModel.openShareSheet()
+                        HangoutEvent.AddExpenseOpen     -> hangoutViewModel.openAddExpense()
+                        HangoutEvent.ExpenseDetailClose -> hangoutViewModel.closeExpenseDetail()
+                        HangoutEvent.SendInvites        -> hangoutViewModel.sendInvites()
+                        HangoutEvent.ClearInvitees      -> hangoutViewModel.clearInviteeSelection()
+                        HangoutEvent.ShareExternal      -> hangoutViewModel.shareHangoutExternally(hangoutUiState.hangout, context)
+                        HangoutEvent.CloseShare         -> hangoutViewModel.closeShareSheet()
+                        is HangoutEvent.DeleteHangout   -> hangoutViewModel.deleteHangout(event.id)
+                        is HangoutEvent.FriendClicked   -> hangoutViewModel.toggleFriendship(event.userId)
+                        is HangoutEvent.UpdateAttendance -> hangoutViewModel.toggleGoing(event.hangout, event.status)
+                        is HangoutEvent.ExpenseClicked  -> hangoutViewModel.openExpenseDetail(event.expense)
+                        is HangoutEvent.DeleteExpense   -> hangoutViewModel.deleteExpense(event.id)
+                        is HangoutEvent.Settle          -> hangoutViewModel.settleUp(event.balance)
+                        is HangoutEvent.ToggleInvitee   -> hangoutViewModel.toggleInvitee(event.id)
+                    }
+                }
             )
         }
     }
