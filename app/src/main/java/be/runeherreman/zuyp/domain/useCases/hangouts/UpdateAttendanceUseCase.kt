@@ -1,6 +1,6 @@
 package be.runeherreman.zuyp.domain.useCases.hangouts
 
-import be.runeherreman.zuyp.data.local.room.entity.AttendanceStatus
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import java.util.UUID
 import javax.inject.Inject
