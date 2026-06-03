@@ -32,7 +32,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Expense
-import be.runeherreman.zuyp.domain.model.ExpenseShare
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.PersonBalance
 import be.runeherreman.zuyp.domain.model.User
@@ -63,7 +62,16 @@ fun HangoutOverlay(
     onCloseShare: () -> Unit = {},
     onAddExpenseOpen: () -> Unit = {},
     onAddExpenseClose: () -> Unit = {},
-    onAddExpense: (String, Double, User, List<ExpenseShare>, String?) -> Unit = { _, _, _, _, _ -> },
+    onAddExpense: () -> Unit = {},
+    onExpenseTitleChanged: (String) -> Unit = {},
+    onExpenseAmountChanged: (String) -> Unit = {},
+    onExpensePaidByChanged: (UUID) -> Unit = {},
+    onExpenseSplitModeChanged: (SplitMode) -> Unit = {},
+    onExpenseParticipantToggled: (UUID) -> Unit = {},
+    onExpenseCustomAmountChanged: (UUID, String) -> Unit = { _, _ -> },
+    onCameraClick: () -> Unit = {},
+    onGalleryClick: () -> Unit = {},
+    onRemoveImage: () -> Unit = {},
     onExpenseClick: (Expense) -> Unit = {},
     onExpenseDetailClose: () -> Unit = {},
     onDeleteExpense: (UUID) -> Unit = {},
@@ -89,6 +97,15 @@ fun HangoutOverlay(
                 onAddExpenseOpen = onAddExpenseOpen,
                 onAddExpenseClose = onAddExpenseClose,
                 onAddExpense = onAddExpense,
+                onExpenseTitleChanged = onExpenseTitleChanged,
+                onExpenseAmountChanged = onExpenseAmountChanged,
+                onExpensePaidByChanged = onExpensePaidByChanged,
+                onExpenseSplitModeChanged = onExpenseSplitModeChanged,
+                onExpenseParticipantToggled = onExpenseParticipantToggled,
+                onExpenseCustomAmountChanged = onExpenseCustomAmountChanged,
+                onCameraClick = onCameraClick,
+                onGalleryClick = onGalleryClick,
+                onRemoveImage = onRemoveImage,
                 onExpenseClick = onExpenseClick,
                 onExpenseDetailClose = onExpenseDetailClose,
                 onDeleteExpense = onDeleteExpense,
@@ -121,7 +138,16 @@ fun HangoutScreen(
     onShareClick: () -> Unit = {},
     onAddExpenseOpen: () -> Unit = {},
     onAddExpenseClose: () -> Unit = {},
-    onAddExpense: (String, Double, User, List<ExpenseShare>, String?) -> Unit = { _, _, _, _, _ -> },
+    onAddExpense: () -> Unit = {},
+    onExpenseTitleChanged: (String) -> Unit = {},
+    onExpenseAmountChanged: (String) -> Unit = {},
+    onExpensePaidByChanged: (UUID) -> Unit = {},
+    onExpenseSplitModeChanged: (SplitMode) -> Unit = {},
+    onExpenseParticipantToggled: (UUID) -> Unit = {},
+    onExpenseCustomAmountChanged: (UUID, String) -> Unit = { _, _ -> },
+    onCameraClick: () -> Unit = {},
+    onGalleryClick: () -> Unit = {},
+    onRemoveImage: () -> Unit = {},
     onExpenseClick: (Expense) -> Unit = {},
     onExpenseDetailClose: () -> Unit = {},
     onDeleteExpense: (UUID) -> Unit = {},
@@ -208,13 +234,19 @@ fun HangoutScreen(
                 onSettle = onSettle
             )
 
-            if (uiState.isAddExpenseOpen) {
-                val candidates = remember(uiState.hangout.attendees, uiState.currentUser) {
-                    (listOf(uiState.currentUser) + uiState.hangout.attendees).distinctBy { it.id }
-                }
+            uiState.addExpenseForm?.let { form ->
                 AddExpenseDialog(
-                    candidates = candidates,
+                    form = form,
                     currentUser = uiState.currentUser,
+                    onTitleChanged = onExpenseTitleChanged,
+                    onAmountChanged = onExpenseAmountChanged,
+                    onPaidByChanged = onExpensePaidByChanged,
+                    onSplitModeChanged = onExpenseSplitModeChanged,
+                    onParticipantToggled = onExpenseParticipantToggled,
+                    onCustomAmountChanged = onExpenseCustomAmountChanged,
+                    onCameraClick = onCameraClick,
+                    onGalleryClick = onGalleryClick,
+                    onRemoveImage = onRemoveImage,
                     onAdd = onAddExpense,
                     onDismiss = onAddExpenseClose
                 )

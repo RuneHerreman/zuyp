@@ -40,6 +40,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.inject.Inject
+import kotlin.math.abs
 
 @HiltViewModel
 class HangoutViewModel @Inject constructor(
@@ -182,9 +183,9 @@ class HangoutViewModel @Inject constructor(
         else -> Icons.Default.WbSunny
     }
 
-    // ==============
-    // INVITES
-    // ===============
+    // ==========================================
+    //                 INVITES
+    // ==========================================
     fun openShareSheet() {
         _uiState.update { it.copy(isShareSheetOpen = true) }
         viewModelScope.launch {
@@ -249,46 +250,150 @@ class HangoutViewModel @Inject constructor(
         context.startActivity(Intent.createChooser(sendIntent, "Share hangout"))
     }
 
-    // EXPENSES FUNCTIONSS
-    fun openAddExpense() { _uiState.update { it.copy(isAddExpenseOpen = true) } }
+    // ==========================================
+    //                 EXPENSES
+    // ==========================================
+    private fun expenseCandidates(state: HangoutUiState): List<User> =
+        (listOf(state.currentUser) + state.hangout.attendees).distinctBy { it.id }
 
-    fun closeAddExpense() { _uiState.update { it.copy(isAddExpenseOpen = false) } }
+    private fun recomputeForm(form: AddExpenseForm, candidates: List<User>): AddExpenseForm {
+        val amount = form.amountText.replace(',', '.').toDoubleOrNull() ?: 0.0
+        val paidBy = candidates.firstOrNull { it.id == form.paidById }
+            ?: candidates.firstOrNull { it.id == currentUser.id }
+            ?: currentUser
+        val participants = candidates.filter { it.id in form.selectedParticipantIds }
+        val shares = when (form.splitMode) {
+            SplitMode.EQUALLY -> equalShares(participants, amount, paidBy)
+            SplitMode.CUSTOM -> participants.map { ExpenseShare(it, form.customAmounts[it.id].toAmount()) }
+        }
+        val customSum = shares.sumOf { it.amount }
+        val customOk = form.splitMode != SplitMode.CUSTOM || abs(customSum - amount) < 0.005
+        val canAdd = form.title.isNotBlank() && amount > 0.0 && participants.isNotEmpty() && customOk
+        return form.copy(
+            candidates = candidates,
+            paidBy = paidBy,
+            participants = participants,
+            shares = shares,
+            customSum = customSum,
+            customOk = customOk,
+            canAdd = canAdd,
+        )
+    }
+
+    private fun updateForm(update: (AddExpenseForm) -> AddExpenseForm) {
+        _uiState.update { state ->
+            val form = state.addExpenseForm ?: return@update state
+            state.copy(addExpenseForm = recomputeForm(update(form), expenseCandidates(state)))
+        }
+    }
+
+    fun openAddExpense() {
+        val state = _uiState.value
+        val form = recomputeForm(
+            AddExpenseForm(
+                paidById = currentUser.id,
+                selectedParticipantIds = setOf(currentUser.id),
+            ),
+            expenseCandidates(state)
+        )
+        _uiState.update { it.copy(addExpenseForm = form) }
+    }
+
+    fun closeAddExpense() { _uiState.update { it.copy(addExpenseForm = null) } }
 
     fun openExpenseDetail(expense: Expense) { _uiState.update { it.copy(selectedExpense = expense) } }
 
     fun closeExpenseDetail() { _uiState.update { it.copy(selectedExpense = null) } }
 
-    fun addExpense(title: String, amount: Double, paidBy: User, shares: List<ExpenseShare>, imageUri: String?) {
+    fun onExpenseImageCaptured(path: String) = updateForm { it.copy(imagePath = path) }
+
+    fun onExpenseImageRemoved() = updateForm { it.copy(imagePath = null) }
+
+    fun onExpenseTitleChanged(title: String) = updateForm { it.copy(title = title) }
+
+    fun onExpenseAmountChanged(text: String) = updateForm { it.copy(amountText = text) }
+
+    fun onExpensePaidByChanged(userId: UUID) = updateForm { form ->
+        form.copy(
+            paidById = userId,
+            selectedParticipantIds = form.selectedParticipantIds + userId
+        )
+    }
+
+    fun onExpenseSplitModeChanged(mode: SplitMode) = updateForm { form ->
+        var customAmounts = form.customAmounts
+        if (mode == SplitMode.CUSTOM) {
+            form.shares.forEach { share ->
+                if (customAmounts[share.user.id].isNullOrBlank()) {
+                    customAmounts = customAmounts + (share.user.id to "%.2f".format(share.amount))
+                }
+            }
+        }
+        form.copy(splitMode = mode, customAmounts = customAmounts)
+    }
+
+    fun onExpenseParticipantToggled(userId: UUID) = updateForm { form ->
+        if (userId == (form.paidById ?: currentUser.id)) return@updateForm form
+        val isSelected = userId in form.selectedParticipantIds
+        if (isSelected) {
+            form.copy(selectedParticipantIds = form.selectedParticipantIds - userId)
+        } else {
+            var customAmounts = form.customAmounts
+            if (form.splitMode == SplitMode.CUSTOM) {
+                val amount = form.amountText.replace(',', '.').toDoubleOrNull() ?: 0.0
+                val used = form.selectedParticipantIds.sumOf { customAmounts[it].toAmount() }
+                customAmounts = customAmounts + (userId to "%.2f".format((amount - used).coerceAtLeast(0.0)))
+            }
+            form.copy(
+                selectedParticipantIds = form.selectedParticipantIds + userId,
+                customAmounts = customAmounts
+            )
+        }
+    }
+
+    fun onExpenseCustomAmountChanged(userId: UUID, text: String) = updateForm { form ->
+        form.copy(customAmounts = form.customAmounts + (userId to text))
+    }
+
+    fun submitExpense() {
+        val state = _uiState.value
+        val form = state.addExpenseForm ?: return
+        if (!form.canAdd) return
         viewModelScope.launch {
             addExpenseUseCase(
                 Expense(
                     UUID.randomUUID(),
-                    UUID.fromString(_uiState.value.selectedHangoutId),
-                    title,
-                    amount,
-                    paidBy,
-                    imageUri,
+                    UUID.fromString(state.selectedHangoutId),
+                    form.title.trim(),
+                    form.amountText.replace(',', '.').toDoubleOrNull() ?: 0.0,
+                    form.paidBy ?: currentUser,
+                    form.imagePath,
                     LocalDateTime.now(),
-                    shares
+                    form.shares
                 )
             )
-            _uiState.update { it.copy(isAddExpenseOpen = false) }
+            _uiState.update { it.copy(addExpenseForm = null) }
         }
     }
 
-    fun deleteExpense(id: UUID) = viewModelScope.launch { deleteExpenseUseCase(id, currentUser.id) ; _uiState.update { it.copy(selectedExpense = null) } }
+    fun deleteExpense(id: UUID) = viewModelScope.launch {
+        deleteExpenseUseCase(id, currentUser.id)
+        _uiState.update { it.copy(selectedExpense = null) }
+    }
 
     fun settleUp(person: PersonBalance) = viewModelScope.launch {
         if (person.net < 0) settleDebtUseCase(UUID.fromString(_uiState.value.selectedHangoutId), currentUser.id, person.user.id, -person.net)
     }
 
-    fun equalShares(participants: List<User>, amount: Double, payer: User): List<ExpenseShare> {
+    private fun equalShares(participants: List<User>, amount: Double, payer: User): List<ExpenseShare> {
+        if (participants.isEmpty()) return emptyList()
         val cents = Math.round(amount * 100)
         val base = cents / participants.size
         val remainder = (cents % participants.size).toInt()
-        return participants.mapIndexed { i, u ->
-            val extra = if (u.id == payer.id) remainder else 0   // give leftover cents to payer
-            ExpenseShare(u, (base + extra) / 100.0)
+        return participants.map { u ->
+            ExpenseShare(u, (base + (if (u.id == payer.id) remainder else 0)) / 100.0)
         }
     }
+
+    private fun String?.toAmount(): Double = this?.replace(',', '.')?.toDoubleOrNull() ?: 0.0
 }

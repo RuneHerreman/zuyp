@@ -1,5 +1,9 @@
 package be.runeherreman.zuyp
 
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -14,11 +18,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -28,21 +36,27 @@ import be.runeherreman.zuyp.ui.discover.DiscoverViewModel
 import be.runeherreman.zuyp.ui.discover.components.HangoutPopup
 import be.runeherreman.zuyp.ui.hangout.HangoutOverlay
 import be.runeherreman.zuyp.ui.hangout.HangoutViewModel
+import be.runeherreman.zuyp.ui.hangout.components.expenses.copyImageIntoAppStorage
+import be.runeherreman.zuyp.ui.hangout.components.expenses.expenseImageUri
+import be.runeherreman.zuyp.ui.hangout.components.expenses.newExpenseImageFile
 import be.runeherreman.zuyp.ui.navigation.ZuypBottomBar
 import be.runeherreman.zuyp.ui.navigation.ZuypNavGraph
+import be.runeherreman.zuyp.ui.permissions.AppPermission
+import be.runeherreman.zuyp.ui.permissions.MainViewModel
 import be.runeherreman.zuyp.ui.theme.ZuypTheme
+import java.io.File
 
 @Composable
 fun ZuypApp(
     hangoutViewModel: HangoutViewModel = viewModel(),
     discoverViewModel: DiscoverViewModel = viewModel(),
+    mainViewModel: MainViewModel = viewModel(),
     initialHangoutId: String? = null,
     onHangoutConsumed: () -> Unit = {},
 ) {
     LaunchedEffect(initialHangoutId) {
         if (initialHangoutId != null) {
             hangoutViewModel.selectHangout(initialHangoutId)
-            // Consume the one-shot deep link so re-opening the same id later re-triggers.
             onHangoutConsumed()
         }
     }
@@ -54,7 +68,35 @@ fun ZuypApp(
 
         val hangoutUiState by hangoutViewModel.uiState.collectAsStateWithLifecycle()
         val discoverUiState by discoverViewModel.uiState.collectAsStateWithLifecycle()
+        val permissionRequest by mainViewModel.permissionRequest.collectAsStateWithLifecycle()
         val context = LocalContext.current
+
+        // Tracks a pending camera launch that will fire once CAMERA permission is resolved.
+        var pendingCameraLaunch by remember { mutableStateOf(false) }
+        var pendingPhotoFile by remember { mutableStateOf<File?>(null) }
+
+        val takePictureLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
+            if (ok) pendingPhotoFile?.absolutePath?.let { hangoutViewModel.onExpenseImageCaptured(it) }
+        }
+
+        val pickImageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            uri?.let { hangoutViewModel.onExpenseImageCaptured(copyImageIntoAppStorage(context, it)) }
+        }
+
+        // When the CAMERA permission request is resolved (permissionRequest clears to null),
+        // launch the camera if the user had clicked the camera button.
+        LaunchedEffect(permissionRequest) {
+            if (permissionRequest == null && pendingCameraLaunch) {
+                pendingCameraLaunch = false
+                if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA)
+                    == PackageManager.PERMISSION_GRANTED
+                ) {
+                    val file = newExpenseImageFile(context)
+                    pendingPhotoFile = file
+                    takePictureLauncher.launch(expenseImageUri(context, file))
+                }
+            }
+        }
 
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
@@ -72,11 +114,12 @@ fun ZuypApp(
                     navController = navController,
                     modifier = Modifier.padding(innerPadding),
                     hangoutViewModel = hangoutViewModel,
-                    discoverViewModel = discoverViewModel
+                    discoverViewModel = discoverViewModel,
+                    mainViewModel = mainViewModel
                 )
             }
 
-            // Discover marker popup. Rendered here (over the Scaffold) so it covers the bottom bar.
+            // Discover marker popup — rendered over the Scaffold so it covers the bottom bar.
             val selectedHangout = discoverUiState.selectedHangout
             AnimatedVisibility(
                 visible = discoverUiState.hangoutPopupOpen && selectedHangout != null,
@@ -118,7 +161,23 @@ fun ZuypApp(
                 onCloseShare = hangoutViewModel::closeShareSheet,
                 onAddExpenseOpen = hangoutViewModel::openAddExpense,
                 onAddExpenseClose = hangoutViewModel::closeAddExpense,
-                onAddExpense = hangoutViewModel::addExpense,
+                onAddExpense = hangoutViewModel::submitExpense,
+                onExpenseTitleChanged = hangoutViewModel::onExpenseTitleChanged,
+                onExpenseAmountChanged = hangoutViewModel::onExpenseAmountChanged,
+                onExpensePaidByChanged = hangoutViewModel::onExpensePaidByChanged,
+                onExpenseSplitModeChanged = hangoutViewModel::onExpenseSplitModeChanged,
+                onExpenseParticipantToggled = hangoutViewModel::onExpenseParticipantToggled,
+                onExpenseCustomAmountChanged = hangoutViewModel::onExpenseCustomAmountChanged,
+                onCameraClick = {
+                    pendingCameraLaunch = true
+                    mainViewModel.requestPermission(AppPermission.CAMERA)
+                },
+                onGalleryClick = {
+                    pickImageLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                },
+                onRemoveImage = hangoutViewModel::onExpenseImageRemoved,
                 onExpenseClick = hangoutViewModel::openExpenseDetail,
                 onExpenseDetailClose = hangoutViewModel::closeExpenseDetail,
                 onDeleteExpense = hangoutViewModel::deleteExpense,

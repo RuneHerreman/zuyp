@@ -4,14 +4,35 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.ui.graphics.vector.ImageVector
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
-import be.runeherreman.zuyp.domain.model.Hangout
-import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Expense
+import be.runeherreman.zuyp.domain.model.ExpenseShare
+import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.PersonBalance
+import be.runeherreman.zuyp.domain.model.User
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+
+enum class SplitMode(val label: String) { EQUALLY("Equally"), CUSTOM("Custom") }
+
+data class AddExpenseForm(
+    val title: String = "",
+    val amountText: String = "",
+    val paidById: UUID? = null,
+    val splitMode: SplitMode = SplitMode.EQUALLY,
+    val selectedParticipantIds: Set<UUID> = emptySet(),
+    val customAmounts: Map<UUID, String> = emptyMap(),
+    val imagePath: String? = null,
+    // Derived — kept in sync by ViewModel
+    val candidates: List<User> = emptyList(),
+    val paidBy: User? = null,
+    val participants: List<User> = emptyList(),
+    val shares: List<ExpenseShare> = emptyList(),
+    val customSum: Double = 0.0,
+    val customOk: Boolean = true,
+    val canAdd: Boolean = false,
+)
 
 data class HangoutUiState(
     val hangout: Hangout = Hangout(
@@ -35,17 +56,19 @@ data class HangoutUiState(
     val isError: Boolean = false,
     val selectedHangoutId: String? = null,
 
-    // Invite variables for popup thing
+    // Invites
     val isShareSheetOpen: Boolean = false,
     val allUsers: List<User> = emptyList(),
     val selectedInviteeIds: Set<UUID> = emptySet(),
     val isSendingInvites: Boolean = false,
 
-    // Expenses
+    // Expenses list
     val expenses: List<Expense> = emptyList(),
     val balances: List<PersonBalance> = emptyList(),
-    val isAddExpenseOpen: Boolean = false,
     val selectedExpense: Expense? = null,
+
+    // Add-expense form; null means the dialog is closed
+    val addExpenseForm: AddExpenseForm? = null,
 ) {
     fun currentUserAttendanceStatus(): AttendanceStatus? =
         hangout.attendees.firstOrNull { it.id == currentUser.id }?.attendanceStatus
