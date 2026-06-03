@@ -5,7 +5,6 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import java.util.UUID
 
-
 @Entity(
     tableName = "groups_users",
     primaryKeys = ["groupId", "userId"],

@@ -28,8 +28,7 @@ class GroupRepositoryRoomImpl @Inject constructor(
 
     override suspend fun createGroup(group: Group) {
         groupDao.createGroup(group.toEntity())
-        // Persist the creator plus every picked member (deduped in case the
-        // creator is also in the members list).
+        // Persist the creator plus every picked member (deduped in case creator is also in the members list).
         val memberIds = (listOf(group.creatorId) + group.members.map { it.id }).distinct()
         groupDao.addMembers(memberIds.map { GroupUserMapping(group.id, it) })
     }

@@ -5,10 +5,6 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import java.util.UUID
 
-/**
- * Many-to-many relationship entity for friendships between users.
- * Stores bidirectional friendship relationships.
- */
 @Entity(
     tableName = "friendships",
     primaryKeys = ["userId1", "userId2"],

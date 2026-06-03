@@ -4,10 +4,6 @@ import be.runeherreman.zuyp.data.fake.dto.HangoutDto
 import java.time.LocalDateTime
 import java.util.UUID
 
-/**
- * Seeding data for database initialization.
- * Uses random UUIDs so each seed generates fresh data.
- */
 object FakeSeedingData {
     fun getHangouts(): List<HangoutDto> {
         return listOf(

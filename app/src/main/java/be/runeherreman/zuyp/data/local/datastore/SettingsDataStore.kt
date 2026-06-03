@@ -21,7 +21,7 @@ class SettingsDataStore(
         val STARTUP_SCREEN = stringPreferencesKey("startup_screen")
     }
 
-    /** Route of the screen to open on app start, or null when none is set. */
+    // Route of the screen to open on app start, or null
     val startupScreen: Flow<String?> =
         dataStore.data.map { prefs ->
             prefs[STARTUP_SCREEN]

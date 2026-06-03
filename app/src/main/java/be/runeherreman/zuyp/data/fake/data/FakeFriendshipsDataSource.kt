@@ -5,10 +5,6 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Fake data source for user friendships.
- * Manages in-memory friendship relationships.
- */
 @Singleton
 class FakeFriendshipsDataSource @Inject constructor() {
     // Store friendships as a set of pairs (always with smaller UUID first)

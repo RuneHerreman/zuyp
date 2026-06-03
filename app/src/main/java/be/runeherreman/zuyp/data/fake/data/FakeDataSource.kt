@@ -8,11 +8,6 @@ import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Fake data source for the app.
- * Uses FIXED UUIDs to ensure consistent lookups by ID.
- * For database seeding, use [FakeSeedingData] which generates random UUIDs.
- */
 @Singleton
 class FakeDataSource @Inject constructor() {
     private fun goingAttendees(vararg users: User): List<User> =
