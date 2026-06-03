@@ -43,7 +43,9 @@ data class AddExpenseForm(
     val customSum: Double = 0.0,
     val customOk: Boolean = true,
     val canAdd: Boolean = false,
-)
+) {
+    val amount: Double get() = amountText.replace(',', '.').toDoubleOrNull() ?: 0.0
+}
 
 data class HangoutUiState(
     val hangout: Hangout = Hangout(

@@ -63,8 +63,16 @@ class HangoutViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HangoutUiState())
     val uiState: StateFlow<HangoutUiState> = _uiState
 
+    // ===========================
+    //       LOADING THE UI
+    // ===========================
     fun selectHangout(hangoutId: String) {
         _uiState.update { it.copy(selectedHangoutId = hangoutId) }
+        loadHangoutInfo(hangoutId)
+        loadHangoutExpenses(hangoutId)
+    }
+
+    fun loadHangoutInfo(hangoutId: String) {
         viewModelScope.launch {
             val item = getHangoutByIdUseCase(hangoutId)
             if (item == null) {
@@ -75,6 +83,8 @@ class HangoutViewModel @Inject constructor(
             loadFriendships(item.attendees.map { it.id })
             loadWeatherForHangout(item)
         }
+    }
+    fun loadHangoutExpenses(hangoutId: String) {
         viewModelScope.launch {
             combine(
                 getHangoutExpensesUseCase(UUID.fromString(hangoutId)),
@@ -85,62 +95,79 @@ class HangoutViewModel @Inject constructor(
                 }
         }
     }
-
-    fun dismissHangout() {
-        _uiState.update { it.copy(selectedHangoutId = null, isError = false) }
-    }
-
-    private suspend fun loadFriendships(attendeeIds: List<UUID>) {
-        val currentUserId = _uiState.value.currentUser.id
+    fun loadFriendships(attendeeIds: List<UUID>) {
         val friendshipMap = mutableMapOf<UUID, Boolean>()
-        attendeeIds.forEach { attendeeId ->
-            friendshipMap[attendeeId] = areFriendsUseCase(currentUserId, attendeeId)
+        viewModelScope.launch {
+            attendeeIds.forEach { attendeeId ->
+                friendshipMap[attendeeId] = areFriendsUseCase(currentUser.id, attendeeId)
+            }
+            _uiState.update { it.copy(friendShipMapping = friendshipMap) }
         }
-        _uiState.update { it.copy(friendShipMapping = friendshipMap) }
     }
-
-    private suspend fun loadWeatherForHangout(hangout: Hangout) {
-        if (hangout.endDate.isBefore(java.time.LocalDateTime.now())) {
+    fun loadWeatherForHangout(hangout: Hangout) {
+        if (hangout.endDate.isBefore(LocalDateTime.now())) {
             _uiState.update { it.copy(isLoadingWeather = false, weatherPrediction = "No forecast for past events") }
             return
         }
         _uiState.update { it.copy(isLoadingWeather = true) }
         try {
-            val weather = getWeatherUseCase(
-                latitude = hangout.latitude,
-                longitude = hangout.longitude,
-                hourly = "temperature_2m,rain",
-                timezone = "auto",
-                startDate = hangout.startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                endDate = hangout.endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-            )
-            val weatherString = generateWeatherPrediction(weather, hangout)
-            val icon = getWeatherIconFromPrediction(weatherString)
-            _uiState.update {
-                it.copy(
-                    weatherPrediction = weatherString,
-                    weatherIcon = icon,
-                    isLoadingWeather = false
+            viewModelScope.launch {
+                val weather = getWeatherUseCase(
+                    latitude = hangout.latitude,
+                    longitude = hangout.longitude,
+                    hourly = "temperature_2m,rain",
+                    timezone = "auto",
+                    startDate = hangout.startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                    endDate = hangout.endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 )
+
+                val weatherString = generateWeatherPrediction(weather, hangout)
+                val icon = getWeatherIconFromPrediction(weatherString)
+                _uiState.update {
+                    it.copy(
+                        weatherPrediction = weatherString,
+                        weatherIcon = icon,
+                        isLoadingWeather = false
+                    )
+                }
+                Log.i("HangoutViewModel", "Weather: ${weather.hourly.temperature2m.min()}°C, rain: ${weather.hourly.rain.max()}mm")
             }
-            Log.i("HangoutViewModel", "Weather: ${weather.hourly.temperature2m.min()}°C, rain: ${weather.hourly.rain.max()}mm")
         } catch (e: Exception) {
             Log.e("HangoutViewModel", "Error loading weather", e)
             _uiState.update { it.copy(isLoadingWeather = false) }
         }
     }
+    private fun getWeatherIconFromPrediction(weatherPrediction: String) = when {
+        weatherPrediction.contains("Heavy rain", ignoreCase = true) -> Icons.Default.Grain
+        weatherPrediction.contains("Light rain", ignoreCase = true) -> Icons.Default.Cloud
+        else -> Icons.Default.WbSunny
+    }
 
+    // ===========================
+    //       HANGOUTS
+    // ===========================
+    fun dismissHangout() = viewModelScope.launch {_uiState.update { it.copy(selectedHangoutId = null, isError = false) } }
+
+    fun deleteHangout(hangoutId: UUID) {
+        viewModelScope.launch {
+            deleteHangoutUseCase(hangoutId, _uiState.value.currentUser.id)
+            dismissHangout()
+        }
+    }
+
+    // ===========================
+    //       FRIENDSHIPS
+    // ===========================
     fun toggleFriendship(targetUserId: UUID) {
         viewModelScope.launch {
-            val currentUserId = _uiState.value.currentUser.id
             val currentFriendshipStatus = _uiState.value.friendShipMapping[targetUserId] ?: false
             try {
                 if (currentFriendshipStatus) {
-                    removeFriendshipUseCase(currentUserId, targetUserId)
+                    removeFriendshipUseCase(currentUser.id, targetUserId)
                     _uiState.update { it.copy(friendShipMapping = it.friendShipMapping + (targetUserId to false)) }
                     Log.i("HangoutViewModel", "Friendship removed")
                 } else {
-                    addFriendshipUseCase(currentUserId, targetUserId)
+                    addFriendshipUseCase(currentUser.id, targetUserId)
                     _uiState.update { it.copy(friendShipMapping = it.friendShipMapping + (targetUserId to true)) }
                     Log.i("HangoutViewModel", "Friendship added")
                 }
@@ -149,7 +176,6 @@ class HangoutViewModel @Inject constructor(
             }
         }
     }
-
     fun toggleGoing(hangout: Hangout, attendanceStatus: AttendanceStatus? = null) {
         viewModelScope.launch {
             try {
@@ -170,18 +196,6 @@ class HangoutViewModel @Inject constructor(
         }
     }
 
-    fun deleteHangout(hangoutId: UUID) {
-        viewModelScope.launch {
-            deleteHangoutUseCase(hangoutId, _uiState.value.currentUser.id)
-            dismissHangout()
-        }
-    }
-
-    private fun getWeatherIconFromPrediction(weatherPrediction: String) = when {
-        weatherPrediction.contains("Heavy rain", ignoreCase = true) -> Icons.Default.Grain
-        weatherPrediction.contains("Light rain", ignoreCase = true) -> Icons.Default.Cloud
-        else -> Icons.Default.WbSunny
-    }
 
     // ==========================================
     //                 INVITES
@@ -189,23 +203,19 @@ class HangoutViewModel @Inject constructor(
     fun openShareSheet() {
         _uiState.update { it.copy(isShareSheetOpen = true) }
         viewModelScope.launch {
-            val currentUserId = _uiState.value.currentUser.id
             val attendeeIds = _uiState.value.hangout.attendees.map { it.id }.toSet()
             val allUsers = getAllUsersUseCase().filter {
-                it.id != currentUserId && it.id !in attendeeIds
+                it.id != currentUser.id && it.id !in attendeeIds
             }
             _uiState.update { it.copy(allUsers = allUsers) }
         }
     }
-
     fun closeShareSheet() {
         _uiState.update { it.copy(isShareSheetOpen = false, selectedInviteeIds = emptySet()) }
     }
-
     fun clearInviteeSelection() {
         _uiState.update { it.copy(selectedInviteeIds = emptySet()) }
     }
-
     fun toggleInvitee(userId: UUID) {
         _uiState.update {
             val newSelection = if (userId in it.selectedInviteeIds) {
@@ -216,7 +226,6 @@ class HangoutViewModel @Inject constructor(
             it.copy(selectedInviteeIds = newSelection)
         }
     }
-
     fun sendInvites() {
         viewModelScope.launch {
             _uiState.update { it.copy(isSendingInvites = true) }
@@ -232,8 +241,7 @@ class HangoutViewModel @Inject constructor(
     }
 
     fun shareHangoutExternally(hangout: Hangout, context: android.content.Context) {
-        // Clickable https link (GitHub Pages) that redirects to the zuyp:// deep link.
-        val shareLink = "https://runeherreman.github.io/zuyp/hangout/${hangout.id}"
+        val shareLink = "https://runeherreman.github.io/zuyp/hangout/${hangout.id}" // redirect via github pages
         val dateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d 'at' HH:mm")
         val text = buildString {
             append("Join me at \"${hangout.title}\"!\n")
@@ -241,7 +249,6 @@ class HangoutViewModel @Inject constructor(
             append("${hangout.startDate.format(dateTimeFormatter)} - ${hangout.endDate.format(dateTimeFormatter)}\n")
             append(shareLink)
         }
-
         val sendIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_SUBJECT, hangout.title)
@@ -256,19 +263,13 @@ class HangoutViewModel @Inject constructor(
     private fun expenseCandidates(state: HangoutUiState): List<User> =
         (listOf(state.currentUser) + state.hangout.attendees).distinctBy { it.id }
 
-    private fun recomputeForm(form: AddExpenseForm, candidates: List<User>): AddExpenseForm {
-        val amount = form.amountText.replace(',', '.').toDoubleOrNull() ?: 0.0
-        val paidBy = candidates.firstOrNull { it.id == form.paidById }
-            ?: candidates.firstOrNull { it.id == currentUser.id }
-            ?: currentUser
+    private fun loadExpenseForm(form: AddExpenseForm, candidates: List<User>): AddExpenseForm {
+        val paidBy = resolvePaidBy(form.paidById, candidates)
         val participants = candidates.filter { it.id in form.selectedParticipantIds }
-        val shares = when (form.splitMode) {
-            SplitMode.EQUALLY -> equalShares(participants, amount, paidBy)
-            SplitMode.CUSTOM -> participants.map { ExpenseShare(it, form.customAmounts[it.id].toAmount()) }
-        }
+        val shares = calculateShares(form, participants, paidBy)
         val customSum = shares.sumOf { it.amount }
-        val customOk = form.splitMode != SplitMode.CUSTOM || abs(customSum - amount) < 0.005
-        val canAdd = form.title.isNotBlank() && amount > 0.0 && participants.isNotEmpty() && customOk
+        val customOk = form.splitMode != SplitMode.CUSTOM || abs(customSum - form.amount) < 0.005
+        val canAdd = form.title.isNotBlank() && form.amount > 0.0 && participants.isNotEmpty() && customOk
         return form.copy(
             candidates = candidates,
             paidBy = paidBy,
@@ -280,15 +281,40 @@ class HangoutViewModel @Inject constructor(
         )
     }
 
+    private fun resolvePaidBy(paidById: UUID?, candidates: List<User>): User = candidates.firstOrNull { it.id == paidById } ?: currentUser
+
+    private fun calculateShares(form: AddExpenseForm, participants: List<User>, paidBy: User): List<ExpenseShare> = // WHO OWES WHO
+        when (form.splitMode) {
+            SplitMode.EQUALLY -> equalShares(participants, form.amount, paidBy)
+            SplitMode.CUSTOM -> participants.map { ExpenseShare(it, form.customAmounts[it.id].toAmount()) }
+        }
+
     private fun updateForm(update: (AddExpenseForm) -> AddExpenseForm) {
         _uiState.update { state ->
             val form = state.addExpenseForm ?: return@update state
-            state.copy(addExpenseForm = recomputeForm(update(form), expenseCandidates(state)))
+            state.copy(addExpenseForm = loadExpenseForm(update(form), expenseCandidates(state)))
         }
     }
 
-    /** Single entry point for all add-expense form events (MVI-style). */
-    fun onAddExpenseEvent(event: AddExpenseEvent) {
+    // OPEN AND CLOSERS
+    fun openAddExpense() {
+        val state = _uiState.value
+        val form = loadExpenseForm(
+            AddExpenseForm(
+                paidById = currentUser.id,
+                selectedParticipantIds = setOf(currentUser.id),
+            ),
+            expenseCandidates(state)
+        )
+        _uiState.update { it.copy(addExpenseForm = form) }
+    }
+    fun openExpenseDetail(expense: Expense) = _uiState.update { it.copy(selectedExpense = expense) }
+    private fun closeAddExpense() = _uiState.update { it.copy(addExpenseForm = null) }
+    fun closeExpenseDetail() = _uiState.update { it.copy(selectedExpense = null) }
+
+
+    // FORM CHANGES
+    fun onAddExpenseEvent(event: AddExpenseEvent) =
         when (event) {
             is AddExpenseEvent.TitleChanged -> onExpenseTitleChanged(event.title)
             is AddExpenseEvent.AmountChanged -> onExpenseAmountChanged(event.text)
@@ -300,76 +326,53 @@ class HangoutViewModel @Inject constructor(
             AddExpenseEvent.Submit -> submitExpense()
             AddExpenseEvent.Dismiss -> closeAddExpense()
         }
-    }
-
-    fun openAddExpense() {
-        val state = _uiState.value
-        val form = recomputeForm(
-            AddExpenseForm(
-                paidById = currentUser.id,
-                selectedParticipantIds = setOf(currentUser.id),
-            ),
-            expenseCandidates(state)
-        )
-        _uiState.update { it.copy(addExpenseForm = form) }
-    }
-
-    private fun closeAddExpense() { _uiState.update { it.copy(addExpenseForm = null) } }
-
-    fun openExpenseDetail(expense: Expense) { _uiState.update { it.copy(selectedExpense = expense) } }
-
-    fun closeExpenseDetail() { _uiState.update { it.copy(selectedExpense = null) } }
-
     fun onExpenseImageCaptured(path: String) = updateForm { it.copy(imagePath = path) }
-
-    private fun onExpenseImageRemoved() = updateForm { it.copy(imagePath = null) }
-
-    private fun onExpenseTitleChanged(title: String) = updateForm { it.copy(title = title) }
-
-    private fun onExpenseAmountChanged(text: String) = updateForm { it.copy(amountText = text) }
-
-    private fun onExpensePaidByChanged(userId: UUID) = updateForm { form ->
+    fun onExpenseImageRemoved() = updateForm { it.copy(imagePath = null) }
+    fun onExpenseTitleChanged(title: String) = updateForm { it.copy(title = title) }
+    fun onExpenseAmountChanged(text: String) = updateForm { it.copy(amountText = text) }
+    fun onExpensePaidByChanged(userId: UUID) = updateForm { form ->
         form.copy(
             paidById = userId,
             selectedParticipantIds = form.selectedParticipantIds + userId
         )
     }
-
-    private fun onExpenseSplitModeChanged(mode: SplitMode) = updateForm { form ->
-        var customAmounts = form.customAmounts
-        if (mode == SplitMode.CUSTOM) {
-            form.shares.forEach { share ->
-                if (customAmounts[share.user.id].isNullOrBlank()) {
-                    customAmounts = customAmounts + (share.user.id to "%.2f".format(share.amount))
-                }
-            }
+    fun onExpenseSplitModeChanged(mode: SplitMode) = updateForm { form ->
+        if (mode != SplitMode.CUSTOM) return@updateForm form.copy(splitMode = mode)
+        // Seed each participant's field from the equal split, keeping anything already typed.
+        val seeded = form.shares.associate { share ->
+            val existing = form.customAmounts[share.user.id]
+            share.user.id to if (existing.isNullOrBlank()) "%.2f".format(share.amount) else existing
         }
-        form.copy(splitMode = mode, customAmounts = customAmounts)
+        form.copy(splitMode = mode, customAmounts = form.customAmounts + seeded)
     }
+    fun onExpenseParticipantToggled(userId: UUID) = updateForm { form ->
+        when (userId) {
+            (form.paidById ?: currentUser.id) -> form
+            in form.selectedParticipantIds ->
+                form.copy(selectedParticipantIds = form.selectedParticipantIds - userId)
 
-    private fun onExpenseParticipantToggled(userId: UUID) = updateForm { form ->
-        if (userId == (form.paidById ?: currentUser.id)) return@updateForm form
-        val isSelected = userId in form.selectedParticipantIds
-        if (isSelected) {
-            form.copy(selectedParticipantIds = form.selectedParticipantIds - userId)
-        } else {
-            var customAmounts = form.customAmounts
-            if (form.splitMode == SplitMode.CUSTOM) {
-                val amount = form.amountText.replace(',', '.').toDoubleOrNull() ?: 0.0
-                val used = form.selectedParticipantIds.sumOf { customAmounts[it].toAmount() }
-                customAmounts = customAmounts + (userId to "%.2f".format((amount - used).coerceAtLeast(0.0)))
-            }
-            form.copy(
+            else -> form.copy(
                 selectedParticipantIds = form.selectedParticipantIds + userId,
-                customAmounts = customAmounts
+                customAmounts = form.seedCustomAmountFor(userId)
             )
         }
     }
-
-    private fun onExpenseCustomAmountChanged(userId: UUID, text: String) = updateForm { form ->
+    fun onExpenseCustomAmountChanged(userId: UUID, text: String) = updateForm { form ->
         form.copy(customAmounts = form.customAmounts + (userId to text))
     }
+    fun settleUp(person: PersonBalance) = viewModelScope.launch {
+        if (person.net < 0) settleDebtUseCase(UUID.fromString(_uiState.value.selectedHangoutId), currentUser.id, person.user.id, -person.net)
+    }
+    // pre-fill next added paying person with remaining amount
+    fun AddExpenseForm.seedCustomAmountFor(userId: UUID): Map<UUID, String> {
+        if (splitMode != SplitMode.CUSTOM) return customAmounts
+        val used = selectedParticipantIds.sumOf { customAmounts[it].toAmount() }
+        val remaining = (amount - used).coerceAtLeast(0.0)
 
+        return customAmounts + (userId to "%.2f".format(remaining))
+    }
+
+    // EXPENSE CRUD
     private fun submitExpense() {
         val state = _uiState.value
         val form = state.addExpenseForm ?: return
@@ -377,27 +380,22 @@ class HangoutViewModel @Inject constructor(
         viewModelScope.launch {
             addExpenseUseCase(
                 Expense(
-                    UUID.randomUUID(),
-                    UUID.fromString(state.selectedHangoutId),
-                    form.title.trim(),
-                    form.amountText.replace(',', '.').toDoubleOrNull() ?: 0.0,
-                    form.paidBy ?: currentUser,
-                    form.imagePath,
-                    LocalDateTime.now(),
-                    form.shares
+                    id = UUID.randomUUID(),
+                    hangoutId = UUID.fromString(state.selectedHangoutId),
+                    title = form.title.trim(),
+                    amount = form.amount,
+                    paidBy = form.paidBy ?: currentUser,
+                    imageUri = form.imagePath,
+                    createdAt = LocalDateTime.now(),
+                    shares = form.shares
                 )
             )
             _uiState.update { it.copy(addExpenseForm = null) }
         }
     }
-
     fun deleteExpense(id: UUID) = viewModelScope.launch {
         deleteExpenseUseCase(id, currentUser.id)
         _uiState.update { it.copy(selectedExpense = null) }
-    }
-
-    fun settleUp(person: PersonBalance) = viewModelScope.launch {
-        if (person.net < 0) settleDebtUseCase(UUID.fromString(_uiState.value.selectedHangoutId), currentUser.id, person.user.id, -person.net)
     }
 
     private fun equalShares(participants: List<User>, amount: Double, payer: User): List<ExpenseShare> {
@@ -409,9 +407,6 @@ class HangoutViewModel @Inject constructor(
             ExpenseShare(u, (base + (if (u.id == payer.id) remainder else 0)) / 100.0)
         }
     }
-
     private fun String?.toAmount(): Double = this?.replace(',', '.')?.toDoubleOrNull() ?: 0.0
-
-
 
 }
