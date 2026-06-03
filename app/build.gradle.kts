@@ -78,6 +78,7 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.preferences.datastore)
+    implementation(libs.identity.jvm)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.hilt.compiler)
     androidTestImplementation(libs.hilt.android.testing)

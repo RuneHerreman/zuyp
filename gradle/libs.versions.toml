@@ -51,6 +51,7 @@ roomKtx = "2.8.4"
 uiTextGoogleFonts = "1.10.6"
 workRuntimeKtxVersion = "2.11.2"
 datastoreCoreVersion = "1.2.1"
+identityJvm = "202411.1"
 
 [libraries]
 # Core
@@ -114,6 +115,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtxVersion" }
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastoreCoreVersion" }
+identity-jvm = { group = "com.android.identity", name = "identity-jvm", version.ref = "identityJvm" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
