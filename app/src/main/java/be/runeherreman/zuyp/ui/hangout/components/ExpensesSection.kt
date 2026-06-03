@@ -18,18 +18,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import be.runeherreman.zuyp.domain.model.Expense
 import be.runeherreman.zuyp.domain.model.PersonBalance
+import be.runeherreman.zuyp.ui.friends.components.UserAvatar
 import java.util.UUID
 import kotlin.math.abs
 
@@ -43,6 +51,7 @@ fun ExpensesSection(
     onSettle: (PersonBalance) -> Unit
 ) {
     val scheme = MaterialTheme.colorScheme
+    var pendingSettle by remember { mutableStateOf<PersonBalance?>(null) }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -69,7 +78,7 @@ fun ExpensesSection(
     Spacer(modifier = Modifier.height(12.dp))
 
     if (balances.isNotEmpty()) {
-        BalanceSummary(balances = balances, onSettle = onSettle)
+        BalanceSummary(balances = balances, onSettleRequest = { pendingSettle = it })
         Spacer(modifier = Modifier.height(12.dp))
     }
 
@@ -94,59 +103,85 @@ fun ExpensesSection(
             }
         }
     }
+
+    pendingSettle?.let { balance ->
+        AlertDialog(
+            onDismissRequest = { pendingSettle = null },
+            title = { Text("Mark as paid?") },
+            text = {
+                Text("Settle your € ${"%.2f".format(abs(balance.net))} debt with ${balance.user.name}?")
+            },
+            confirmButton = {
+                TextButton(onClick = { onSettle(balance); pendingSettle = null }) {
+                    Text("Mark as paid")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingSettle = null }) { Text("Cancel") }
+            }
+        )
+    }
 }
 
 @Composable
 private fun BalanceSummary(
     balances: List<PersonBalance>,
-    onSettle: (PersonBalance) -> Unit
+    onSettleRequest: (PersonBalance) -> Unit
 ) {
     val scheme = MaterialTheme.colorScheme
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(scheme.surfaceContainerLow, RoundedCornerShape(16.dp))
-            .padding(14.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
-            "Your balance",
-            style = MaterialTheme.typography.titleSmall,
+            text = "YOUR BALANCE",
+            style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
-            color = scheme.onSurface
+            letterSpacing = 0.8.sp,
+            color = scheme.onSurfaceVariant
         )
         balances.forEach { balance ->
             val theyOweYou = balance.net > 0
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = if (theyOweYou)
-                        "${balance.user.name} owes you"
-                    else
-                        "You owe ${balance.user.name}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = scheme.onSurface,
-                    modifier = Modifier.weight(1f)
-                )
+                UserAvatar(user = balance.user, size = 36.dp)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = balance.user.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = scheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = if (theyOweYou) "owes you" else "you owe",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = scheme.onSurfaceVariant
+                    )
+                }
                 Text(
                     text = "€ ${"%.2f".format(abs(balance.net))}",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = if (theyOweYou) scheme.primary else scheme.error
                 )
                 if (!theyOweYou) {
-                    Spacer(Modifier.width(10.dp))
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(10.dp))
                             .background(scheme.primary)
-                            .clickable { onSettle(balance) }
-                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                            .clickable { onSettleRequest(balance) }
+                            .padding(horizontal = 12.dp, vertical = 7.dp)
                     ) {
                         Text(
-                            "Mark as paid",
+                            text = "Pay",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
                             color = scheme.onPrimary

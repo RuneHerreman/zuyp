@@ -1,5 +1,8 @@
 # Zuyp – Drink & Social App
 
+> BUG: ADDING EXPENSE. MARK YOURSELF AS PAYING. ADD A PERSON WITH CUSTOM SPLIT. ADD ALL COSTS TO THEM, ZERO TO YOURSELF. THEY WILL BE MARKED AS OWING YOU THE MONEY, INSTEAD OF YOU OWING THEM
+> BUG: App crashes when joining event from push notification
+
 Device Development project (Semester 4, Toegepaste Informatica).
 Zuyp is an Android app for quickly planning hangouts, staying connected with
 friends, and keeping nights out transparent and safe.
