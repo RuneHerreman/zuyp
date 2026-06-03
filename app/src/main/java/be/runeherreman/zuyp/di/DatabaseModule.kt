@@ -32,4 +32,7 @@ object DatabaseModule {
 
     @Provides
     fun provideGroupDao(database: AppDatabase) = database.groupDao()
+
+    @Provides
+    fun provideExpenseDao(database: AppDatabase) = database.expenseDao()
 }

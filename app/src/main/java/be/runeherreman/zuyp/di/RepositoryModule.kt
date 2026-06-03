@@ -1,11 +1,13 @@
 package be.runeherreman.zuyp.di
 
 import be.runeherreman.zuyp.data.repositories.AddressRepositoryMapboxImpl
+import be.runeherreman.zuyp.data.repositories.ExpenseRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.GroupRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.HangoutRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.UserRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.WeatherRepositoryImpl
 import be.runeherreman.zuyp.domain.repository.AddressRepository
+import be.runeherreman.zuyp.domain.repository.ExpenseRepository
 import be.runeherreman.zuyp.domain.repository.GroupRepository
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import be.runeherreman.zuyp.domain.repository.UserRepository
@@ -38,4 +40,8 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindGroupRepository(impl: GroupRepositoryRoomImpl): GroupRepository
+
+    @Binds
+    @Singleton
+    fun bindExpenseRepository(impl: ExpenseRepositoryRoomImpl): ExpenseRepository
 }
