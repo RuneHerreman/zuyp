@@ -12,5 +12,5 @@ interface ExpenseRepository {
     suspend fun addExpense(expense: Expense)
     suspend fun deleteExpense(id: UUID, requesterId: UUID)
     fun getBalances(hangoutId: UUID, forUserId: UUID): Flow<List<PersonBalance>>
-    suspend fun settleUp(hangoutId: UUID, fromUserId: UUID, toUserid: UUID, amount: Double)
+    suspend fun settleUp(hangoutId: UUID, fromUserId: UUID, toUserId: UUID, amount: Double)
 }
