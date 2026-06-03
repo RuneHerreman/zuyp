@@ -315,6 +315,30 @@ class HangoutViewModel @Inject constructor(
 
 
     // FORM CHANGES
+    fun onEvent(event: HangoutEvent) {
+        when (event) {
+            HangoutEvent.BackClicked        -> dismissHangout()
+            HangoutEvent.ShareClicked       -> openShareSheet()
+            HangoutEvent.AddExpenseOpen     -> openAddExpense()
+            HangoutEvent.ExpenseDetailClose -> closeExpenseDetail()
+            HangoutEvent.SendInvites        -> sendInvites()
+            HangoutEvent.ClearInvitees      -> clearInviteeSelection()
+            HangoutEvent.CloseShare         -> closeShareSheet()
+            is HangoutEvent.DeleteHangout   -> deleteHangout(event.id)
+            is HangoutEvent.FriendClicked   -> toggleFriendship(event.userId)
+            is HangoutEvent.UpdateAttendance -> toggleGoing(event.hangout, event.status)
+            is HangoutEvent.ExpenseClicked  -> openExpenseDetail(event.expense)
+            is HangoutEvent.DeleteExpense   -> deleteExpense(event.id)
+            is HangoutEvent.Settle          -> settleUp(event.balance)
+            is HangoutEvent.ToggleInvitee   -> toggleInvitee(event.id)
+            is HangoutEvent.Form            -> onAddExpenseEvent(event.event)
+
+            // UI/platform-bound — handled at the call site, intentional no-ops here.
+            HangoutEvent.CameraClicked,
+            HangoutEvent.GalleryClicked,
+            HangoutEvent.ShareExternal -> Unit
+        }
+    }
     fun onAddExpenseEvent(event: AddExpenseEvent) =
         when (event) {
             is AddExpenseEvent.TitleChanged -> onExpenseTitleChanged(event.title)

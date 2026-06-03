@@ -153,26 +153,10 @@ fun ZuypApp(
                 uiState = hangoutUiState,
                 onEvent = { event ->
                     when (event) {
-                        HangoutEvent.CameraClicked  -> { pendingCameraLaunch = true; mainViewModel.requestPermission(AppPermission.CAMERA) }
-                        HangoutEvent.GalleryClicked -> pickImageLauncher.launch(PickVisualMediaRequest(
-                            ActivityResultContracts.PickVisualMedia.ImageOnly
-                        ))
-                        is HangoutEvent.Form            -> hangoutViewModel.onAddExpenseEvent(event.event)
-                        HangoutEvent.BackClicked        -> hangoutViewModel.dismissHangout()
-                        HangoutEvent.ShareClicked       -> hangoutViewModel.openShareSheet()
-                        HangoutEvent.AddExpenseOpen     -> hangoutViewModel.openAddExpense()
-                        HangoutEvent.ExpenseDetailClose -> hangoutViewModel.closeExpenseDetail()
-                        HangoutEvent.SendInvites        -> hangoutViewModel.sendInvites()
-                        HangoutEvent.ClearInvitees      -> hangoutViewModel.clearInviteeSelection()
-                        HangoutEvent.ShareExternal      -> hangoutViewModel.shareHangoutExternally(hangoutUiState.hangout, context)
-                        HangoutEvent.CloseShare         -> hangoutViewModel.closeShareSheet()
-                        is HangoutEvent.DeleteHangout   -> hangoutViewModel.deleteHangout(event.id)
-                        is HangoutEvent.FriendClicked   -> hangoutViewModel.toggleFriendship(event.userId)
-                        is HangoutEvent.UpdateAttendance -> hangoutViewModel.toggleGoing(event.hangout, event.status)
-                        is HangoutEvent.ExpenseClicked  -> hangoutViewModel.openExpenseDetail(event.expense)
-                        is HangoutEvent.DeleteExpense   -> hangoutViewModel.deleteExpense(event.id)
-                        is HangoutEvent.Settle          -> hangoutViewModel.settleUp(event.balance)
-                        is HangoutEvent.ToggleInvitee   -> hangoutViewModel.toggleInvitee(event.id)
+                        HangoutEvent.CameraClicked -> { pendingCameraLaunch = true; mainViewModel.requestPermission(AppPermission.CAMERA) }
+                        HangoutEvent.GalleryClicked -> pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        HangoutEvent.ShareExternal -> hangoutViewModel.shareHangoutExternally(hangoutUiState.hangout, context)
+                        else -> hangoutViewModel.onEvent(event)
                     }
                 }
             )
