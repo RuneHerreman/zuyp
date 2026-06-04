@@ -37,8 +37,9 @@ class ZuypAlertViewModel @Inject constructor(
     fun join(userId: UUID, onJoined: () -> Unit) {
         viewModelScope.launch {
             val hangoutId = _uiState.value.hangoutId.ifBlank { return@launch }
+            val hangoutUUID = runCatching { UUID.fromString(hangoutId) }.getOrNull() ?: return@launch
             updateAttendanceUseCase(
-                hangoutId = UUID.fromString(hangoutId),
+                hangoutId = hangoutUUID,
                 userId = userId,
                 attendaceStatus = AttendanceStatus.GOING,
             )
