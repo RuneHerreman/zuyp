@@ -84,9 +84,7 @@ fun DiscoverScreen(
                 ViewAnnotation(
                     options = viewAnnotationOptions {
                         geometry(marker.position)
-                        annotationAnchor {
-                            anchor(ViewAnnotationAnchor.BOTTOM)
-                        }
+
                     },
                 ) {
                     val animatedSize by animateFloatAsState(

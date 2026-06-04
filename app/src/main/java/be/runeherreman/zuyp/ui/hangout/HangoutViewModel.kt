@@ -32,7 +32,9 @@ import be.runeherreman.zuyp.domain.useCases.utils.GetWeatherForecastUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.RemoveFriendshipUseCase
 import be.runeherreman.zuyp.domain.useCases.notification.SendHangoutInviteUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.UpdateAttendanceUseCase
+import be.runeherreman.zuyp.domain.useCases.users.DetectShakeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -59,11 +61,14 @@ class HangoutViewModel @Inject constructor(
     private val getEventBalancesUseCase: GetEventBalancesUseCase,
     private val addExpenseUseCase: AddExpenseUseCase,
     private val deleteExpenseUseCase: DeleteExpenseUseCase,
-    private val settleDebtUseCase: SettleDebtUseCase
-): ViewModel() {
+    private val settleDebtUseCase: SettleDebtUseCase,
+    private val detectShakeUseCase: DetectShakeUseCase,
+    ): ViewModel() {
     val currentUser = CurrentUser.user
     private val _uiState = MutableStateFlow(HangoutUiState())
     val uiState: StateFlow<HangoutUiState> = _uiState
+
+    private var shakeJob: Job? = null;
 
     // ===========================
     //       LOADING THE UI
@@ -72,6 +77,7 @@ class HangoutViewModel @Inject constructor(
         _uiState.update { it.copy(selectedHangoutId = hangoutId, isError = false) }
         loadHangoutInfo(hangoutId)
         loadHangoutExpenses(hangoutId)
+        listenForShake()
     }
 
     fun loadHangoutInfo(hangoutId: String) {
@@ -160,7 +166,10 @@ class HangoutViewModel @Inject constructor(
     // ===========================
     //       HANGOUTS
     // ===========================
-    fun dismissHangout() = viewModelScope.launch {_uiState.update { it.copy(selectedHangoutId = null, isError = false) } }
+    fun dismissHangout() = viewModelScope.launch {
+        shakeJob?.cancel()
+        _uiState.update { it.copy(selectedHangoutId = null, isError = false) }
+    }
 
     fun deleteHangout(hangoutId: UUID) {
         viewModelScope.launch {
@@ -451,4 +460,17 @@ class HangoutViewModel @Inject constructor(
     }
     private fun String?.toAmount(): Double = this?.replace(',', '.')?.toDoubleOrNull() ?: 0.0
 
+
+    // SHAKE SENSOR
+    private fun listenForShake() {
+        shakeJob?.cancel()
+
+        shakeJob = viewModelScope.launch {
+            detectShakeUseCase().collect {
+                if (_uiState.value.currentUserAttendanceStatus != AttendanceStatus.GOING) {
+                    toggleGoing(_uiState.value.hangout, AttendanceStatus.GOING)
+                }
+            }
+        }
+    }
 }

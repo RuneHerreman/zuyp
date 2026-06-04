@@ -1,7 +1,5 @@
 # Zuyp – Drink & Social App
 
-> BUG: App crashes when joining event from push notification
-
 Device Development project (Semester 4, Toegepaste Informatica).
 Zuyp is an Android app for quickly planning hangouts, staying connected with
 friends, and keeping nights out transparent and safe.

@@ -6,12 +6,14 @@ import be.runeherreman.zuyp.data.repositories.GroupRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.HangoutRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.UserRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.WeatherRepositoryImpl
+import be.runeherreman.zuyp.data.repositories.sensors.ShakeRepositoryImpl
 import be.runeherreman.zuyp.domain.repository.AddressRepository
 import be.runeherreman.zuyp.domain.repository.ExpenseRepository
 import be.runeherreman.zuyp.domain.repository.GroupRepository
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import be.runeherreman.zuyp.domain.repository.UserRepository
 import be.runeherreman.zuyp.domain.repository.WeatherRepository
+import be.runeherreman.zuyp.domain.repository.sensors.ShakeRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -44,4 +46,8 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindExpenseRepository(impl: ExpenseRepositoryRoomImpl): ExpenseRepository
+
+    @Binds
+    @Singleton
+    fun bindShakeRepository(impl: ShakeRepositoryImpl): ShakeRepository
 }
