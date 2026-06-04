@@ -20,7 +20,6 @@ class ZuypApplication : Application() {
         super.onCreate()
         runBlocking {
             databaseSeeder.seedIfNeeded()
-            databaseSeeder.refreshLiveTestEvent()
         }
         NotificationHelper.createNotificationChannels(this)
         startForegroundService(Intent(this, MessagingService::class.java))

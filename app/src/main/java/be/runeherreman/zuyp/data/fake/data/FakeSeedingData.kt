@@ -1,25 +1,23 @@
 package be.runeherreman.zuyp.data.fake.data
 
 import be.runeherreman.zuyp.data.fake.dto.HangoutDto
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import java.time.LocalDateTime
 import java.util.UUID
 
 object FakeSeedingData {
-
-    val LIVE_TEST_HANGOUT_ID: UUID = UUID.fromString("00000000-0000-0000-0000-000000000099")
-
     fun getHangouts(): List<HangoutDto> {
         return listOf(
             HangoutDto(
-                LIVE_TEST_HANGOUT_ID,
+                UUID.fromString("00000000-0000-0000-0000-000000000099"),
                 "Geofence Test Hangout",
-                "This event always starts now and ends tomorrow for geofence testing.",
+                "",
                 "Howest Brugge",
                 51.2082,
                 3.2241,
                 LocalDateTime.now(),
                 LocalDateTime.now().plusDays(1),
-                listOf(FakeUsers.userKoen),
+                listOf(FakeUsers.userKoen.copy(attendanceStatus = AttendanceStatus.GOING)),
                 FakeUsers.userKoen,
                 false
             ),
