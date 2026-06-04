@@ -22,7 +22,11 @@ class ZuypApplication : Application() {
             databaseSeeder.seedIfNeeded()
         }
         NotificationHelper.createNotificationChannels(this)
-        startForegroundService(Intent(this, MessagingService::class.java))
+        try {
+            startForegroundService(Intent(this, MessagingService::class.java))
+        } catch (_: Exception) {
+            // startForegroundService is not allowed when launched from background (Android 12+)
+        }
         geofenceSyncCoordinator.start()
     }
 }
