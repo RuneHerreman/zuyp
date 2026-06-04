@@ -25,15 +25,21 @@ object NotificationHelper {
 
     const val CHANNEL_HANGOUT    = "zuyp_hangout_invites"
     const val CHANNEL_ZUYP_ALERT = "zuyp_alerts"
+    const val CHANNEL_HYDRATION = "zuyp_hydration"
     const val ZUYP_ALERT_ID      = 1
-    private const val GROUP_HANGOUT  = "group_zuyp_hangouts"
     private const val SUMMARY_ID     = 2
+    private const val GROUP_HANGOUT  = "group_zuyp_hangouts"
+
 
     fun createNotificationChannels(context: Context) {
         val manager = context.getSystemService(NotificationManager::class.java)
 
         manager.createNotificationChannel(
             NotificationChannel(CHANNEL_HANGOUT, "Hangout Invites", NotificationManager.IMPORTANCE_HIGH)
+        )
+
+        manager.createNotificationChannel(
+            NotificationChannel(CHANNEL_HYDRATION, "Hydration reminders", NotificationManager.IMPORTANCE_DEFAULT)
         )
 
         val alertSoundUri = "android.resource://${context.packageName}/raw/zuyp_alert".toUri()
@@ -60,6 +66,22 @@ object NotificationHelper {
             is NotificationMessage.HangoutJoined  -> showHangoutJoined(context, message)
         }
     }
+
+    fun showHydrationReminder(context: Context, hangoutId: String) {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        manager.notify(
+            "hydration_$hangoutId".hashCode(),
+            NotificationCompat.Builder(context, CHANNEL_HYDRATION)
+                .setContentTitle("💧 Time to hydrate")
+                .setContentText("You're at a hangout — drink some water!")
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(buildOpenHangoutIntent(context, hangoutId, hangoutId.hashCode()))
+                .setAutoCancel(true)
+                .build()
+        )
+    }
+
 
     private fun showHangoutInvite(context: Context, currentUserId: String, message: NotificationMessage.HangoutInvite) {
         val manager      = context.getSystemService(NotificationManager::class.java)
