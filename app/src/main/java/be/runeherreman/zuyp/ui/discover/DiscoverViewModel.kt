@@ -42,7 +42,7 @@ class DiscoverViewModel @Inject constructor(
             getAllHangoutsUseCase().collect { hangouts ->
                 _uiState.update { state ->
                     state.copy(
-                        markers = hangouts.map { hangout ->
+                        markers = hangouts.filter(::isInTimeRange).map { hangout ->
                             Marker(
                                 hangoutId = hangout.id,
                                 title = hangout.title,
@@ -56,8 +56,9 @@ class DiscoverViewModel @Inject constructor(
     }
 
     fun isInTimeRange(hangout: Hangout): Boolean {
-        return  hangout.startDate.isBefore(LocalDateTime.now().plusDays(30)) ||
-                hangout.startDate.isAfter(LocalDateTime.now().minusHours(12))
+        val now = LocalDateTime.now()
+        return hangout.startDate.isAfter(now.minusHours(12)) &&
+               hangout.startDate.isBefore(now.plusDays(30))
     }
 
     fun onUserLocationUpdates(point: Point) {
