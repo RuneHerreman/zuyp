@@ -182,9 +182,17 @@ fun ExpenseShares(form: AddExpenseForm, currentUser: User, onEvent: (AddExpenseE
         }
     } else {
         val amount = form.amountText.replace(',', '.').toDoubleOrNull() ?: 0.0
+        val payer = form.paidBy
+        val payerIsCurrentUser = payer?.id == currentUser.id
+        val payerLabel = if (payerIsCurrentUser) "you" else payer?.name ?: "the payer"
+        Text(
+            text = "Each amount is what that person owes $payerLabel. ${if (payerIsCurrentUser) "Your own share is what you absorb." else "${payer?.name}'s share is what they absorb."}",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
         form.participants.forEach { user ->
-            CustomSplitRow(currentUser, user, form, onEvent)
-
+            CustomSplitRow(currentUser, user, form, payer, onEvent)
         }
         Text(
             text = "Split total: € ${"%.2f".format(form.customSum)} of € ${"%.2f".format(amount)}",
@@ -220,20 +228,34 @@ fun CustomSplitRow(
     currentUser: User,
     user: User,
     form: AddExpenseForm,
+    payer: User?,
     onEvent: (AddExpenseEvent) -> Unit
 ) {
+    val isPayer = user.id == payer?.id
+    val sublabel = when {
+        isPayer && user.id == currentUser.id -> "you absorb"
+        isPayer -> "absorbs"
+        user.id == currentUser.id -> "you owe ${payer?.name ?: "payer"}"
+        else -> "owes ${if (payer?.id == currentUser.id) "you" else payer?.name ?: "payer"}"
+    }
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         UserAvatar(user = user, size = 28.dp)
         Spacer(Modifier.width(10.dp))
-        Text(
-            if (user.id == currentUser.id) "You" else user.name,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                if (user.id == currentUser.id) "You" else user.name,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                sublabel,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         OutlinedTextField(
             value = form.customAmounts[user.id] ?: "",
             onValueChange = { new -> onEvent(AddExpenseEvent.CustomAmountChanged(user.id, new.filter { it.isDigit() || it == '.' || it == ',' })) },

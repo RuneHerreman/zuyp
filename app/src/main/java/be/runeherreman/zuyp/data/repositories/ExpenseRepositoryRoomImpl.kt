@@ -70,7 +70,7 @@ class ExpenseRepositoryRoomImpl @Inject constructor(
 
             fun owe(a: UUID, b: UUID) = (rawOwed[a to b] ?: 0.0) - (settled[a to b] ?: 0.0)
             users.keys.filter { it != forUserId }.mapNotNull { other ->
-                val net = owe(forUserId, other) - owe(other, forUserId)
+                val net = owe(other, forUserId) - owe(forUserId, other)
 
                 if (abs(net) < 0.005) null
                 else PersonBalance(users.getValue(other).toDomain(), net)
