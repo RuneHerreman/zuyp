@@ -3,13 +3,16 @@ package be.runeherreman.zuyp.data.local.room.database
 import androidx.room.withTransaction
 import be.runeherreman.zuyp.data.fake.data.FakeDataSource
 import be.runeherreman.zuyp.data.fake.data.FakeFriendshipsDataSource
+import be.runeherreman.zuyp.data.fake.data.FakeSeedingData
 import be.runeherreman.zuyp.data.fake.data.FakeUsers
 import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
 import be.runeherreman.zuyp.data.local.room.dao.UserDao
+import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutEntity
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutUsersMapping
 import be.runeherreman.zuyp.data.local.room.entity.users.FriendshipEntity
 import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
+import java.time.LocalDateTime
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -93,6 +96,32 @@ class DatabaseSeeder @Inject constructor(
             hangoutDao.insertAttendees(attendeeMappings)
             userDao.addFriendships(friendshipEntities)
         }
+    }
+}
+
+    /** Always called on launch — keeps the test event's dates pinned to the current time. */
+    suspend fun refreshLiveTestEvent() {
+        val now = LocalDateTime.now()
+        val entity = HangoutEntity(
+            id          = FakeSeedingData.LIVE_TEST_HANGOUT_ID,
+            title       = "Geofence Test Hangout",
+            description = "This event always starts now and ends tomorrow for geofence testing.",
+            locationName = "Howest Brugge",
+            latitude    = 51.2082,
+            longitude   = 3.2241,
+            startDate   = now,
+            endDate     = now.plusDays(1),
+            creatorId   = FakeUsers.userKoen.id,
+            private     = false,
+        )
+        hangoutDao.insert(entity)
+        hangoutDao.insertOrUpdateAttendee(
+            HangoutUsersMapping(
+                hangoutId = FakeSeedingData.LIVE_TEST_HANGOUT_ID,
+                userId    = FakeUsers.userKoen.id,
+                status    = AttendanceStatus.GOING,
+            )
+        )
     }
 }
 
