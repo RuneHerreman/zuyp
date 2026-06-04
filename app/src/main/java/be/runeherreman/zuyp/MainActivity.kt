@@ -8,10 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
-import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.data.workers.NotificationWorker
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,7 +20,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         pendingHangoutId = extractHangoutId(intent)
-        startNotificationWorker()
         setContent {
             ZuypApp(
                 initialHangoutId = pendingHangoutId,
@@ -45,16 +40,5 @@ class MainActivity : ComponentActivity() {
             return intent.data?.lastPathSegment
         }
         return null
-    }
-
-    private fun startNotificationWorker() {
-        val request = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setInputData(workDataOf(NotificationWorker.KEY_USER_ID to CurrentUser.id.toString()))
-            .build()
-        WorkManager.getInstance(this).enqueueUniqueWork(
-            NotificationWorker.WORK_NAME,
-            androidx.work.ExistingWorkPolicy.REPLACE,
-            request,
-        )
     }
 }

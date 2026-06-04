@@ -43,7 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
-import be.runeherreman.zuyp.data.workers.NotificationWorker
+import be.runeherreman.zuyp.data.workers.NotificationHelper
 import be.runeherreman.zuyp.ui.theme.ZuypTheme
 
 private val Black       = Color(0xFF080808)
@@ -61,12 +61,9 @@ class ZuypAlertActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        window.addFlags(
-            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-        )
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        setShowWhenLocked(true)
+        setTurnScreenOn(true)
 
         viewModel.loadFromIntent(
             hangoutId = intent.getStringExtra("hangoutId") ?: "",
@@ -86,13 +83,13 @@ class ZuypAlertActivity : ComponentActivity() {
                     weather = uiState.weather,
                     onDismiss = {
                         getSystemService(NotificationManager::class.java)
-                            .cancel(NotificationWorker.ZUYP_ALERT_ID)
+                            .cancel(NotificationHelper.ZUYP_ALERT_ID)
                         finish()
                     },
                     onJoin = {
                         viewModel.join(CurrentUser.id) {
                             getSystemService(NotificationManager::class.java)
-                                .cancel(NotificationWorker.ZUYP_ALERT_ID)
+                                .cancel(NotificationHelper.ZUYP_ALERT_ID)
                             finish()
                         }
                     },
