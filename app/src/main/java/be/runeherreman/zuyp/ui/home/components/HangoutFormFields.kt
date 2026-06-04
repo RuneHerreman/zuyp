@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import be.runeherreman.zuyp.ui.home.HomeEvent
 
 /** A label above an arbitrary form field. */
 @Composable
@@ -63,8 +64,9 @@ internal fun ToggleRow(
 @Composable
 internal fun CreateHangoutActions(
     canCreate: Boolean,
-    onCreate: () -> Unit,
-    onDismiss: () -> Unit,
+    createEvent: HomeEvent,
+    dismissEvent: HomeEvent,
+    onEvent: (HomeEvent) -> Unit,
     createLabel: String = "Create",
     isSending: Boolean = false
 ) {
@@ -73,7 +75,7 @@ internal fun CreateHangoutActions(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Button(
-            onClick = onCreate,
+            onClick = { onEvent(createEvent) },
             modifier = Modifier.weight(1f),
             enabled = canCreate && !isSending
         ) {
@@ -91,7 +93,7 @@ internal fun CreateHangoutActions(
             Text(createLabel)
         }
         OutlinedButton(
-            onClick = onDismiss,
+            onClick = { onEvent(dismissEvent) },
             modifier = Modifier.weight(1f)
         ) {
             Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))

@@ -23,9 +23,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import be.runeherreman.zuyp.ui.home.CreateHangoutForm
 import be.runeherreman.zuyp.ui.home.CreateHangoutFormEvent
 import be.runeherreman.zuyp.ui.home.HomeEvent
 import be.runeherreman.zuyp.ui.home.HomeUiState
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -34,16 +36,67 @@ fun CreateHangoutPopup(
     onEvent: (HomeEvent) -> Unit
 ) {
     val form = uiState.createHangoutForm ?: return
+    HangoutFormDialog(
+        form = form,
+        uiState = uiState,
+        title = "Create a new hangout",
+        showEndDate = true,
+        showInviteAll = false,
+        canCreate = form.title.isNotBlank() && uiState.selectedAddress != null,
+        onFormEvent = { onEvent(HomeEvent.CreateHangoutFormUpdate(it)) },
+        onHomeEvent = onEvent,
+        createEvent = HomeEvent.CreateHangout,
+        dismissEvent = HomeEvent.CreateHangoutClose
+    )
+}
+
+@Composable
+fun ZuypHangoutOverlay(
+    uiState: HomeUiState,
+    onEvent: (HomeEvent) -> Unit
+) {
+    val form = uiState.zuypHangoutForm ?: return
+    val now = remember { LocalDateTime.now() }
+    val within24h = form.startDateTime.isAfter(now) && !form.startDateTime.isAfter(now.plusHours(24))
+    HangoutFormDialog(
+        form = form,
+        uiState = uiState,
+        title = "Create a new hangout",
+        showEndDate = false,
+        showInviteAll = true,
+        canCreate = form.title.isNotBlank() && uiState.selectedAddress != null && within24h,
+        createLabel = "ZUYP!",
+        isSending = uiState.isZuypSending,
+        onFormEvent = { onEvent(HomeEvent.ZuypHangoutFormUpdate(it)) },
+        onHomeEvent = onEvent,
+        createEvent = HomeEvent.CreateZuypHangout,
+        dismissEvent = HomeEvent.ZuypHangoutClose
+    )
+}
+
+@Composable
+private fun HangoutFormDialog(
+    form: CreateHangoutForm,
+    uiState: HomeUiState,
+    title: String,
+    showEndDate: Boolean,
+    showInviteAll: Boolean,
+    canCreate: Boolean,
+    createLabel: String = "Create",
+    isSending: Boolean = false,
+    onFormEvent: (CreateHangoutFormEvent) -> Unit,
+    onHomeEvent: (HomeEvent) -> Unit,
+    createEvent: HomeEvent,
+    dismissEvent: HomeEvent
+) {
     var activePicker by remember { mutableStateOf<PickerTarget?>(null) }
     val dateFormatter = remember { DateTimeFormatter.ofPattern("EEE, MMM d") }
     val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
 
-    fun formEvent(e: CreateHangoutFormEvent) = onEvent(HomeEvent.CreateHangoutFormUpdate(e))
-
-    BackHandler(onBack = { onEvent(HomeEvent.CreateHangoutClose) })
+    BackHandler(onBack = { onHomeEvent(dismissEvent) })
 
     Dialog(
-        onDismissRequest = { onEvent(HomeEvent.CreateHangoutClose) },
+        onDismissRequest = { onHomeEvent(dismissEvent) },
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             decorFitsSystemWindows = false
@@ -65,7 +118,7 @@ fun CreateHangoutPopup(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Create a new hangout",
+                    text = title,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
@@ -74,7 +127,7 @@ fun CreateHangoutPopup(
                 LabeledField(label = "Hangout name") {
                     OutlinedTextField(
                         value = form.title,
-                        onValueChange = { formEvent(CreateHangoutFormEvent.TitleChanged(it)) },
+                        onValueChange = { onFormEvent(CreateHangoutFormEvent.TitleChanged(it)) },
                         placeholder = { Text("Ex. Weekend hang, terrasje", style = MaterialTheme.typography.labelLarge) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
@@ -85,11 +138,11 @@ fun CreateHangoutPopup(
 
                 WhenSection(
                     startDateTime = form.startDateTime,
-                    endDateTime = form.endDateTime,
+                    endDateTime = if (showEndDate) form.endDateTime else null,
                     isAllDay = form.isAllDay,
                     dateFormatter = dateFormatter,
                     timeFormatter = timeFormatter,
-                    onAllDayChange = { formEvent(CreateHangoutFormEvent.AllDayChanged(it)) },
+                    onAllDayChange = { onFormEvent(CreateHangoutFormEvent.AllDayChanged(it)) },
                     onPickerSelect = { activePicker = it }
                 )
 
@@ -99,9 +152,9 @@ fun CreateHangoutPopup(
                         suggestions = uiState.addressSuggestions,
                         isLoading = uiState.isAddressLoading,
                         isSelected = uiState.selectedAddress != null,
-                        onQueryChange = { onEvent(HomeEvent.AddressQueryChange(it)) },
-                        onSuggestionClick = { onEvent(HomeEvent.AddressSelect(it)) },
-                        onClear = { onEvent(HomeEvent.AddressClear) }
+                        onQueryChange = { onHomeEvent(HomeEvent.AddressQueryChange(it)) },
+                        onSuggestionClick = { onHomeEvent(HomeEvent.AddressSelect(it)) },
+                        onClear = { onHomeEvent(HomeEvent.AddressClear) }
                     )
                 }
 
@@ -110,23 +163,28 @@ fun CreateHangoutPopup(
                         availableUsers = uiState.availableUsers,
                         selectedMembers = form.selectedMembers,
                         memberSearch = form.memberSearch,
-                        onSearchChange = { formEvent(CreateHangoutFormEvent.MemberSearchChanged(it)) },
-                        onMemberToggle = { formEvent(CreateHangoutFormEvent.MemberToggled(it)) },
+                        onSearchChange = { onFormEvent(CreateHangoutFormEvent.MemberSearchChanged(it)) },
+                        onMemberToggle = { onFormEvent(CreateHangoutFormEvent.MemberToggled(it)) },
                         groups = uiState.availableGroups,
-                        onGroupSelect = { formEvent(CreateHangoutFormEvent.GroupSelected(it)) }
+                        onGroupSelect = { onFormEvent(CreateHangoutFormEvent.GroupSelected(it)) },
+                        showInviteAll = showInviteAll,
+                        onInviteAll = if (showInviteAll) { { onFormEvent(CreateHangoutFormEvent.InviteAll) } } else null
                     )
                 }
 
                 ToggleRow(
                     label = "Make this hangout private?",
                     checked = form.isPrivate,
-                    onCheckedChange = { formEvent(CreateHangoutFormEvent.PrivateChanged(it)) }
+                    onCheckedChange = { onFormEvent(CreateHangoutFormEvent.PrivateChanged(it)) }
                 )
 
                 CreateHangoutActions(
-                    canCreate = form.title.isNotBlank() && uiState.selectedAddress != null,
-                    onCreate = { onEvent(HomeEvent.CreateHangout) },
-                    onDismiss = { onEvent(HomeEvent.CreateHangoutClose) }
+                    canCreate = canCreate,
+                    createEvent = createEvent,
+                    dismissEvent = dismissEvent,
+                    onEvent = onHomeEvent,
+                    createLabel = createLabel,
+                    isSending = isSending
                 )
             }
         }
@@ -135,9 +193,9 @@ fun CreateHangoutPopup(
     DateTimePickers(
         activePicker = activePicker,
         startDateTime = form.startDateTime,
-        endDateTime = form.endDateTime,
-        onStartChange = { formEvent(CreateHangoutFormEvent.StartDateChanged(it)) },
-        onEndChange = { formEvent(CreateHangoutFormEvent.EndDateChanged(it)) },
+        endDateTime = if (showEndDate) form.endDateTime else null,
+        onStartChange = { onFormEvent(CreateHangoutFormEvent.StartDateChanged(it)) },
+        onEndChange = { if (showEndDate) onFormEvent(CreateHangoutFormEvent.EndDateChanged(it)) },
         onDismissPicker = { activePicker = null }
     )
 }
