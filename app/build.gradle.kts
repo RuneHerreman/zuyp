@@ -110,6 +110,7 @@ dependencies {
     // MapBox
     implementation(libs.mapbox.maps)
     implementation(libs.mapbox.maps.compose)
+    implementation("com.mapbox.mapboxsdk:mapbox-sdk-turf:7.10.0")
     implementation(libs.mapbox.search)
     implementation(libs.mapbox.search.autocomplete)
 }

@@ -2,6 +2,7 @@ package be.runeherreman.zuyp
 
 import android.app.Application
 import android.content.Intent
+import be.runeherreman.zuyp.data.geofence.GeofenceSyncCoordinator
 import be.runeherreman.zuyp.data.local.room.database.DatabaseSeeder
 import be.runeherreman.zuyp.data.services.MessagingService
 import be.runeherreman.zuyp.data.workers.NotificationHelper
@@ -13,11 +14,16 @@ import javax.inject.Inject
 class ZuypApplication : Application() {
 
     @Inject lateinit var databaseSeeder: DatabaseSeeder
+    @Inject lateinit var geofenceSyncCoordinator: GeofenceSyncCoordinator
 
     override fun onCreate() {
         super.onCreate()
-        runBlocking { databaseSeeder.seedIfNeeded() }
+        runBlocking {
+            databaseSeeder.seedIfNeeded()
+            databaseSeeder.refreshLiveTestEvent()
+        }
         NotificationHelper.createNotificationChannels(this)
         startForegroundService(Intent(this, MessagingService::class.java))
+        geofenceSyncCoordinator.start()
     }
 }
