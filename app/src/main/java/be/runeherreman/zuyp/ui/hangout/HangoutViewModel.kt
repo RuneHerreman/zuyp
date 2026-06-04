@@ -392,6 +392,7 @@ class HangoutViewModel @Inject constructor(
             is HangoutEvent.UserClicked     -> openUserProfile(event.user)
             HangoutEvent.UserProfileClose   -> closeUserProfile()
             is HangoutEvent.UpdateAttendance -> {
+                if (_uiState.value.currentUserAttendanceStatus == AttendanceStatus.PRESENT) return
                 val next = if (_uiState.value.currentUserAttendanceStatus == event.status) null else event.status
                 toggleGoing(event.hangout, next)
             }
@@ -503,7 +504,8 @@ class HangoutViewModel @Inject constructor(
 
         shakeJob = viewModelScope.launch {
             detectShakeUseCase().collect {
-                if (_uiState.value.currentUserAttendanceStatus != AttendanceStatus.GOING) {
+                val status = _uiState.value.currentUserAttendanceStatus
+                if (status != AttendanceStatus.GOING && status != AttendanceStatus.PRESENT) {
                     toggleGoing(_uiState.value.hangout, AttendanceStatus.GOING)
                 }
             }

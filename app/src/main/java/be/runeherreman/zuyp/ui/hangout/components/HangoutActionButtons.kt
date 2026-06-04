@@ -29,7 +29,8 @@ fun HangoutActionButtons(
     toggleNotInterestedClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
 ) {
-    val isUserGoing = attendanceStatus == AttendanceStatus.GOING
+    val isUserPresent       = attendanceStatus == AttendanceStatus.PRESENT
+    val isUserGoing         = attendanceStatus == AttendanceStatus.GOING || isUserPresent
     val isUserNotInterested = attendanceStatus == AttendanceStatus.NOT_INTERESTED
 
     Row(
@@ -49,7 +50,11 @@ fun HangoutActionButtons(
                 }
 
                 Text(
-                    if (isUserGoing) "Going" else "I'm going",
+                    text = when {
+                        isUserPresent -> "Present"
+                        isUserGoing   -> "Going"
+                        else          -> "I'm going"
+                    },
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold
                 )

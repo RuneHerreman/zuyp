@@ -9,6 +9,7 @@ import java.util.UUID
 enum class AttendanceStatus {
     GOING,
     NOT_INTERESTED,
+    PRESENT
 }
 
 @Entity(

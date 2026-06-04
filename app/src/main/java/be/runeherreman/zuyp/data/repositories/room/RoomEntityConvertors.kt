@@ -56,8 +56,6 @@ fun Expense.toEntity(): ExpenseEntity = ExpenseEntity(
     imageUri = imageUri,
     createdAt = createdAt
 )
-
-
 fun UserEntity.toDomain(): User {
     return User(
         id = id,
@@ -92,12 +90,7 @@ fun UserEntity.toDomain(attendanceStatus: AttendanceStatus? = null): User {
         birthdate = birthdate,
         email = email,
         imageUrl = imageUrl,
-        attendanceStatus = attendanceStatus?.let {
-            when (it) {
-                AttendanceStatus.GOING -> AttendanceStatus.GOING
-                AttendanceStatus.NOT_INTERESTED -> AttendanceStatus.NOT_INTERESTED
-            }
-        }
+        attendanceStatus = attendanceStatus,
     )
 }
 fun GroupWithMembers.toDomain(): Group {
