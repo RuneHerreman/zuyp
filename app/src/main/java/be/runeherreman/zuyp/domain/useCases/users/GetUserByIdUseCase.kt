@@ -5,7 +5,7 @@ import be.runeherreman.zuyp.domain.repository.UserRepository
 import java.util.UUID
 import javax.inject.Inject
 
-class GetUserByIdUserCase @Inject constructor(
+class GetUserByIdUseCase @Inject constructor(
     private val userRepository: UserRepository
 ) {
     suspend operator fun invoke(userId: UUID): User? {

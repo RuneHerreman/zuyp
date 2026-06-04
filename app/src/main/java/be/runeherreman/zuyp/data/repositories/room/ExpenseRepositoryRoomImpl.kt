@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.data.repositories
+package be.runeherreman.zuyp.data.repositories.room
 
 import be.runeherreman.zuyp.data.local.room.dao.ExpenseDao
 import be.runeherreman.zuyp.data.local.room.entity.expenses.ExpenseEntity
@@ -88,57 +88,4 @@ class ExpenseRepositoryRoomImpl @Inject constructor(
             SettlementEntity(UUID.randomUUID(), hangoutId, fromUserId, toUserId, amount, LocalDateTime.now())
         )
     }
-
-
-
-    /////// CONVERTORS
-    fun ExpenseWithDetails.toDomain(): Expense {
-        var userById = participants.associateBy { it.id }
-
-        val shares = shares.mapNotNull { share ->
-            userById[share.userId]?.let { user ->
-                ExpenseShare(user = user.toDomain(), amount = share.shareAmount)
-            }
-        }
-
-        return Expense(
-            id = expense.id,
-            hangoutId = expense.hangoutId,
-            title = expense.title,
-            amount = expense.amount,
-            paidBy = payer.toDomain(),
-            imageUri = expense.imageUri,
-            createdAt = expense.createdAt,
-            shares = shares
-        )
-    }
-
-    private fun Expense.toDomain(): ExpenseEntity = ExpenseEntity(
-        id = id,
-        hangoutId = hangoutId,
-        paidByUserId = paidBy.id,
-        title = title,
-        amount = amount,
-        imageUri = imageUri,
-        createdAt = createdAt
-    )
-
-    private fun UserEntity.toDomain(): User = User(
-        id = id,
-        name = name,
-        birthdate = birthdate,
-        email = email,
-        imageUrl = imageUrl
-    )
-
-    private fun Expense.toEntity(): ExpenseEntity = ExpenseEntity(
-        id = id,
-        hangoutId = hangoutId,
-        paidByUserId = paidBy.id,
-        title = title,
-        amount = amount,
-        imageUri = imageUri,
-        createdAt = createdAt
-    )
-
 }

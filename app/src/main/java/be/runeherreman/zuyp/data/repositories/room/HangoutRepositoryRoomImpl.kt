@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.data.repositories
+package be.runeherreman.zuyp.data.repositories.room
 
 import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
@@ -59,52 +59,3 @@ class HangoutRepositoryRoomImpl @Inject constructor(
     }
 }
 
-private fun Hangout.toEntity(): HangoutEntity {
-    return HangoutEntity(
-        id = id,
-        title = title,
-        description = description,
-        locationName = locationName,
-        latitude = latitude,
-        longitude = longitude,
-        startDate = startDate,
-        endDate = endDate,
-        creatorId = creator.id,
-        private = private
-    )
-}
-
-private fun HangoutWithDetails.toDomain(): Hangout {
-    val statusMap = attendanceStatuses.associateBy { it.userId }
-    return Hangout(
-        id = hangout.id,
-        title = hangout.title,
-        description = hangout.description,
-        locationName = hangout.locationName,
-        latitude = hangout.latitude,
-        longitude = hangout.longitude,
-        startDate = hangout.startDate,
-        endDate = hangout.endDate,
-        attendees = attendees.map { userEntity ->
-            userEntity.toDomain(statusMap[userEntity.id]?.status)
-        },
-        creator = creator.toDomain(),
-        private = hangout.private
-    )
-}
-
-private fun UserEntity.toDomain(attendanceStatus: AttendanceStatus? = null): User {
-    return User(
-        id = id,
-        name = name,
-        birthdate = birthdate,
-        email = email,
-        imageUrl = imageUrl,
-        attendanceStatus = attendanceStatus?.let {
-            when (it) {
-                AttendanceStatus.GOING -> AttendanceStatus.GOING
-                AttendanceStatus.NOT_INTERESTED -> AttendanceStatus.NOT_INTERESTED
-            }
-        }
-    )
-}

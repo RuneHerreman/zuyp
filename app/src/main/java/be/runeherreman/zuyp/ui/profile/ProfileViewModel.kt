@@ -9,7 +9,7 @@ import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.groups.GetUserGroupsUseCase
 import be.runeherreman.zuyp.domain.useCases.users.EditProfileUseCase
 import be.runeherreman.zuyp.domain.useCases.users.GetStartupScreenUseCase
-import be.runeherreman.zuyp.domain.useCases.users.GetUserByIdUserCase
+import be.runeherreman.zuyp.domain.useCases.users.GetUserByIdUseCase
 import be.runeherreman.zuyp.domain.useCases.users.SetStartupScreenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
@@ -29,7 +29,7 @@ class ProfileViewModel @Inject constructor(
     private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
     private val getStartupScreenUseCase: GetStartupScreenUseCase,
     private val setStartupScreenUseCase: SetStartupScreenUseCase,
-    private val getUserByIdUseCase: GetUserByIdUserCase,
+    private val getUserByIdUseCase: GetUserByIdUseCase,
     private val editProfileUseCase: EditProfileUseCase,
 ) : ViewModel() {
     private val currentUserId: UUID = CurrentUser.id

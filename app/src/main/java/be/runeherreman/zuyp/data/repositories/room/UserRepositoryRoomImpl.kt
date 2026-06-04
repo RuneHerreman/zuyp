@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.data.repositories
+package be.runeherreman.zuyp.data.repositories.room
 
 import be.runeherreman.zuyp.data.local.room.dao.UserDao
 import be.runeherreman.zuyp.data.local.room.entity.users.FriendshipEntity
@@ -44,25 +44,5 @@ class UserRepositoryRoomImpl @Inject constructor(
     override suspend fun removeFriendship(userId1: UUID, userId2: UUID) {
         userDao.removeFriendship(userId1, userId2)
     }
-}
-
-private fun User.toEntity(): UserEntity {
-    return UserEntity(
-        id = id,
-        name = name,
-        birthdate = birthdate,
-        email = email,
-        imageUrl = imageUrl
-    )
-}
-
-private fun UserEntity.toDomain(): User {
-    return User(
-        id = id,
-        name = name,
-        birthdate = birthdate,
-        email = email,
-        imageUrl = imageUrl
-    )
 }
 

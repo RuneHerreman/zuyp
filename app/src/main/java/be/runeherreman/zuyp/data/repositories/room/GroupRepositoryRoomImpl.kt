@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.data.repositories
+package be.runeherreman.zuyp.data.repositories.room
 
 import be.runeherreman.zuyp.data.local.room.dao.GroupDao
 import be.runeherreman.zuyp.data.local.room.entity.groups.GroupEntity
@@ -57,34 +57,4 @@ class GroupRepositoryRoomImpl @Inject constructor(
             groupDao.removeMember(groupId, memberId)
         }
     }
-}
-
-fun GroupWithMembers.toDomain(): Group {
-    return Group(
-        id = group.id,
-        name = group.name,
-        creatorId = group.creatorId,
-        description = group.description,
-        members = members.map { it.toDomain() }
-    )
-}
-
-private fun Group.toEntity(): GroupEntity {
-    return GroupEntity(
-        id = id,
-        name = name,
-        creatorId = creatorId,
-        description = description,
-        imageUrl = "" // Assuming default or property to be added to domain if needed
-    )
-}
-
-private fun UserEntity.toDomain(): User {
-    return User(
-        id = id,
-        name = name,
-        birthdate = birthdate,
-        email = email,
-        imageUrl = imageUrl
-    )
 }

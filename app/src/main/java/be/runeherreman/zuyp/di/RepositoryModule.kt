@@ -1,10 +1,10 @@
 package be.runeherreman.zuyp.di
 
 import be.runeherreman.zuyp.data.repositories.AddressRepositoryMapboxImpl
-import be.runeherreman.zuyp.data.repositories.ExpenseRepositoryRoomImpl
-import be.runeherreman.zuyp.data.repositories.GroupRepositoryRoomImpl
-import be.runeherreman.zuyp.data.repositories.HangoutRepositoryRoomImpl
-import be.runeherreman.zuyp.data.repositories.UserRepositoryRoomImpl
+import be.runeherreman.zuyp.data.repositories.room.ExpenseRepositoryRoomImpl
+import be.runeherreman.zuyp.data.repositories.room.GroupRepositoryRoomImpl
+import be.runeherreman.zuyp.data.repositories.room.HangoutRepositoryRoomImpl
+import be.runeherreman.zuyp.data.repositories.room.UserRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.WeatherRepositoryImpl
 import be.runeherreman.zuyp.data.repositories.sensors.ShakeRepositoryImpl
 import be.runeherreman.zuyp.domain.repository.AddressRepository
