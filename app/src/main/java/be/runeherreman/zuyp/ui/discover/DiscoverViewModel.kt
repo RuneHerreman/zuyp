@@ -6,8 +6,8 @@ import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.Marker
+import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutByIdUseCase
-import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.UpdateAttendanceUseCase
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DiscoverViewModel @Inject constructor(
-    private val getHangoutsUseCase: GetHangoutsUseCase,
+    private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
     private val getHangoutByIdUseCase: GetHangoutByIdUseCase,
     private val updateAttendanceUseCase: UpdateAttendanceUseCase
 ): ViewModel() {
@@ -39,10 +39,10 @@ class DiscoverViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            getHangoutsUseCase().collect { hangouts ->
+            getAllHangoutsUseCase().collect { hangouts ->
                 _uiState.update { state ->
                     state.copy(
-                        markers = hangouts.filter(::isInTimeRange).map { hangout ->
+                        markers = hangouts.map { hangout ->
                             Marker(
                                 hangoutId = hangout.id,
                                 title = hangout.title,
