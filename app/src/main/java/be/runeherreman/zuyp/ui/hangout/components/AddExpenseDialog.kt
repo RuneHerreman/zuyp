@@ -205,7 +205,7 @@ fun AddExpenseFooter(form: AddExpenseForm, onEvent: (AddExpenseEvent) -> Unit) {
         ) {
             Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(6.dp))
-            Text("Add expense")
+            Text("Add")
         }
         OutlinedButton(onClick = { onEvent(AddExpenseEvent.Dismiss) }, modifier = Modifier.weight(1f)) {
             Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))

@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -53,13 +54,12 @@ class HomeViewModel @Inject constructor(
 
     private var allHangouts: List<Hangout> = emptyList()
 
-    private val addressQueryFlow = MutableStateFlow("")
-
     init {
         viewModelScope.launch {
-            addressQueryFlow
-                .debounce(300) // don't hit api at every keystroke
+            _uiState
+                .map { it.addressQuery }
                 .distinctUntilChanged()
+                .debounce(300)
                 .collectLatest { query ->
                     if (query.isBlank()) {
                         _uiState.update {
@@ -95,33 +95,23 @@ class HomeViewModel @Inject constructor(
 
     fun onEvent(event: HomeEvent, context: Context) {
         when (event) {
-            HomeEvent.Refresh               -> refresh()
-            HomeEvent.SearchOpen            -> openSearch()
-            HomeEvent.SearchClose           -> closeSearch()
-            HomeEvent.ZuypAlertClick        -> openZuypHangout()
-            HomeEvent.ZuypHangoutClose      -> closeZuypHangout()
-            HomeEvent.CreateHangoutOpen     -> openCreateHangout()
-            HomeEvent.CreateHangoutClose    -> closeCreateHangout()
-            HomeEvent.AddressClear          -> clearAddress()
-            is HomeEvent.LocationClicked    -> openMapsForHangout(event.hangout, context)
-            is HomeEvent.SearchQueryChange  -> onSearchQueryChange(event.query)
-
-            is HomeEvent.AddressQueryChange -> onAddressQueryChange(event.query)
-            is HomeEvent.AddressSelect      -> selectAddress(event.suggestion)
-            is HomeEvent.CreateZuypHangout  -> createZuypHangout(
-                title = event.title,
-                start = event.startDate,
-                members = event.users,
-                private = event.private
-            )
-            is HomeEvent.CreateHangout      -> createHangout(
-                title = event.title,
-                start = event.startDate,
-                end = event.endDate,
-                members = event.users,
-                private = event.private
-            )
-            is HomeEvent.HangoutClicked     -> Unit
+            HomeEvent.Refresh                       -> refresh()
+            HomeEvent.SearchOpen                    -> openSearch()
+            HomeEvent.SearchClose                   -> closeSearch()
+            HomeEvent.ZuypAlertClick                -> openZuypHangout()
+            HomeEvent.ZuypHangoutClose              -> closeZuypHangout()
+            HomeEvent.CreateHangoutOpen             -> openCreateHangout()
+            HomeEvent.CreateHangoutClose            -> closeCreateHangout()
+            HomeEvent.AddressClear                  -> clearAddress()
+            HomeEvent.CreateHangout                 -> createHangout()
+            HomeEvent.CreateZuypHangout             -> createZuypHangout()
+            is HomeEvent.LocationClicked            -> openMapsForHangout(event.hangout, context)
+            is HomeEvent.SearchQueryChange          -> onSearchQueryChange(event.query)
+            is HomeEvent.AddressQueryChange         -> onAddressQueryChange(event.query)
+            is HomeEvent.AddressSelect              -> selectAddress(event.suggestion)
+            is HomeEvent.CreateHangoutFormUpdate    -> applyFormEvent(event.event, ::updateCreateHangoutForm)
+            is HomeEvent.ZuypHangoutFormUpdate      -> applyFormEvent(event.event, ::updateZuypHangoutForm)
+            is HomeEvent.HangoutClicked             -> Unit
         }
     }
 
@@ -167,9 +157,10 @@ class HomeViewModel @Inject constructor(
     }
 
     // ======================================
-    //            open-and-closers
+    //            OPEN AND CLOSERS
     // ======================================
     fun openCreateHangout() {
+        val nowRounded = LocalDateTime.now().withSecond(0).withNano(0).withMinute(0).plusHours(1)
         viewModelScope.launch {
             val allUsers = getAllUsersUseCase().filter { it.id != currentUserId }
             val groups = getUserGroupsUseCase(currentUserId).first()
@@ -178,13 +169,18 @@ class HomeViewModel @Inject constructor(
                     isCreateHangoutOpen = true,
                     isZuypHangoutOpen = false,
                     availableUsers = allUsers,
-                    availableGroups = groups
+                    availableGroups = groups,
+                    createHangoutForm = CreateHangoutForm(
+                        startDateTime = nowRounded,
+                        endDateTime = nowRounded.plusHours(2)
+                    )
                 )
             }
         }
     }
 
     fun openZuypHangout() {
+        val nowRounded = LocalDateTime.now().withSecond(0).withNano(0).withMinute(0).plusHours(1)
         viewModelScope.launch {
             val friends = getFriendsUseCase(currentUserId)
             val groups = getUserGroupsUseCase(currentUserId).first()
@@ -193,19 +189,23 @@ class HomeViewModel @Inject constructor(
                     isZuypHangoutOpen = true,
                     isCreateHangoutOpen = false,
                     availableUsers = friends,
-                    availableGroups = groups
+                    availableGroups = groups,
+                    zuypHangoutForm = CreateHangoutForm(
+                        startDateTime = nowRounded,
+                        endDateTime = nowRounded.plusHours(2)
+                    )
                 )
             }
         }
     }
 
     fun closeCreateHangout() {
-        _uiState.update { it.copy(isCreateHangoutOpen = false) }
+        _uiState.update { it.copy(isCreateHangoutOpen = false, createHangoutForm = null) }
         clearAddress()
     }
 
     fun closeZuypHangout() {
-        _uiState.update { it.copy(isZuypHangoutOpen = false, isZuypSending = false) }
+        _uiState.update { it.copy(isZuypHangoutOpen = false, isZuypSending = false, zuypHangoutForm = null) }
         clearAddress()
     }
 
@@ -213,10 +213,7 @@ class HomeViewModel @Inject constructor(
     //            ADDRESSES
     // ======================================
     fun onAddressQueryChange(query: String) {
-        // Any edit invalidates a previously confirmed address — the user must
-        // pick a real suggestion again, which is what enforces "it has to exist".
         _uiState.update { it.copy(addressQuery = query, selectedAddress = null) }
-        addressQueryFlow.value = query
     }
 
     fun selectAddress(suggestion: AddressSuggestion) {
@@ -230,7 +227,6 @@ class HomeViewModel @Inject constructor(
                     isAddressLoading = false
                 )
             }
-            addressQueryFlow.value = resolved.fullAddress
         }
     }
 
@@ -243,78 +239,121 @@ class HomeViewModel @Inject constructor(
                 isAddressLoading = false
             )
         }
-        addressQueryFlow.value = ""
+    }
+
+    // ======================================
+    //            FORM EVENTS
+    // ======================================
+    private fun updateCreateHangoutForm(update: (CreateHangoutForm) -> CreateHangoutForm) {
+        _uiState.update { state ->
+            val form = state.createHangoutForm ?: return@update state
+            state.copy(createHangoutForm = update(form))
+        }
+    }
+
+    private fun updateZuypHangoutForm(update: (CreateHangoutForm) -> CreateHangoutForm) {
+        _uiState.update { state ->
+            val form = state.zuypHangoutForm ?: return@update state
+            state.copy(zuypHangoutForm = update(form))
+        }
+    }
+
+    private fun applyFormEvent(
+        event: CreateHangoutFormEvent,
+        applyUpdate: ((CreateHangoutForm) -> CreateHangoutForm) -> Unit
+    ) {
+        when (event) {
+            is CreateHangoutFormEvent.TitleChanged -> applyUpdate { it.copy(title = event.title) }
+            is CreateHangoutFormEvent.StartDateChanged -> applyUpdate { it.copy(startDateTime = event.dt) }
+            is CreateHangoutFormEvent.EndDateChanged -> applyUpdate { it.copy(endDateTime = event.dt) }
+            is CreateHangoutFormEvent.AllDayChanged -> applyUpdate { it.copy(isAllDay = event.isAllDay) }
+            is CreateHangoutFormEvent.MemberSearchChanged -> applyUpdate { it.copy(memberSearch = event.query) }
+            is CreateHangoutFormEvent.MemberToggled -> applyUpdate { form ->
+                    val exists = form.selectedMembers.any { it.id == event.user.id }
+                    form.copy(
+                        selectedMembers = if (exists)
+                            form.selectedMembers.filter { it.id != event.user.id }
+                        else
+                            form.selectedMembers + event.user
+                    )
+                }
+            is CreateHangoutFormEvent.GroupSelected -> applyUpdate { form ->
+                    val members = event.group.members.filter { it.id != currentUserId }
+                    form.copy(
+                        selectedMembers = (form.selectedMembers + members).distinctBy { it.id },
+                        memberSearch = ""
+                    )
+                }
+            is CreateHangoutFormEvent.PrivateChanged -> applyUpdate { it.copy(isPrivate = event.isPrivate) }
+            CreateHangoutFormEvent.InviteAll -> applyUpdate { form ->
+                    form.copy(
+                        selectedMembers = _uiState.value.availableUsers.distinctBy { it.id },
+                        memberSearch = ""
+                    )
+                }
+        }
     }
 
     // ======================================
     //            CREATION CALLS
     // ======================================
-    fun createHangout(
-        title: String,
-        start: LocalDateTime,
-        end: LocalDateTime,
-        members: List<User>,
-        private: Boolean
-    ) {
-        val creator = CurrentUser.user
+    fun createHangout() {
+        val form = _uiState.value.createHangoutForm ?: return
         val address = _uiState.value.selectedAddress ?: return
-        val hangoutId = UUID.randomUUID()
+        val creator = CurrentUser.user
+        val finalStart = if (form.isAllDay) form.startDateTime.toLocalDate().atStartOfDay() else form.startDateTime
+        val finalEnd = if (form.isAllDay) form.endDateTime.toLocalDate().atTime(23, 59) else form.endDateTime
         val hangout = Hangout(
-            id = hangoutId,
-            title = title,
+            id = UUID.randomUUID(),
+            title = form.title,
             description = "",
             locationName = address.fullAddress,
             latitude = address.latitude,
             longitude = address.longitude,
-            startDate = start,
-            endDate = end,
+            startDate = finalStart,
+            endDate = finalEnd,
             attendees = emptyList(),
             creator = creator,
-            private = private
+            private = form.isPrivate
         )
         viewModelScope.launch {
-            createHangoutUseCase(hangout, members)
-            _uiState.update { it.copy(isCreateHangoutOpen = false) }
+            createHangoutUseCase(hangout, form.selectedMembers)
+            _uiState.update { it.copy(isCreateHangoutOpen = false, createHangoutForm = null) }
             clearAddress()
         }
     }
 
-    fun createZuypHangout(
-        title: String,
-        start: LocalDateTime,
-        members: List<User>,
-        private: Boolean
-    ) {
-        val now = LocalDateTime.now()
-        val latest = now.plusHours(24)
-        if (!start.isAfter(now) || start.isAfter(latest)) return
-        val creator = CurrentUser.user
+    fun createZuypHangout() {
+        val form = _uiState.value.zuypHangoutForm ?: return
         val address = _uiState.value.selectedAddress ?: return
+        val now = LocalDateTime.now()
+        val finalStart = if (form.isAllDay) form.startDateTime.toLocalDate().atStartOfDay() else form.startDateTime
+        if (!finalStart.isAfter(now) || finalStart.isAfter(now.plusHours(24))) return
+        val creator = CurrentUser.user
         val hangoutId = UUID.randomUUID()
-        val end = if (start.toLocalTime() == java.time.LocalTime.MIDNIGHT)
-            start.toLocalDate().atTime(23, 59)
+        val end = if (finalStart.toLocalTime() == java.time.LocalTime.MIDNIGHT)
+            finalStart.toLocalDate().atTime(23, 59)
         else
-            start.plusHours(2)
+            finalStart.plusHours(2)
         val hangout = Hangout(
             id = hangoutId,
-            title = title,
+            title = form.title,
             description = "",
             locationName = address.fullAddress,
             latitude = address.latitude,
             longitude = address.longitude,
-            startDate = start,
+            startDate = finalStart,
             endDate = end,
             attendees = emptyList(),
             creator = creator,
-            private = private
+            private = form.isPrivate
         )
         viewModelScope.launch {
             _uiState.update { it.copy(isZuypSending = true) }
-            createHangoutUseCase(hangout, members)
+            createHangoutUseCase(hangout, form.selectedMembers)
             sendZuypAlertUseCase(userId = currentUserId, hangoutId = hangoutId)
-            _uiState.update { it.copy(isZuypHangoutOpen = false, isZuypSending = false) }
+            _uiState.update { it.copy(isZuypHangoutOpen = false, isZuypSending = false, zuypHangoutForm = null) }
             clearAddress()
         }
     }
-
 }

@@ -81,7 +81,7 @@ class HangoutViewModel @Inject constructor(
                 _uiState.update { it.copy(isError = true) }
                 return@launch
             }
-            _uiState.update { it.copy(hangout = item) }
+            _uiState.update { it.copy(hangout = item, currentUserAttendanceStatus = item.attendees.firstOrNull { a -> a.id == currentUser.id }?.attendanceStatus) }
             loadFriendships(item.attendees.map { it.id })
             loadWeatherForHangout(item)
         }
@@ -201,7 +201,7 @@ class HangoutViewModel @Inject constructor(
                 // Reload the hangout to reflect the changes
                 val updatedHangout = getHangoutByIdUseCase(hangout.id.toString())
                 if (updatedHangout != null) {
-                    _uiState.update { it.copy(hangout = updatedHangout) }
+                    _uiState.update { it.copy(hangout = updatedHangout, currentUserAttendanceStatus = updatedHangout.attendees.firstOrNull { a -> a.id == currentUser.id }?.attendanceStatus) }
                     Log.i("HangoutViewModel", "Attendance toggled")
                 }
             } catch (e: Exception) {
@@ -326,8 +326,10 @@ class HangoutViewModel @Inject constructor(
     private fun closeAddExpense() = _uiState.update { it.copy(addExpenseForm = null) }
     fun closeExpenseDetail() = _uiState.update { it.copy(selectedExpense = null) }
 
+    ///////
+    ///         DISTRIBUTE EVENTS
+    //////
 
-    // FORM CHANGES
     fun onEvent(event: HangoutEvent) {
         when (event) {
             HangoutEvent.BackClicked        -> dismissHangout()
@@ -339,7 +341,10 @@ class HangoutViewModel @Inject constructor(
             HangoutEvent.CloseShare         -> closeShareSheet()
             is HangoutEvent.DeleteHangout   -> deleteHangout(event.id)
             is HangoutEvent.FriendClicked   -> toggleFriendship(event.userId)
-            is HangoutEvent.UpdateAttendance -> toggleGoing(event.hangout, event.status)
+            is HangoutEvent.UpdateAttendance -> {
+                val next = if (_uiState.value.currentUserAttendanceStatus == event.status) null else event.status
+                toggleGoing(event.hangout, next)
+            }
             is HangoutEvent.ExpenseClicked  -> openExpenseDetail(event.expense)
             is HangoutEvent.DeleteExpense   -> deleteExpense(event.id)
             is HangoutEvent.Settle          -> settleUp(event.balance)

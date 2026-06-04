@@ -129,12 +129,12 @@ fun HangoutScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         HangoutActionButtons(
-            attendanceStatus = uiState.currentUserAttendanceStatus(),
+            attendanceStatus = uiState.currentUserAttendanceStatus,
             toggleGoingClick = {
-                onEvent(HangoutEvent.UpdateAttendance(uiState.hangout, uiState.nextAttendanceStatus(AttendanceStatus.GOING)))
+                onEvent(HangoutEvent.UpdateAttendance(uiState.hangout, AttendanceStatus.GOING))
             },
             toggleNotInterestedClick = {
-                onEvent(HangoutEvent.UpdateAttendance(uiState.hangout, uiState.nextAttendanceStatus(AttendanceStatus.NOT_INTERESTED)))
+                onEvent(HangoutEvent.UpdateAttendance(uiState.hangout, AttendanceStatus.NOT_INTERESTED))
             },
             onShareClick = { onEvent(HangoutEvent.ShareClicked) }
         )
@@ -152,7 +152,7 @@ fun HangoutScreen(
             toggleFriendClick = { onEvent(HangoutEvent.FriendClicked(it)) }
         )
 
-        if (uiState.currentUserAttendanceStatus() == AttendanceStatus.GOING) {
+        if (uiState.currentUserAttendanceStatus == AttendanceStatus.GOING) {
             Spacer(modifier = Modifier.height(32.dp))
 
             ExpensesSection(

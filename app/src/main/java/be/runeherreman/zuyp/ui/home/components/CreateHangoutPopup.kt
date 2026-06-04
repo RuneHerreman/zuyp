@@ -23,39 +23,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import be.runeherreman.zuyp.domain.model.AddressSuggestion
-import be.runeherreman.zuyp.domain.model.Group
-import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.home.CreateHangoutFormEvent
 import be.runeherreman.zuyp.ui.home.HomeEvent
-import java.time.LocalDateTime
+import be.runeherreman.zuyp.ui.home.HomeUiState
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 @Composable
 fun CreateHangoutPopup(
-    availableUsers: List<User>,
-    currentUserId: UUID,
-    groups: List<Group> = emptyList(),
-    addressQuery: String,
-    addressSuggestions: List<AddressSuggestion>,
-    isAddressLoading: Boolean,
-    isAddressSelected: Boolean,
+    uiState: HomeUiState,
     onEvent: (HomeEvent) -> Unit
 ) {
-    var title by remember { mutableStateOf("") }
-    val nowRounded = remember {
-        LocalDateTime.now().withSecond(0).withNano(0).withMinute(0).plusHours(1)
-    }
-    var startDateTime by remember { mutableStateOf(nowRounded) }
-    var endDateTime by remember { mutableStateOf(nowRounded.plusHours(2)) }
-    var isAllDay by remember { mutableStateOf(false) }
+    val form = uiState.createHangoutForm ?: return
     var activePicker by remember { mutableStateOf<PickerTarget?>(null) }
-    var memberSearch by remember { mutableStateOf("") }
-    var selectedMembers by remember { mutableStateOf<List<User>>(emptyList()) }
-    var isPrivate by remember { mutableStateOf(true) } // Default to private
-
     val dateFormatter = remember { DateTimeFormatter.ofPattern("EEE, MMM d") }
     val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
+
+    fun formEvent(e: CreateHangoutFormEvent) = onEvent(HomeEvent.CreateHangoutFormUpdate(e))
 
     BackHandler(onBack = { onEvent(HomeEvent.CreateHangoutClose) })
 
@@ -88,11 +71,10 @@ fun CreateHangoutPopup(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                // Hangout name
                 LabeledField(label = "Hangout name") {
                     OutlinedTextField(
-                        value = title,
-                        onValueChange = { title = it },
+                        value = form.title,
+                        onValueChange = { formEvent(CreateHangoutFormEvent.TitleChanged(it)) },
                         placeholder = { Text("Ex. Weekend hang, terrasje", style = MaterialTheme.typography.labelLarge) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
@@ -101,76 +83,49 @@ fun CreateHangoutPopup(
                     )
                 }
 
-                // Date & time
                 WhenSection(
-                    startDateTime = startDateTime,
-                    endDateTime = endDateTime,
-                    isAllDay = isAllDay,
+                    startDateTime = form.startDateTime,
+                    endDateTime = form.endDateTime,
+                    isAllDay = form.isAllDay,
                     dateFormatter = dateFormatter,
                     timeFormatter = timeFormatter,
-                    onAllDayChange = { isAllDay = it },
+                    onAllDayChange = { formEvent(CreateHangoutFormEvent.AllDayChanged(it)) },
                     onPickerSelect = { activePicker = it }
                 )
 
-                // Location
                 LabeledField(label = "Where is it?") {
                     AddressSelector(
-                        query = addressQuery,
-                        suggestions = addressSuggestions,
-                        isLoading = isAddressLoading,
-                        isSelected = isAddressSelected,
+                        query = uiState.addressQuery,
+                        suggestions = uiState.addressSuggestions,
+                        isLoading = uiState.isAddressLoading,
+                        isSelected = uiState.selectedAddress != null,
                         onQueryChange = { onEvent(HomeEvent.AddressQueryChange(it)) },
                         onSuggestionClick = { onEvent(HomeEvent.AddressSelect(it)) },
                         onClear = { onEvent(HomeEvent.AddressClear) }
                     )
                 }
 
-                // Members
                 LabeledField(label = "Add members or groups") {
                     MembersSelector(
-                        availableUsers = availableUsers,
-                        selectedMembers = selectedMembers,
-                        memberSearch = memberSearch,
-                        onSearchChange = { memberSearch = it },
-                        onMemberToggle = { user ->
-                            selectedMembers = if (selectedMembers.any { it.id == user.id })
-                                selectedMembers.filter { it.id != user.id }
-                            else
-                                selectedMembers + user
-                        },
-                        groups = groups,
-                        onGroupSelect = { group -> // don't add yourself
-                            val members = group.members.filter { it.id != currentUserId }
-                            selectedMembers = (selectedMembers + members).distinctBy { it.id }
-                            memberSearch = ""
-                        }
+                        availableUsers = uiState.availableUsers,
+                        selectedMembers = form.selectedMembers,
+                        memberSearch = form.memberSearch,
+                        onSearchChange = { formEvent(CreateHangoutFormEvent.MemberSearchChanged(it)) },
+                        onMemberToggle = { formEvent(CreateHangoutFormEvent.MemberToggled(it)) },
+                        groups = uiState.availableGroups,
+                        onGroupSelect = { formEvent(CreateHangoutFormEvent.GroupSelected(it)) }
                     )
                 }
 
-                // Private toggle
                 ToggleRow(
                     label = "Make this hangout private?",
-                    checked = isPrivate,
-                    onCheckedChange = { isPrivate = it }
+                    checked = form.isPrivate,
+                    onCheckedChange = { formEvent(CreateHangoutFormEvent.PrivateChanged(it)) }
                 )
 
-                // Buttons
                 CreateHangoutActions(
-                    canCreate = title.isNotBlank() && isAddressSelected,
-                    onCreate = {
-                        val finalStart = if (isAllDay) startDateTime.toLocalDate().atStartOfDay() else startDateTime
-                        val finalEnd = if (isAllDay) endDateTime.toLocalDate().atTime(23, 59) else endDateTime
-
-                        onEvent(
-                            HomeEvent.CreateHangout(
-                                title = title,
-                                startDate = finalStart,
-                                endDate = finalEnd,
-                                users = selectedMembers,
-                                private = isPrivate
-                            )
-                        )
-                    },
+                    canCreate = form.title.isNotBlank() && uiState.selectedAddress != null,
+                    onCreate = { onEvent(HomeEvent.CreateHangout) },
                     onDismiss = { onEvent(HomeEvent.CreateHangoutClose) }
                 )
             }
@@ -179,10 +134,10 @@ fun CreateHangoutPopup(
 
     DateTimePickers(
         activePicker = activePicker,
-        startDateTime = startDateTime,
-        endDateTime = endDateTime,
-        onStartChange = { startDateTime = it },
-        onEndChange = { endDateTime = it },
+        startDateTime = form.startDateTime,
+        endDateTime = form.endDateTime,
+        onStartChange = { formEvent(CreateHangoutFormEvent.StartDateChanged(it)) },
+        onEndChange = { formEvent(CreateHangoutFormEvent.EndDateChanged(it)) },
         onDismissPicker = { activePicker = null }
     )
 }

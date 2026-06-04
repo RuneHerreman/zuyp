@@ -47,10 +47,9 @@ data class HangoutUiState(
     val balances: List<PersonBalance> = emptyList(),
     val selectedExpense: Expense? = null,
     val addExpenseForm: AddExpenseForm? = null,
-) {
-    fun currentUserAttendanceStatus(): AttendanceStatus? = hangout.attendees.firstOrNull { it.id == currentUser.id }?.attendanceStatus
-    fun nextAttendanceStatus(target: AttendanceStatus): AttendanceStatus? = if (currentUserAttendanceStatus() == target) null else target
-}
+
+    val currentUserAttendanceStatus: AttendanceStatus? = null,
+)
 
 enum class SplitMode(val label: String) { EQUALLY("Equally"), CUSTOM("Custom") }
 

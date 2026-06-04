@@ -23,40 +23,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import be.runeherreman.zuyp.domain.model.AddressSuggestion
-import be.runeherreman.zuyp.domain.model.Group
-import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.home.CreateHangoutFormEvent
 import be.runeherreman.zuyp.ui.home.HomeEvent
+import be.runeherreman.zuyp.ui.home.HomeUiState
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 @Composable
 fun ZuypHangoutOverlay(
-    availableUsers: List<User>,
-    currentUserId: UUID,
-    friends: List<User> = availableUsers,
-    groups: List<Group> = emptyList(),
-    addressQuery: String,
-    addressSuggestions: List<AddressSuggestion>,
-    isAddressLoading: Boolean,
-    isAddressSelected: Boolean,
-    isSending: Boolean,
+    uiState: HomeUiState,
     onEvent: (HomeEvent) -> Unit
 ) {
-    var title by remember { mutableStateOf("") }
-    val nowRounded = remember {
-        LocalDateTime.now().withSecond(0).withNano(0).withMinute(0).plusHours(1)
-    }
-    var startDateTime by remember { mutableStateOf(nowRounded) }
-    var isAllDay by remember { mutableStateOf(false) }
+    val form = uiState.zuypHangoutForm ?: return
     var activePicker by remember { mutableStateOf<PickerTarget?>(null) }
-    var memberSearch by remember { mutableStateOf("") }
-    var selectedMembers by remember { mutableStateOf<List<User>>(emptyList()) }
-    var isPrivate by remember { mutableStateOf(true) }
-
     val dateFormatter = remember { DateTimeFormatter.ofPattern("EEE, MMM d") }
     val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
+    val now = remember { LocalDateTime.now() }
+
+    fun formEvent(e: CreateHangoutFormEvent) = onEvent(HomeEvent.ZuypHangoutFormUpdate(e))
 
     BackHandler(onBack = { onEvent(HomeEvent.ZuypHangoutClose) })
 
@@ -89,11 +73,10 @@ fun ZuypHangoutOverlay(
                     color = MaterialTheme.colorScheme.onSurface
                 )
 
-                // Hangout name
                 LabeledField(label = "Hangout name") {
                     OutlinedTextField(
-                        value = title,
-                        onValueChange = { title = it },
+                        value = form.title,
+                        onValueChange = { formEvent(CreateHangoutFormEvent.TitleChanged(it)) },
                         placeholder = { Text("Ex. Weekend hang, terrasje", style = MaterialTheme.typography.labelLarge) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
@@ -102,80 +85,56 @@ fun ZuypHangoutOverlay(
                     )
                 }
 
-                // Date & time
                 WhenSection(
-                    startDateTime = startDateTime,
+                    startDateTime = form.startDateTime,
                     endDateTime = null,
-                    isAllDay = isAllDay,
+                    isAllDay = form.isAllDay,
                     dateFormatter = dateFormatter,
                     timeFormatter = timeFormatter,
-                    onAllDayChange = { isAllDay = it },
+                    onAllDayChange = { formEvent(CreateHangoutFormEvent.AllDayChanged(it)) },
                     onPickerSelect = { activePicker = it }
                 )
 
-                // Location
                 LabeledField(label = "Where is it?") {
                     AddressSelector(
-                        query = addressQuery,
-                        suggestions = addressSuggestions,
-                        isLoading = isAddressLoading,
-                        isSelected = isAddressSelected,
+                        query = uiState.addressQuery,
+                        suggestions = uiState.addressSuggestions,
+                        isLoading = uiState.isAddressLoading,
+                        isSelected = uiState.selectedAddress != null,
                         onQueryChange = { onEvent(HomeEvent.AddressQueryChange(it)) },
                         onSuggestionClick = { onEvent(HomeEvent.AddressSelect(it)) },
                         onClear = { onEvent(HomeEvent.AddressClear) }
                     )
                 }
 
-                // Members
                 LabeledField(label = "Add members or groups") {
                     MembersSelector(
-                        availableUsers = friends,
-                        selectedMembers = selectedMembers,
-                        memberSearch = memberSearch,
-                        onSearchChange = { memberSearch = it },
-                        onMemberToggle = { user ->
-                            selectedMembers = if (selectedMembers.any { it.id == user.id })
-                                selectedMembers.filter { it.id != user.id }
-                            else
-                                selectedMembers + user
-                        },
-                        groups = groups,
-                        onGroupSelect = { group ->
-                            val members = group.members.filter { it.id != currentUserId }
-                            selectedMembers = (selectedMembers + members).distinctBy { it.id }
-                            memberSearch = ""
-                        },
+                        availableUsers = uiState.availableUsers,
+                        selectedMembers = form.selectedMembers,
+                        memberSearch = form.memberSearch,
+                        onSearchChange = { formEvent(CreateHangoutFormEvent.MemberSearchChanged(it)) },
+                        onMemberToggle = { formEvent(CreateHangoutFormEvent.MemberToggled(it)) },
+                        groups = uiState.availableGroups,
+                        onGroupSelect = { formEvent(CreateHangoutFormEvent.GroupSelected(it)) },
                         showInviteAll = true,
-                        inviteAllUsers = friends,
-                        onInviteAll = { invitees ->
-                            selectedMembers = invitees.distinctBy { it.id }
-                            memberSearch = ""
-                        }
+                        inviteAllUsers = uiState.availableUsers,
+                        onInviteAll = { formEvent(CreateHangoutFormEvent.InviteAll) }
                     )
                 }
 
-                // Private toggle
                 ToggleRow(
                     label = "Make this hangout private?",
-                    checked = isPrivate,
-                    onCheckedChange = { isPrivate = it }
+                    checked = form.isPrivate,
+                    onCheckedChange = { formEvent(CreateHangoutFormEvent.PrivateChanged(it)) }
                 )
 
-                // Buttons
-                val now = remember { LocalDateTime.now() }
-                val within24h = startDateTime.isAfter(now) && !startDateTime.isAfter(now.plusHours(24))
+                val within24h = form.startDateTime.isAfter(now) && !form.startDateTime.isAfter(now.plusHours(24))
                 CreateHangoutActions(
-                    canCreate = title.isNotBlank() && isAddressSelected && within24h,
-                    onCreate = {
-                        val finalStart = if (isAllDay)
-                            startDateTime.toLocalDate().atStartOfDay()
-                        else startDateTime
-                        // No negation needed anymore
-                        onEvent(HomeEvent.CreateZuypHangout(title, finalStart, selectedMembers, isPrivate))
-                    },
+                    canCreate = form.title.isNotBlank() && uiState.selectedAddress != null && within24h,
+                    onCreate = { onEvent(HomeEvent.CreateZuypHangout) },
                     onDismiss = { onEvent(HomeEvent.ZuypHangoutClose) },
                     createLabel = "ZUYP!",
-                    isSending = isSending
+                    isSending = uiState.isZuypSending
                 )
             }
         }
@@ -183,9 +142,9 @@ fun ZuypHangoutOverlay(
 
     DateTimePickers(
         activePicker = activePicker,
-        startDateTime = startDateTime,
+        startDateTime = form.startDateTime,
         endDateTime = null,
-        onStartChange = { startDateTime = it },
+        onStartChange = { formEvent(CreateHangoutFormEvent.StartDateChanged(it)) },
         onEndChange = {},
         onDismissPicker = { activePicker = null }
     )

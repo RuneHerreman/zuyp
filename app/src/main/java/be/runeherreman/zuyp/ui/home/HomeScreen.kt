@@ -128,31 +128,12 @@ fun HomeScreen(
             Icon(imageVector = Icons.Default.Add, contentDescription = "Create hangout")
         }
 
-        if (uiState.isCreateHangoutOpen) {
-            CreateHangoutPopup(
-                availableUsers = uiState.availableUsers,
-                currentUserId = be.runeherreman.zuyp.data.fake.data.CurrentUser.id,
-                groups = uiState.availableGroups,
-                addressQuery = uiState.addressQuery,
-                addressSuggestions = uiState.addressSuggestions,
-                isAddressLoading = uiState.isAddressLoading,
-                isAddressSelected = uiState.selectedAddress != null,
-                onEvent = onEvent
-            )
+        if (uiState.createHangoutForm != null) {
+            CreateHangoutPopup(uiState = uiState, onEvent = onEvent)
         }
 
-        if (uiState.isZuypHangoutOpen) {
-            ZuypHangoutOverlay(
-                availableUsers = uiState.availableUsers,
-                currentUserId = be.runeherreman.zuyp.data.fake.data.CurrentUser.id,
-                groups = uiState.availableGroups,
-                addressQuery = uiState.addressQuery,
-                addressSuggestions = uiState.addressSuggestions,
-                isAddressLoading = uiState.isAddressLoading,
-                isAddressSelected = uiState.selectedAddress != null,
-                isSending = uiState.isZuypSending,
-                onEvent = onEvent
-            )
+        if (uiState.zuypHangoutForm != null) {
+            ZuypHangoutOverlay(uiState = uiState, onEvent = onEvent)
         }
     }
 }

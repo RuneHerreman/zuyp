@@ -1,6 +1,5 @@
 package be.runeherreman.zuyp.ui.home
 
-import android.content.Context
 import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.model.Group
 import be.runeherreman.zuyp.domain.model.Hangout
@@ -13,9 +12,6 @@ data class HomeUiState(
     val hangouts: List<Hangout> = emptyList(),
     val friendAttendees: Map<UUID, List<User>> = emptyMap(),
     val isRefreshing: Boolean = false,
-    val isCreateHangoutOpen: Boolean = false,
-    val isZuypHangoutOpen: Boolean = false,
-    val isZuypSending: Boolean = false,
     val availableUsers: List<User> = emptyList(),
     val availableGroups: List<Group> = emptyList(),
 
@@ -25,6 +21,14 @@ data class HomeUiState(
     val isAddressLoading: Boolean = false,
     val selectedAddress: ResolvedAddress? = null,
 
+    // Forms
+    val createHangoutForm: CreateHangoutForm? = null,
+    val zuypHangoutForm: CreateHangoutForm? = null,
+    val isCreateHangoutOpen: Boolean = false,
+    val isZuypHangoutOpen: Boolean = false,
+    val isZuypSending: Boolean = false,
+
+    // if zero attendance, laugh at user
     val phrases: List<String> = listOf(
         "Voorlopig bitter hard alleen",
         "Tafel voor geen!",
@@ -39,9 +43,21 @@ data class HomeUiState(
         "Kom af, asociale flappie!",
         "Kben fabelachtig eenzaam als de maan, kom erbij!"
     ),
+
+    // Search hangouts
     val isSearchOpen: Boolean = false,
     val searchQuery: String = "",
     val searchResults: List<Hangout> = emptyList()
+)
+
+data class CreateHangoutForm(
+    val title: String = "",
+    val startDateTime: LocalDateTime,
+    val endDateTime: LocalDateTime,
+    val isAllDay: Boolean = false,
+    val memberSearch: String = "",
+    val selectedMembers: List<User> = emptyList(),
+    val isPrivate: Boolean = true,
 )
 
 sealed interface HomeEvent {
@@ -52,17 +68,32 @@ sealed interface HomeEvent {
     data object SearchClose : HomeEvent
     data class SearchQueryChange(val query: String) : HomeEvent
 
-    data object Refresh: HomeEvent
+    data object Refresh : HomeEvent
 
-    data object ZuypAlertClick: HomeEvent
-    data object ZuypHangoutClose: HomeEvent
-    data class CreateZuypHangout(val title: String, val startDate: LocalDateTime, val users: List<User>, val private: Boolean): HomeEvent
+    data object ZuypAlertClick : HomeEvent
+    data object ZuypHangoutClose : HomeEvent
+    data object CreateZuypHangout : HomeEvent
 
-    data object CreateHangoutOpen: HomeEvent
-    data object CreateHangoutClose: HomeEvent
-    data class CreateHangout(val title: String, val startDate: LocalDateTime, val endDate: LocalDateTime, val users: List<User>, val private: Boolean): HomeEvent
+    data object CreateHangoutOpen : HomeEvent
+    data object CreateHangoutClose : HomeEvent
+    data object CreateHangout : HomeEvent
 
-    data class AddressQueryChange(val query: String): HomeEvent
-    data class AddressSelect(val suggestion: AddressSuggestion): HomeEvent
-    data object AddressClear: HomeEvent
+    data class AddressQueryChange(val query: String) : HomeEvent
+    data class AddressSelect(val suggestion: AddressSuggestion) : HomeEvent
+    data object AddressClear : HomeEvent
+
+    data class CreateHangoutFormUpdate(val event: CreateHangoutFormEvent) : HomeEvent
+    data class ZuypHangoutFormUpdate(val event: CreateHangoutFormEvent) : HomeEvent
+}
+
+sealed interface CreateHangoutFormEvent {
+    data class TitleChanged(val title: String) : CreateHangoutFormEvent
+    data class StartDateChanged(val dt: LocalDateTime) : CreateHangoutFormEvent
+    data class EndDateChanged(val dt: LocalDateTime) : CreateHangoutFormEvent
+    data class AllDayChanged(val isAllDay: Boolean) : CreateHangoutFormEvent
+    data class MemberSearchChanged(val query: String) : CreateHangoutFormEvent
+    data class MemberToggled(val user: User) : CreateHangoutFormEvent
+    data class GroupSelected(val group: Group) : CreateHangoutFormEvent
+    data class PrivateChanged(val isPrivate: Boolean) : CreateHangoutFormEvent
+    data object InviteAll : CreateHangoutFormEvent
 }
