@@ -56,9 +56,8 @@ class DiscoverViewModel @Inject constructor(
     }
 
     fun isInTimeRange(hangout: Hangout): Boolean {
-        val now = LocalDateTime.now()
-        return hangout.startDate.isAfter(now.minusHours(12)) &&
-               hangout.startDate.isBefore(now.plusDays(30))
+        return hangout.startDate.isAfter(LocalDateTime.now().minusHours(12)) &&
+               hangout.startDate.isBefore(LocalDateTime.now().plusDays(30))
     }
 
     fun onUserLocationUpdates(point: Point) {

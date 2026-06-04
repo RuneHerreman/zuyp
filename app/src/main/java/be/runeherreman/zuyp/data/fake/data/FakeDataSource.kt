@@ -13,6 +13,20 @@ class FakeDataSource @Inject constructor() {
     private fun goingAttendees(vararg users: User): List<User> =
         users.map { it.copy(attendanceStatus = AttendanceStatus.GOING) }
 
+    private val hangoutLiveTest = HangoutDto(
+        UUID.fromString("00000000-0000-0000-0000-000000000099"),
+        "Geofence Test Hangout",
+        "",
+        "Howest Brugge",
+        51.2082,
+        3.2241,
+        LocalDateTime.now(),
+        LocalDateTime.now().plusDays(1),
+        listOf(FakeUsers.userKoen.copy(attendanceStatus = AttendanceStatus.GOING)),
+        FakeUsers.userKoen,
+        false
+    )
+
     private val hangoutOnlynumbers = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000001"),
         "Onlynumbers, Vladimir Couchemar",
@@ -547,7 +561,8 @@ class FakeDataSource @Inject constructor() {
             hangoutAfterparty,
             hangoutSummerKickoff,
             hangoutWineDine,
-            hangoutRaveAfterparty
+            hangoutRaveAfterparty,
+            hangoutLiveTest
         )
     }
 

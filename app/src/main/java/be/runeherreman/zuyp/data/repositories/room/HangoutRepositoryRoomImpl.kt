@@ -29,7 +29,7 @@ class HangoutRepositoryRoomImpl @Inject constructor(
         return hangoutDao.getAll().map { list ->
             val now = LocalDateTime.now()
             list.map(HangoutWithDetails::toDomain)
-                .filter { it.startDate.isAfter(now) }
+                .filter { it.endDate.isAfter(now) }
                 .sortedBy { it.startDate }
         }
     }

@@ -84,7 +84,7 @@ fun ZuypNavGraph(
         composable(Screen.Discover.route) {
             LaunchedEffect(Unit) {
                 mainViewModel.requestPermission(AppPermission.LOCATION)
-                mainViewModel.requestPermission(AppPermission.BACKGROUND_LOCATION)
+//                mainViewModel.requestPermission(AppPermission.BACKGROUND_LOCATION)
             }
 
             DiscoverScreen(
