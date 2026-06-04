@@ -10,6 +10,7 @@ import be.runeherreman.zuyp.domain.model.ExpenseShare
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.PersonBalance
 import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.friends.UserProfile
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -49,6 +50,8 @@ data class HangoutUiState(
     val addExpenseForm: AddExpenseForm? = null,
 
     val currentUserAttendanceStatus: AttendanceStatus? = null,
+
+    val selectedUserProfile: UserProfile? = null,
 )
 
 enum class SplitMode(val label: String) { EQUALLY("Equally"), CUSTOM("Custom") }
@@ -68,6 +71,8 @@ sealed interface HangoutEvent {
 
     data class DeleteHangout(val id: UUID) : HangoutEvent
     data class FriendClicked(val userId: UUID) : HangoutEvent
+    data class UserClicked(val user: User) : HangoutEvent
+    data object UserProfileClose : HangoutEvent
     data class UpdateAttendance(val hangout: Hangout, val status: AttendanceStatus?) : HangoutEvent
     data class ExpenseClicked(val expense: Expense) : HangoutEvent
     data class DeleteExpense(val id: UUID) : HangoutEvent

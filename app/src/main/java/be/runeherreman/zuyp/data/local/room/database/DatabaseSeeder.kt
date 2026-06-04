@@ -42,7 +42,6 @@ class DatabaseSeeder @Inject constructor(
                 }
             }
 
-        val users = usersByEmail.values.toList()
         val userIdByEmail = usersByEmail.mapValues { entry -> entry.value.id }
 
         val hangouts = fakeHangouts.map { hangout ->

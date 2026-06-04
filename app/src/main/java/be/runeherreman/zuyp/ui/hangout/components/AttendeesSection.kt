@@ -1,6 +1,7 @@
 package be.runeherreman.zuyp.ui.hangout.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -39,7 +40,8 @@ fun AttendeesSection(
     attendees: List<User>,
     friendShips: Map<UUID, Boolean>,
     currentUserId: UUID,
-    toggleFriendClick: (UUID) -> Unit
+    toggleFriendClick: (UUID) -> Unit,
+    onUserClick: (User) -> Unit = {}
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Default.Group, contentDescription = null, modifier = Modifier.size(24.dp))
@@ -64,7 +66,8 @@ fun AttendeesSection(
                 user = user,
                 friendShips = friendShips,
                 currentUserId = currentUserId,
-                toggleFriendClick = { toggleFriendClick(user.id) }
+                toggleFriendClick = { toggleFriendClick(user.id) },
+                onUserClick = { onUserClick(user) }
             )
         }
     }
@@ -75,13 +78,15 @@ private fun AttendeeItem(
     user: User,
     friendShips: Map<UUID, Boolean>,
     currentUserId: UUID,
-    toggleFriendClick: () -> Unit
+    toggleFriendClick: () -> Unit,
+    onUserClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp)),
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
+            .clickable(enabled = user.id != currentUserId, onClick = onUserClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(

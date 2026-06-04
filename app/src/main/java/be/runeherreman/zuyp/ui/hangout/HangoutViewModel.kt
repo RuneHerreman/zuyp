@@ -25,8 +25,10 @@ import be.runeherreman.zuyp.domain.useCases.expenses.GetHangoutExpensesUseCase
 import be.runeherreman.zuyp.domain.useCases.expenses.SettleDebtUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.AddFriendshipUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.AreFriendsUseCase
+import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.DeleteHangoutUseCase
 import be.runeherreman.zuyp.domain.useCases.users.GetAllUsersUseCase
+import be.runeherreman.zuyp.ui.friends.UserProfile
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutByIdUseCase
 import be.runeherreman.zuyp.domain.useCases.utils.GetWeatherForecastUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.RemoveFriendshipUseCase
@@ -63,7 +65,8 @@ class HangoutViewModel @Inject constructor(
     private val deleteExpenseUseCase: DeleteExpenseUseCase,
     private val settleDebtUseCase: SettleDebtUseCase,
     private val detectShakeUseCase: DetectShakeUseCase,
-    ): ViewModel() {
+    private val getFriendsUseCase: GetFriendsUseCase,
+): ViewModel() {
     val currentUser = CurrentUser.user
     private val _uiState = MutableStateFlow(HangoutUiState())
     val uiState: StateFlow<HangoutUiState> = _uiState
@@ -170,6 +173,29 @@ class HangoutViewModel @Inject constructor(
         shakeJob?.cancel()
         _uiState.update { it.copy(selectedHangoutId = null, isError = false) }
     }
+
+    fun openUserProfile(user: User) {
+        viewModelScope.launch {
+            val theirFriends  = getFriendsUseCase(user.id)
+            val myFriendIds   = getFriendsUseCase(currentUser.id).mapTo(mutableSetOf()) { it.id }
+            val mutualFriends = theirFriends.filter { it.id in myFriendIds && it.id != currentUser.id }
+            val isFriend      = user.id in myFriendIds
+            _uiState.update {
+                it.copy(
+                    selectedUserProfile = UserProfile(
+                        user          = user,
+                        friendsCount  = theirFriends.size,
+                        groupsCount   = 0,
+                        eventsCount   = 0,
+                        mutualFriends = mutualFriends,
+                        isFriend      = isFriend
+                    )
+                )
+            }
+        }
+    }
+
+    fun closeUserProfile() = _uiState.update { it.copy(selectedUserProfile = null) }
 
     fun deleteHangout(hangoutId: UUID) {
         viewModelScope.launch {
@@ -363,6 +389,8 @@ class HangoutViewModel @Inject constructor(
             HangoutEvent.CloseShare         -> closeShareSheet()
             is HangoutEvent.DeleteHangout   -> deleteHangout(event.id)
             is HangoutEvent.FriendClicked   -> toggleFriendship(event.userId)
+            is HangoutEvent.UserClicked     -> openUserProfile(event.user)
+            HangoutEvent.UserProfileClose   -> closeUserProfile()
             is HangoutEvent.UpdateAttendance -> {
                 val next = if (_uiState.value.currentUserAttendanceStatus == event.status) null else event.status
                 toggleGoing(event.hangout, next)

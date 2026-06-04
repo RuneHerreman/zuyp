@@ -38,6 +38,7 @@ import be.runeherreman.zuyp.ui.hangout.components.HangoutActionButtons
 import be.runeherreman.zuyp.ui.hangout.components.HangoutHeader
 import be.runeherreman.zuyp.ui.hangout.components.PrivateBadge
 import be.runeherreman.zuyp.ui.hangout.components.ShareHangoutPopup
+import be.runeherreman.zuyp.ui.friends.components.UserProfileDialog
 import be.runeherreman.zuyp.ui.hangout.components.expenses.ExpenseDetailDialog
 import be.runeherreman.zuyp.ui.hangout.components.expenses.ExpensesSection
 import java.util.UUID
@@ -149,7 +150,8 @@ fun HangoutScreen(
             attendees = goingAttendees,
             friendShips = uiState.friendShipMapping,
             currentUserId = uiState.currentUser.id,
-            toggleFriendClick = { onEvent(HangoutEvent.FriendClicked(it)) }
+            toggleFriendClick = { onEvent(HangoutEvent.FriendClicked(it)) },
+            onUserClick = { onEvent(HangoutEvent.UserClicked(it)) }
         )
 
         if (uiState.currentUserAttendanceStatus == AttendanceStatus.GOING) {
@@ -181,6 +183,22 @@ fun HangoutScreen(
                     onDismiss = { onEvent(HangoutEvent.ExpenseDetailClose) }
                 )
             }
+
+        }
+
+        uiState.selectedUserProfile?.let { profile ->
+            UserProfileDialog(
+                profile = profile,
+                onDismiss = { onEvent(HangoutEvent.UserProfileClose) },
+                onAddFriend = {
+                    onEvent(HangoutEvent.FriendClicked(it.id))
+                    onEvent(HangoutEvent.UserProfileClose)
+                },
+                onRemoveFriend = {
+                    onEvent(HangoutEvent.FriendClicked(it.id))
+                    onEvent(HangoutEvent.UserProfileClose)
+                }
+            )
         }
     }
 }
