@@ -1,6 +1,5 @@
 # Zuyp – Drink & Social App
 
-> BUG: ADDING EXPENSE. MARK YOURSELF AS PAYING. ADD A PERSON WITH CUSTOM SPLIT. ADD ALL COSTS TO THEM, ZERO TO YOURSELF. THEY WILL BE MARKED AS OWING YOU THE MONEY, INSTEAD OF YOU OWING THEM
 > BUG: App crashes when joining event from push notification
 
 Device Development project (Semester 4, Toegepaste Informatica).
@@ -14,6 +13,7 @@ friends, and keeping nights out transparent and safe.
 - [Before this week](#what-i-did-before-the-start-of-the-project-week)
 - [Day 1 (01/06/2026)](#01062026)
 - [Day 2 (02/06/2026)](#02062026)
+- [Day 3 (03/06/2026)](#03062026)
 - [TO-DO](#what-i-still-need-to-do)
 
 ---
@@ -107,6 +107,65 @@ project week (Apr 10 – May 31).
   components between the create/edit group dialogs, rounded action buttons less
   aggressively, increased color contrast, and fixed the Zuyp alert overlay.
 
+## 03/06/2026
+
+- **Expenses — full feature (end-to-end):**
+  - Domain model: `Expense`, `ExpenseShare`, `PersonBalance`.
+  - Room entities and DAO: `ExpenseEntity`, `ExpenseShareEntity`,
+    `SettlementEntity` (hangoutId, fromUserId, toUserId, amount, settledAt).
+  - Repository: `ExpenseRepositoryRoomImpl` — reactive balance calculation that
+    accumulates per-person share debt and subtracts recorded settlements.
+  - Use cases: add expense, delete expense (owner only), get expenses for
+    hangout, get event balances, settle debt.
+  - Equal split: cent-accurate integer arithmetic to avoid floating-point drift;
+    remainder assigned to the payer.
+  - Custom split: per-person amount entry with live running total and validation
+    that the entries sum to the expense amount.
+  - `AddExpenseDialog`: paid-by picker, equal/custom split modes, participant
+    chip selector, and bill receipt photo (camera or gallery).
+  - `ExpensesSection`: balance summary card (who owes whom, settle button with
+    confirmation dialog), expense list with per-item detail.
+  - `ExpenseDetailDialog`: full breakdown of shares per person.
+  - Hilt wiring: `ExpenseDao` and `ExpenseRepository` injected across the graph.
+
+- **Discover / Map improvements:**
+  - Tapping a map marker animates its size and smoothly centres the camera on
+    the selected pin.
+  - A hangout detail popup slides up on marker tap, showing title, location and
+    date — tapping it opens the full hangout detail screen.
+  - `DiscoverViewModel` updated with selected-marker state; `DiscoverUiState`
+    extended accordingly.
+
+- **Groups in hangout creation:**
+  - "Invite all" button in `MembersSelector` — one tap selects all friends for
+    the hangout.
+  - Selecting a group in the member picker adds all group members at once.
+
+- **Permissions architecture:**
+  - Extracted `MainViewModel` and `PermissionManager` out of `MainActivity` so
+    runtime permission requests are driven by Compose state rather than
+    imperative Activity code.
+
+- **Profile — previous events:**
+  - Profile activity section now includes past events the user attended, not
+    just upcoming ones.
+  - Improved profile screen UI and activity card styling.
+
+- **Architecture refactors:**
+  - Reorganised all Room entities into per-domain subdirectories (hangouts,
+    users, expenses) and updated all DAO / repository / UI imports.
+  - All hangout UI events grouped into a single sealed interface; every user
+    action now flows through a single `onEvent` dispatcher in
+    `HangoutViewModel`.
+  - Expense components split into focused files: `AddExpenseDialog`,
+    `ExpensesSection`, `ExpenseDetailDialog`, `ExpenseImage`.
+  - Tidied UI composables: split shared form helpers into their own file,
+    corrected naming inconsistencies.
+  - Cleaned up redundant documentation and leftover comments across the data
+    and domain layers.
+  - Refactored open/close methods and overlay state into a consistent single
+    interface pattern.
+
 ## What I still need to do
 
 Against the project requirement checklist:
@@ -121,13 +180,16 @@ Against the project requirement checklist:
 - [ ] Publish more message-broker data types (e.g. "arrived" / "can't come").
 - [ ] Geofencing — notify the group when someone enters an event's area.
 - [ ] Trigger actions automatically from sensor data (auto-join on shake).
-- [ ] Camera: attach a photo of the receipt to an expense (fallback: profile
-      photo).
+- [x] Camera: attach a photo of the receipt to an expense.
 - [ ] Instrumented tests.
 
 **Feature work still open**
-- [ ] Expenses tracking (the expenses section is currently a placeholder).
+- [x] Expenses tracking — add/delete expenses, equal & custom splits, balance
+      calculation (who owes whom), settle debts, bill receipt photo.
 - [x] Profile screen: edit name, email and birthdate. _(photo and IBAN still
       open; permission toggles dropped in favour of a launch-page setting)_
 - [x] Groups management on the Friends screen (create, edit/rename, leave).
+- [x] Invite entire group to a hangout in one tap.
+- [x] Discover map: tap a marker to preview the hangout and open its detail.
 - [ ] Profile: edit profile photo and IBAN.
+- [ ] Fix crash when joining an event from a push notification.
