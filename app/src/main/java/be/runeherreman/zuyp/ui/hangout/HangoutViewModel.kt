@@ -289,18 +289,31 @@ class HangoutViewModel @Inject constructor(
     private fun loadExpenseForm(form: AddExpenseForm, candidates: List<User>): AddExpenseForm {
         val paidBy = resolvePaidBy(form.paidById, candidates)
         val participants = candidates.filter { it.id in form.selectedParticipantIds }
-        val shares = calculateShares(form, participants, paidBy)
+
+        // Auto-fill unlocked participants so the split always sums to the total
+        val resolvedAmounts = if (form.splitMode == SplitMode.CUSTOM && participants.isNotEmpty()) {
+            val lockedIds   = form.lockedParticipantIds.filter { id -> participants.any { it.id == id } }
+            val lockedSum   = lockedIds.sumOf { form.customAmounts[it].toAmount() }
+            val unlocked    = participants.filter { it.id !in form.lockedParticipantIds }
+            val autoAmount  = if (unlocked.isNotEmpty()) (form.amount - lockedSum) / unlocked.size else 0.0
+            form.customAmounts + unlocked.associate { it.id to "%.2f".format(autoAmount.coerceAtLeast(0.0)) }
+        } else {
+            form.customAmounts
+        }
+
+        val resolvedForm = form.copy(customAmounts = resolvedAmounts)
+        val shares   = calculateShares(resolvedForm, participants, paidBy)
         val customSum = shares.sumOf { it.amount }
-        val customOk = form.splitMode != SplitMode.CUSTOM || abs(customSum - form.amount) < 0.005
-        val canAdd = form.title.isNotBlank() && form.amount > 0.0 && participants.isNotEmpty() && customOk
-        return form.copy(
+        val customOk  = form.splitMode != SplitMode.CUSTOM || abs(customSum - form.amount) < 0.005
+        val canAdd    = form.title.isNotBlank() && form.amount > 0.0 && participants.isNotEmpty() && customOk
+        return resolvedForm.copy(
             candidates = candidates,
-            paidBy = paidBy,
+            paidBy     = paidBy,
             participants = participants,
-            shares = shares,
-            customSum = customSum,
-            customOk = customOk,
-            canAdd = canAdd,
+            shares     = shares,
+            customSum  = customSum,
+            customOk   = customOk,
+            canAdd     = canAdd,
         )
     }
 
@@ -388,41 +401,36 @@ class HangoutViewModel @Inject constructor(
         )
     }
     fun onExpenseSplitModeChanged(mode: SplitMode) = updateForm { form ->
-        if (mode != SplitMode.CUSTOM) return@updateForm form.copy(splitMode = mode)
-        // Seed each participant's field from the equal split, keeping anything already typed.
-        val seeded = form.shares.associate { share ->
-            val existing = form.customAmounts[share.user.id]
-            share.user.id to if (existing.isNullOrBlank()) "%.2f".format(share.amount) else existing
-        }
-        form.copy(splitMode = mode, customAmounts = form.customAmounts + seeded)
+        // Reset all locks and amounts when switching mode so auto-fill starts fresh
+        form.copy(
+            splitMode = mode,
+            lockedParticipantIds = emptySet(),
+            customAmounts = emptyMap()
+        )
     }
     fun onExpenseParticipantToggled(userId: UUID) = updateForm { form ->
         when (userId) {
             (form.paidById ?: currentUser.id) -> form
             in form.selectedParticipantIds ->
-                form.copy(selectedParticipantIds = form.selectedParticipantIds - userId)
-
+                form.copy(
+                    selectedParticipantIds = form.selectedParticipantIds - userId,
+                    lockedParticipantIds   = form.lockedParticipantIds   - userId
+                )
             else -> form.copy(
-                selectedParticipantIds = form.selectedParticipantIds + userId,
-                customAmounts = form.seedCustomAmountFor(userId)
+                selectedParticipantIds = form.selectedParticipantIds + userId
+                // not added to lockedParticipantIds → auto-fill handles them
             )
         }
     }
     fun onExpenseCustomAmountChanged(userId: UUID, text: String) = updateForm { form ->
-        form.copy(customAmounts = form.customAmounts + (userId to text))
+        form.copy(
+            customAmounts        = form.customAmounts + (userId to text),
+            lockedParticipantIds = form.lockedParticipantIds + userId
+        )
     }
     fun settleUp(person: PersonBalance) = viewModelScope.launch {
         if (person.net < 0) settleDebtUseCase(UUID.fromString(_uiState.value.selectedHangoutId), currentUser.id, person.user.id, -person.net)
     }
-    // pre-fill next added paying person with remaining amount
-    fun AddExpenseForm.seedCustomAmountFor(userId: UUID): Map<UUID, String> {
-        if (splitMode != SplitMode.CUSTOM) return customAmounts
-        val used = selectedParticipantIds.sumOf { customAmounts[it].toAmount() }
-        val remaining = (amount - used).coerceAtLeast(0.0)
-
-        return customAmounts + (userId to "%.2f".format(remaining))
-    }
-
     // EXPENSE CRUD
     private fun submitExpense() {
         val state = _uiState.value

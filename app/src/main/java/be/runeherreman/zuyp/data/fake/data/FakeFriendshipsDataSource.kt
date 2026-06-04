@@ -17,9 +17,21 @@ class FakeFriendshipsDataSource @Inject constructor() {
 
     private fun initializeFriendships() {
         // Define some initial friendships for testing
-        addFriendshipInternal(FakeUsers.userJan.id, FakeUsers.userKoen.id)
-        addFriendshipInternal(FakeUsers.userJan.id, FakeUsers.userLotte.id)
+        // Koen's friend group — several mutual connections
+        addFriendshipInternal(FakeUsers.userKoen.id, FakeUsers.userJan.id)
         addFriendshipInternal(FakeUsers.userKoen.id, FakeUsers.userMilan.id)
+        addFriendshipInternal(FakeUsers.userKoen.id, FakeUsers.userBram.id)
+        addFriendshipInternal(FakeUsers.userKoen.id, FakeUsers.userElise.id)
+        addFriendshipInternal(FakeUsers.userKoen.id, FakeUsers.userTibo.id)
+        addFriendshipInternal(FakeUsers.userKoen.id, FakeUsers.userLotte.id)
+        addFriendshipInternal(FakeUsers.userKoen.id, FakeUsers.userNora.id)
+        addFriendshipInternal(FakeUsers.userKoen.id, FakeUsers.userSanne.id)
+
+        // Mutual friends: Jan ↔ Lotte, Jan ↔ Bram, Milan ↔ Elise, Bram ↔ Tibo, Sanne ↔ Lotte
+        addFriendshipInternal(FakeUsers.userJan.id, FakeUsers.userLotte.id)
+        addFriendshipInternal(FakeUsers.userJan.id, FakeUsers.userBram.id)
+        addFriendshipInternal(FakeUsers.userMilan.id, FakeUsers.userElise.id)
+        addFriendshipInternal(FakeUsers.userSanne.id, FakeUsers.userLotte.id)
         addFriendshipInternal(FakeUsers.userBram.id, FakeUsers.userElise.id)
         addFriendshipInternal(FakeUsers.userBram.id, FakeUsers.userTibo.id)
         addFriendshipInternal(FakeUsers.userMila.id, FakeUsers.userRuben.id)
@@ -83,6 +95,8 @@ class FakeFriendshipsDataSource @Inject constructor() {
                 FakeUsers.allUsers.find { it.id == friendId }
             }
     }
+
+    fun getAllFriendships(): List<Pair<UUID, UUID>> = friendships.toList()
 
     fun addFriendship(userId1: UUID, userId2: UUID) {
         addFriendshipInternal(userId1, userId2)

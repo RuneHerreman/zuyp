@@ -50,7 +50,7 @@ class ShakeRepositoryImpl @Inject constructor(
 
     companion object {
         private const val SHAKE_THRESHOLD      = 8f  // meter per seconde
-        private const val REQUIRED_DURATION_MS = 1_500L
+        private const val REQUIRED_DURATION_MS = 1_000L
         private const val GRACE_PERIOD_MS      = 400L  // tolerated gap between shake peaks
     }
 }

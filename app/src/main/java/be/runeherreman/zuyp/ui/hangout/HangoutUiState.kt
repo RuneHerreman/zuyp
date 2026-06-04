@@ -97,6 +97,7 @@ data class AddExpenseForm(
     val splitMode: SplitMode = SplitMode.EQUALLY,
     val selectedParticipantIds: Set<UUID> = emptySet(),
     val customAmounts: Map<UUID, String> = emptyMap(),
+    val lockedParticipantIds: Set<UUID> = emptySet(), // manually typed → locked; others auto-fill
     val imagePath: String? = null,
     val candidates: List<User> = emptyList(),
     val paidBy: User? = null,

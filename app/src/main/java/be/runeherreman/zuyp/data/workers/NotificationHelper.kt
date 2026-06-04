@@ -26,6 +26,8 @@ object NotificationHelper {
     const val CHANNEL_HANGOUT    = "zuyp_hangout_invites"
     const val CHANNEL_ZUYP_ALERT = "zuyp_alerts"
     const val ZUYP_ALERT_ID      = 1
+    private const val GROUP_HANGOUT  = "group_zuyp_hangouts"
+    private const val SUMMARY_ID     = 2
 
     fun createNotificationChannels(context: Context) {
         val manager = context.getSystemService(NotificationManager::class.java)
@@ -90,8 +92,10 @@ object NotificationHelper {
                 .setContentIntent(buildOpenHangoutIntent(context, message.hangoutId, notifId))
                 .addAction(0, "Join", joinIntent)
                 .setAutoCancel(true)
+                .setGroup(GROUP_HANGOUT)
                 .build()
         )
+        updateGroupSummary(context)
     }
 
     @SuppressLint("FullScreenIntentPolicy")
@@ -138,6 +142,29 @@ object NotificationHelper {
                 .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(buildOpenHangoutIntent(context, message.hangoutId, notifId))
+                .setAutoCancel(true)
+                .setGroup(GROUP_HANGOUT)
+                .build()
+        )
+        updateGroupSummary(context)
+    }
+
+    private fun updateGroupSummary(context: Context) {
+        val manager = context.getSystemService(NotificationManager::class.java)
+        val count   = manager.activeNotifications.count { it.id != SUMMARY_ID && it.notification.group == GROUP_HANGOUT }
+        if (count == 0) {
+            manager.cancel(SUMMARY_ID)
+            return
+        }
+        manager.notify(
+            SUMMARY_ID,
+            NotificationCompat.Builder(context, CHANNEL_HANGOUT)
+                .setContentTitle("Zuyp")
+                .setContentText("$count hangout update${if (count > 1) "s" else ""}")
+                .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setGroup(GROUP_HANGOUT)
+                .setGroupSummary(true)
                 .setAutoCancel(true)
                 .build()
         )

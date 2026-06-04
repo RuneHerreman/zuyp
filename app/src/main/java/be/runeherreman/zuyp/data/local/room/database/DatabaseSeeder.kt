@@ -2,10 +2,13 @@ package be.runeherreman.zuyp.data.local.room.database
 
 import androidx.room.withTransaction
 import be.runeherreman.zuyp.data.fake.data.FakeDataSource
+import be.runeherreman.zuyp.data.fake.data.FakeFriendshipsDataSource
+import be.runeherreman.zuyp.data.fake.data.FakeUsers
 import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
 import be.runeherreman.zuyp.data.local.room.dao.UserDao
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutEntity
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutUsersMapping
+import be.runeherreman.zuyp.data.local.room.entity.users.FriendshipEntity
 import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
 import java.util.Locale
 import javax.inject.Inject
@@ -16,7 +19,8 @@ class DatabaseSeeder @Inject constructor(
     private val database: AppDatabase,
     private val hangoutDao: HangoutDao,
     private val userDao: UserDao,
-    private val fakeDataSource: FakeDataSource
+    private val fakeDataSource: FakeDataSource,
+    private val fakeFriendships: FakeFriendshipsDataSource
 ) {
     suspend fun seedIfNeeded() {
         if (hangoutDao.countHangouts() > 0) return
@@ -70,10 +74,25 @@ class DatabaseSeeder @Inject constructor(
                 .distinctBy { mapping -> mapping.userId }
         }
 
+        // Ensure every user in FakeUsers is in the DB so friendship FKs can resolve
+        val allFakeUsers = FakeUsers.allUsers.map { user ->
+            UserEntity(
+                id = user.id,
+                name = user.name,
+                birthdate = user.birthdate,
+                email = user.email.trim(),
+                imageUrl = user.imageUrl
+            )
+        }
+
+        val friendshipEntities = fakeFriendships.getAllFriendships()
+            .map { (id1, id2) -> FriendshipEntity(id1, id2) }
+
         database.withTransaction {
-            userDao.insertUsers(users)
+            userDao.insertUsers(allFakeUsers)
             hangoutDao.insertHangouts(hangouts)
             hangoutDao.insertAttendees(attendeeMappings)
+            userDao.addFriendships(friendshipEntities)
         }
     }
 }

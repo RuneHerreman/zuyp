@@ -231,7 +231,8 @@ fun CustomSplitRow(
     payer: User?,
     onEvent: (AddExpenseEvent) -> Unit
 ) {
-    val isPayer = user.id == payer?.id
+    val isPayer  = user.id == payer?.id
+    val isLocked = user.id in form.lockedParticipantIds
     val sublabel = when {
         isPayer && user.id == currentUser.id -> "you absorb"
         isPayer -> "absorbs"
@@ -251,9 +252,10 @@ fun CustomSplitRow(
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                sublabel,
+                if (isLocked) sublabel else "auto · $sublabel",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (isLocked) MaterialTheme.colorScheme.onSurfaceVariant
+                        else MaterialTheme.colorScheme.primary
             )
         }
         OutlinedTextField(
