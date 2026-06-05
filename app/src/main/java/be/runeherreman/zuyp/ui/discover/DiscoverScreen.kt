@@ -4,24 +4,32 @@ package be.runeherreman.zuyp.ui.discover
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.background
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.domain.model.Marker
+import be.runeherreman.zuyp.ui.permissions.AppPermission
+import be.runeherreman.zuyp.ui.permissions.BackgroundLocationRationaleDialog
 import com.mapbox.geojson.Point
 import com.mapbox.maps.ViewAnnotationAnchor
 import com.mapbox.maps.extension.compose.MapEffect
@@ -43,6 +51,8 @@ fun DiscoverScreen(
     onLocationChanged: (Point) -> Unit,
     onMarkerClick: (Marker) -> Unit,
     onMapClick: () -> Unit,
+    onBackgroundLocationConfirmed: () -> Unit,
+    onBackgroundLocationDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val followPuckOptions = FollowPuckViewportStateOptions.Builder().zoom(12.0).pitch(0.0).build()
@@ -84,21 +94,17 @@ fun DiscoverScreen(
                 ViewAnnotation(
                     options = viewAnnotationOptions {
                         geometry(marker.position)
-
+                        allowOverlap(true)
+                        allowOverlapWithPuck(true)
+                        ignoreCameraPadding(true)
+                        annotationAnchor {
+                            anchor(ViewAnnotationAnchor.BOTTOM)
+                        }
                     },
                 ) {
-                    val animatedSize by animateFloatAsState(
-                        targetValue = if (isSelected) 51f else 32f,
-                        label = "markerSize"
-                    )
-
-                    Icon(
-                        imageVector = Icons.Filled.LocationOn,
-                        contentDescription = null,
-                        tint = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier
-                            .size(animatedSize.dp)
-                            .clickable { onMarkerClick(marker) }
+                    HangoutMarker(
+                        isSelected = isSelected,
+                        onClick = { onMarkerClick(marker) }
                     )
                 }
             }
@@ -112,5 +118,49 @@ fun DiscoverScreen(
         ) {
             Icon(Icons.Filled.MyLocation, contentDescription = "My location")
         }
+
+        if (uiState.showBackgroundLocationRationale) {
+            BackgroundLocationRationaleDialog(
+                onConfirm = onBackgroundLocationConfirmed,
+                onDismiss = onBackgroundLocationDismiss
+            )
+        }
+
+    }
+}
+
+@Composable
+private fun HangoutMarker(
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val animatedSize by animateFloatAsState(
+        targetValue = if (isSelected) 51f else 32f,
+        label = "markerSize"
+    )
+    val tint = if (isSelected) Color(0xFF4A5C92) else Color(0xFF324478)
+
+    Box(
+        modifier = Modifier
+            .size(animatedSize.dp)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            )
+    ) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = (animatedSize * 6.5f / 24f).dp)
+                .size((animatedSize * 5f / 24f).dp)
+                .background(Color.White, CircleShape)
+        )
+        Icon(
+            imageVector = Icons.Filled.LocationOn,
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
