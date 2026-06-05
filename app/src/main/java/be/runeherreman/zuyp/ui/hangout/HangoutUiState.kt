@@ -109,6 +109,7 @@ data class AddExpenseForm(
     val paidBy: User? = null,
     val participants: List<User> = emptyList(),
     val shares: List<ExpenseShare> = emptyList(),
+
     val customSum: Double = 0.0,
     val customOk: Boolean = true,
     val canAdd: Boolean = false,
