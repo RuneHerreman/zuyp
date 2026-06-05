@@ -6,4 +6,6 @@ data class ZuypAlertUiState(
     val locationName: String = "",
     val startDate: String = "",
     val weather: String? = null,
+    /** True once dismiss() or join() completes — Activity observes this to call finish(). */
+    val isDismissed: Boolean = false,
 )

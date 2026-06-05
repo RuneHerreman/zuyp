@@ -1,12 +1,16 @@
 package be.runeherreman.zuyp.ui.alert
 
+import android.app.NotificationManager
+import android.content.Context
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import be.runeherreman.zuyp.data.fake.data.CurrentUser
+import be.runeherreman.zuyp.data.workers.NotificationHelper
 import be.runeherreman.zuyp.domain.model.AttendanceStatus
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import be.runeherreman.zuyp.domain.usecases.hangouts.UpdateAttendanceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -17,34 +21,38 @@ import javax.inject.Inject
 @HiltViewModel
 class ZuypAlertViewModel @Inject constructor(
     private val updateAttendanceUseCase: UpdateAttendanceUseCase,
+    @ApplicationContext private val context: Context,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ZuypAlertUiState())
+    // Intent extras are automatically available in SavedStateHandle for @HiltViewModel.
+    private val _uiState = MutableStateFlow(
+        ZuypAlertUiState(
+            hangoutId    = savedStateHandle.get<String>("hangoutId")    ?: "",
+            title        = savedStateHandle.get<String>("title")        ?: "",
+            locationName = savedStateHandle.get<String>("locationName") ?: "",
+            startDate    = savedStateHandle.get<String>("startDate")    ?: "",
+            weather      = savedStateHandle.get<String>("weather"),
+        )
+    )
     val uiState: StateFlow<ZuypAlertUiState> = _uiState
 
-
-    fun loadFromIntent(hangoutId: String, title: String, locationName: String, startDate: String, weather: String?) {
-        _uiState.update {
-            it.copy(
-                hangoutId = hangoutId,
-                title = title,
-                locationName = locationName,
-                startDate = startDate,
-                weather = weather,
-            )
-        }
-    }
-
-    fun join(userId: UUID, onJoined: () -> Unit) {
+    fun join() {
         viewModelScope.launch {
             val hangoutId = _uiState.value.hangoutId.ifBlank { return@launch }
             val hangoutUUID = runCatching { UUID.fromString(hangoutId) }.getOrNull() ?: return@launch
             updateAttendanceUseCase(
-                hangoutId = hangoutUUID,
-                userId = userId,
+                hangoutId     = hangoutUUID,
+                userId        = CurrentUser.id,
                 attendaceStatus = AttendanceStatus.GOING,
             )
-            withContext(Dispatchers.Main) { onJoined() }
+            dismiss()
         }
+    }
+
+    fun dismiss() {
+        context.getSystemService(NotificationManager::class.java)
+            .cancel(NotificationHelper.ZUYP_ALERT_ID)
+        _uiState.update { it.copy(isDismissed = true) }
     }
 }

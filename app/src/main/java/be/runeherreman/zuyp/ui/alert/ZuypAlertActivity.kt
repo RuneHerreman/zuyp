@@ -1,13 +1,10 @@
 package be.runeherreman.zuyp.ui.alert
 
-import android.app.NotificationManager
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.runtime.collectAsState
-import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -17,22 +14,24 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,9 +41,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import be.runeherreman.zuyp.data.fake.data.CurrentUser
-import be.runeherreman.zuyp.data.workers.NotificationHelper
 import be.runeherreman.zuyp.ui.theme.ZuypTheme
+import dagger.hilt.android.AndroidEntryPoint
 
 private val Black       = Color(0xFF080808)
 private val AlertRed    = Color(0xFFE8271A)
@@ -61,38 +59,26 @@ class ZuypAlertActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Keep screen on, show over lock screen
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setShowWhenLocked(true)
         setTurnScreenOn(true)
 
-        viewModel.loadFromIntent(
-            hangoutId = intent.getStringExtra("hangoutId") ?: "",
-            title = intent.getStringExtra("title") ?: "",
-            locationName = intent.getStringExtra("locationName") ?: "",
-            startDate = intent.getStringExtra("startDate") ?: "",
-            weather = intent.getStringExtra("weather"),
-        )
-
         setContent {
             ZuypTheme {
                 val uiState by viewModel.uiState.collectAsState()
+
+                LaunchedEffect(uiState.isDismissed) {
+                    if (uiState.isDismissed) finish()
+                }
+
                 ZuypAlertScreen(
-                    title = uiState.title,
+                    title        = uiState.title,
                     locationName = uiState.locationName,
-                    startDate = uiState.startDate,
-                    weather = uiState.weather,
-                    onDismiss = {
-                        getSystemService(NotificationManager::class.java)
-                            .cancel(NotificationHelper.ZUYP_ALERT_ID)
-                        finish()
-                    },
-                    onJoin = {
-                        viewModel.join(CurrentUser.id) {
-                            getSystemService(NotificationManager::class.java)
-                                .cancel(NotificationHelper.ZUYP_ALERT_ID)
-                            finish()
-                        }
-                    },
+                    startDate    = uiState.startDate,
+                    weather      = uiState.weather,
+                    onDismiss    = { viewModel.dismiss() },
+                    onJoin       = { viewModel.join() },
                 )
             }
         }
@@ -111,9 +97,9 @@ private fun ZuypAlertScreen(
     val pulse = rememberInfiniteTransition(label = "pulse")
     val dotAlpha by pulse.animateFloat(
         initialValue = 1f,
-        targetValue = 0.2f,
+        targetValue  = 0.2f,
         animationSpec = infiniteRepeatable(
-            animation = tween(700, easing = EaseInOut),
+            animation  = tween(700, easing = EaseInOut),
             repeatMode = RepeatMode.Reverse,
         ),
         label = "dotAlpha",
@@ -128,7 +114,7 @@ private fun ZuypAlertScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(2.dp)
+                .height(5.dp)
                 .drawBehind { drawRect(AlertRed) },
         )
 
@@ -150,23 +136,23 @@ private fun ZuypAlertScreen(
                 )
                 Spacer(modifier = Modifier.width(9.dp))
                 Text(
-                    text = "ZUYP ALERT",
-                    color = AlertRed,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
+                    text         = "ZUYP ALERT",
+                    color        = AlertRed,
+                    fontSize     = 11.sp,
+                    fontWeight   = FontWeight.Bold,
                     letterSpacing = 3.sp,
                 )
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Hangout title — does the heavy lifting
+            // Hangout title
             Text(
-                text = title,
-                color = White,
-                fontSize = 44.sp,
-                fontWeight = FontWeight.Black,
-                lineHeight = 46.sp,
+                text          = title,
+                color         = White,
+                fontSize      = 44.sp,
+                fontWeight    = FontWeight.Black,
+                lineHeight    = 46.sp,
                 letterSpacing = (-1.5).sp,
             )
 
@@ -182,7 +168,6 @@ private fun ZuypAlertScreen(
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // Detail rows — label above value, editorial style
             DetailField(label = "LOCATION", value = locationName)
             Spacer(modifier = Modifier.height(20.dp))
             DetailField(label = "TIME", value = startDate)
@@ -204,17 +189,17 @@ private fun ZuypAlertScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "JOIN",
-                    color = White,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
+                    text          = "JOIN",
+                    color         = White,
+                    fontSize      = 11.sp,
+                    fontWeight    = FontWeight.Bold,
                     letterSpacing = 3.sp,
                 )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Dismiss — ghost, understated
+            // Dismiss
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -225,10 +210,10 @@ private fun ZuypAlertScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "I AM BORING",
-                    color = WhiteDim,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
+                    text          = "I AM BORING",
+                    color         = WhiteDim,
+                    fontSize      = 11.sp,
+                    fontWeight    = FontWeight.Bold,
                     letterSpacing = 3.sp,
                 )
             }
@@ -240,41 +225,37 @@ private fun ZuypAlertScreen(
 
 @Composable
 private fun WeatherField(weather: String) {
-    val parts = weather.split(" • ")
+    val parts       = weather.split(" • ")
     val temperature = parts.getOrNull(0) ?: weather
-    val condition = parts.getOrNull(1)
-    val styleTip = parts.getOrNull(2)
+    val condition   = parts.getOrNull(1)
+    val styleTip    = parts.getOrNull(2)
 
     Column {
         Text(
-            text = "WEATHER",
-            color = WhiteDim.copy(alpha = 0.4f),
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Bold,
+            text          = "WEATHER",
+            color         = WhiteDim.copy(alpha = 0.4f),
+            fontSize      = 10.sp,
+            fontWeight    = FontWeight.Bold,
             letterSpacing = 2.sp,
         )
         Spacer(modifier = Modifier.height(3.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = temperature,
-                color = White,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Medium,
+                text          = temperature,
+                color         = White,
+                fontSize      = 17.sp,
+                fontWeight    = FontWeight.Medium,
                 letterSpacing = (-0.2).sp,
             )
             if (condition != null) {
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "·",
-                    color = WhiteDim.copy(alpha = 0.3f),
-                    fontSize = 17.sp,
-                )
+                Text(text = "·", color = WhiteDim.copy(alpha = 0.3f), fontSize = 17.sp)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = condition,
-                    color = WhiteDim,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Medium,
+                    text          = condition,
+                    color         = WhiteDim,
+                    fontSize      = 17.sp,
+                    fontWeight    = FontWeight.Medium,
                     letterSpacing = (-0.2).sp,
                 )
             }
@@ -288,9 +269,9 @@ private fun WeatherField(weather: String) {
                     .padding(horizontal = 10.dp, vertical = 5.dp),
             ) {
                 Text(
-                    text = "👔  $styleTip",
-                    color = WhiteDim,
-                    fontSize = 12.sp,
+                    text       = "👔  $styleTip",
+                    color      = WhiteDim,
+                    fontSize   = 12.sp,
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -302,18 +283,18 @@ private fun WeatherField(weather: String) {
 private fun DetailField(label: String, value: String) {
     Column {
         Text(
-            text = label,
-            color = WhiteDim.copy(alpha = 0.4f),
-            fontSize = 10.sp,
-            fontWeight = FontWeight.Bold,
+            text          = label,
+            color         = WhiteDim.copy(alpha = 0.4f),
+            fontSize      = 10.sp,
+            fontWeight    = FontWeight.Bold,
             letterSpacing = 2.sp,
         )
         Spacer(modifier = Modifier.height(3.dp))
         Text(
-            text = value,
-            color = White,
-            fontSize = 17.sp,
-            fontWeight = FontWeight.Medium,
+            text          = value,
+            color         = White,
+            fontSize      = 17.sp,
+            fontWeight    = FontWeight.Medium,
             letterSpacing = (-0.2).sp,
         )
     }
