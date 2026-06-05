@@ -21,7 +21,6 @@ import be.runeherreman.zuyp.ui.home.HomeEvent
 import be.runeherreman.zuyp.ui.home.HomeScreen
 import be.runeherreman.zuyp.ui.home.HomeViewModel
 import be.runeherreman.zuyp.ui.permissions.AppPermission
-import be.runeherreman.zuyp.ui.permissions.BackgroundLocationRationaleDialog
 import be.runeherreman.zuyp.ui.permissions.PermissionManager
 import be.runeherreman.zuyp.ui.permissions.PermissionViewModel
 import be.runeherreman.zuyp.ui.permissions.isGranted

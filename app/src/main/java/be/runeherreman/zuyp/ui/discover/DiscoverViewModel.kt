@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -85,8 +84,8 @@ class DiscoverViewModel @Inject constructor(
     }
 
 
-    fun showBackgroundLocationRationale() = _uiState.update { it.copy(showBackgroundLocationRationale = true) }
-    fun dismissBackgroundLocationRationale() = _uiState.update { it.copy(showBackgroundLocationRationale = false) }
+    fun showBackgroundLocationRationale() = _uiState.update { it.copy(showBackgroundLocationDialog = true) }
+    fun dismissBackgroundLocationRationale() = _uiState.update { it.copy(showBackgroundLocationDialog = false) }
 
     fun toggleAttendance(target: AttendanceStatus) {
         val hangout = _uiState.value.selectedHangout ?: return

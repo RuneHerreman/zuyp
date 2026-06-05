@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,12 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.offset
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.domain.model.Marker
-import be.runeherreman.zuyp.ui.permissions.AppPermission
-import be.runeherreman.zuyp.ui.permissions.BackgroundLocationRationaleDialog
+import be.runeherreman.zuyp.ui.discover.components.BackgroundLocationRationaleDialog
 import com.mapbox.geojson.Point
 import com.mapbox.maps.ViewAnnotationAnchor
 import com.mapbox.maps.extension.compose.MapEffect
@@ -119,7 +115,7 @@ fun DiscoverScreen(
             Icon(Icons.Filled.MyLocation, contentDescription = "My location")
         }
 
-        if (uiState.showBackgroundLocationRationale) {
+        if (uiState.showBackgroundLocationDialog) {
             BackgroundLocationRationaleDialog(
                 onConfirm = onBackgroundLocationConfirmed,
                 onDismiss = onBackgroundLocationDismiss
