@@ -48,9 +48,14 @@ fun HangoutHeader(
     val dateFormatter = DateTimeFormatter.ofPattern("MMM d yyyy")
     val timeFormatter = DateTimeFormatter.ofPattern("HH'h'mm")
 
+    val isOneDay = hangout.startDate.toLocalDate() == hangout.endDate.toLocalDate()
     InfoRow(
         icon = Icons.Default.CalendarToday,
-        text = "${hangout.startDate.format(dateFormatter)} • ${hangout.startDate.format(timeFormatter)} - ${hangout.endDate.format(timeFormatter)}"
+        text =
+            when {
+                isOneDay -> "${hangout.startDate.format(dateFormatter)} • ${hangout.startDate.format(timeFormatter)} - ${hangout.endDate.format(timeFormatter)}"
+                else -> "${hangout.startDate.format(dateFormatter)} ${hangout.startDate.format(timeFormatter)} - ${hangout.endDate.format(dateFormatter)} ${hangout.endDate.format(timeFormatter)}"
+            }
     )
     Spacer(modifier = Modifier.height(4.dp))
     InfoRow(

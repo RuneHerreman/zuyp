@@ -53,8 +53,8 @@ fun HangoutCard(
     onLocationClick: (Hangout) -> Unit = { _ -> },
     onClick: (Hangout) -> Unit = {}
 ) {
-    val formattedDate =
-        hangout.startDate.format(DateTimeFormatter.ofPattern("MMM d yyyy", Locale.getDefault()))
+    val dateFormatter = DateTimeFormatter.ofPattern("MMM d yyyy")
+    val isOneDay = hangout.startDate.toLocalDate() == hangout.endDate.toLocalDate()
 
     val goingAttendees = remember(hangout.attendees) {
         hangout.attendees.filter { it.attendanceStatus == AttendanceStatus.GOING }
@@ -105,7 +105,10 @@ fun HangoutCard(
 
             // Date and location grouped
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                InfoRow(icon = Icons.Filled.CalendarToday, text = formattedDate)
+                InfoRow(icon = Icons.Filled.CalendarToday, text = when {
+                    isOneDay -> "${hangout.startDate.format(dateFormatter)}"
+                    else -> "${hangout.startDate.format(dateFormatter)} - ${hangout.endDate.format(dateFormatter)}"
+                })
                 InfoRow(
                     icon = Icons.Filled.LocationOn,
                     text = hangout.locationName,

@@ -51,7 +51,17 @@ class HangoutRepositoryRoomImpl @Inject constructor(
     }
 
     override suspend fun createOrUpdateHangout(hangout: Hangout) {
-        hangoutDao.insert(hangout.toEntity())
+        val hangoutEntity = hangout.toEntity()
+
+        val mappingEntities = hangout.attendees.map { user ->
+            HangoutUsersMapping(
+                hangoutId = hangout.id,
+                userId = user.id,
+                status = user.attendanceStatus ?: AttendanceStatus.GOING
+            )
+        }
+
+        hangoutDao.insertHangoutWithAttendees(hangoutEntity, mappingEntities)
     }
 
     override suspend fun removeHangout(hangoutId: UUID) {

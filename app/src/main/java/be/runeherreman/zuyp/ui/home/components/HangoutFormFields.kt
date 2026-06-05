@@ -23,15 +23,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.ui.home.HomeEvent
 
-/** A label above an arbitrary form field. */
+/** A label above an arbitrary form field, with an optional trailing action on the label row. */
 @Composable
-internal fun LabeledField(label: String, content: @Composable () -> Unit) {
+internal fun LabeledField(
+    label: String,
+    trailing: (@Composable () -> Unit)? = null,
+    content: @Composable () -> Unit
+) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (trailing != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                trailing()
+            }
+        } else {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         content()
     }
 }

@@ -143,6 +143,10 @@ fun HangoutScreen(
         return
     }
 
+    // During the AnimatedVisibility exit animation the screen keeps composing
+    // for a frame after the hangout has been cleared, so bail out if it's gone.
+    val hangout = uiState.hangout ?: return
+
     val scrollState = rememberScrollState()
 
     Column(
@@ -158,20 +162,20 @@ fun HangoutScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
         ){
             BackButton(onBackClick = { onEvent( HangoutEvent.BackClicked) })
-            if (uiState.hangout!!.creator.id == uiState.currentUser.id) {
-                DeleteButton(onDeleteClick = { onEvent(HangoutEvent.DeleteHangout(uiState.hangout.id)) })
+            if (hangout.creator.id == uiState.currentUser.id) {
+                DeleteButton(onDeleteClick = { onEvent(HangoutEvent.DeleteHangout(hangout.id)) })
             }
         }
 
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (uiState.hangout!!.private) {
+        if (hangout.private) {
             PrivateBadge()
         }
 
         HangoutHeader(
-            hangout = uiState.hangout,
+            hangout = hangout,
             uiState = uiState,
             onLocationClick = { openMapsForHangout(it, context) }
         )
@@ -181,17 +185,17 @@ fun HangoutScreen(
         HangoutActionButtons(
             attendanceStatus = uiState.currentUserAttendanceStatus,
             toggleGoingClick = {
-                onEvent(HangoutEvent.UpdateAttendance(uiState.hangout, AttendanceStatus.GOING))
+                onEvent(HangoutEvent.UpdateAttendance(hangout, AttendanceStatus.GOING))
             },
             toggleNotInterestedClick = {
-                onEvent(HangoutEvent.UpdateAttendance(uiState.hangout, AttendanceStatus.NOT_INTERESTED))
+                onEvent(HangoutEvent.UpdateAttendance(hangout, AttendanceStatus.NOT_INTERESTED))
             },
             onShareClick = { onEvent(HangoutEvent.ShareClicked) }
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        val goingAttendees = uiState.hangout.attendees.filter {
+        val goingAttendees = hangout.attendees.filter {
             it.attendanceStatus == AttendanceStatus.GOING
         }
 

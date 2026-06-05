@@ -12,15 +12,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -50,15 +53,41 @@ internal fun WhenSection(
     dateFormatter: DateTimeFormatter,
     timeFormatter: DateTimeFormatter,
     onAllDayChange: (Boolean) -> Unit,
-    onPickerSelect: (PickerTarget) -> Unit
+    onAsapClick: () -> Unit,
+    onPickerSelect: (PickerTarget) -> Unit,
+    showAllDay: Boolean = true
 ) {
-    LabeledField(label = "When is it?") {
+    LabeledField(
+        label = "When is it?",
+        trailing = {
+            if (showAllDay) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "All day",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Switch(checked = isAllDay, onCheckedChange = onAllDayChange)
+                }
+            } else {
+                AssistChip(
+                    onClick = onAsapClick,
+                    label = { Text("ASAP") },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Bolt,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                )
+            }
+        }
+    ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            ToggleRow(
-                label = "All day",
-                checked = isAllDay,
-                onCheckedChange = onAllDayChange
-            )
             DateTimeRow(
                 label = "Start",
                 dateText = startDateTime.format(dateFormatter),

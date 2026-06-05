@@ -64,9 +64,15 @@ fun ZuypHangoutOverlay(
         title = "Create a new hangout",
         showEndDate = false,
         showInviteAll = true,
+        showAllDay = false,
         canCreate = form.title.isNotBlank() && uiState.selectedAddress != null && within24h,
         createLabel = "ZUYP!",
         isSending = uiState.isZuypSending,
+        onRightNowClick = {
+            onEvent(HomeEvent.ZuypHangoutFormUpdate(
+                CreateHangoutFormEvent.StartDateChanged(LocalDateTime.now().plusMinutes(2))
+            ))
+        },
         onFormEvent = { onEvent(HomeEvent.ZuypHangoutFormUpdate(it)) },
         onHomeEvent = onEvent,
         createEvent = HomeEvent.CreateZuypHangout,
@@ -82,8 +88,10 @@ private fun HangoutFormDialog(
     showEndDate: Boolean,
     showInviteAll: Boolean,
     canCreate: Boolean,
+    showAllDay: Boolean = true,
     createLabel: String = "Create",
     isSending: Boolean = false,
+    onRightNowClick: () -> Unit = {},
     onFormEvent: (CreateHangoutFormEvent) -> Unit,
     onHomeEvent: (HomeEvent) -> Unit,
     createEvent: HomeEvent,
@@ -143,7 +151,9 @@ private fun HangoutFormDialog(
                     dateFormatter = dateFormatter,
                     timeFormatter = timeFormatter,
                     onAllDayChange = { onFormEvent(CreateHangoutFormEvent.AllDayChanged(it)) },
-                    onPickerSelect = { activePicker = it }
+                    onPickerSelect = { activePicker = it },
+                    showAllDay = showAllDay,
+                    onAsapClick = onRightNowClick
                 )
 
                 LabeledField(label = "Where is it?") {

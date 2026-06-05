@@ -10,7 +10,7 @@ Content-Type: application/json
 {
   "properties": {},
   "routing_key": "user-01234566-8f09-4567-4af8-def000000014",
-  "payload": "{\"type\":\"hangout_invite\",\"hangoutId\":\"10000000-0000-0000-0000-000000000006\",\"title\":\"Drinks at the square\",\"locationName\":\"Grote Markt, Bruges\",\"startDate\":\"Jun 5 2026, 20h00\",\"weather\":\"☀️ 22°C\"}",
+  "payload": "{\"type\":\"hangout_invite\",\"hangoutId\":\"10000000-0000-0000-0001-000000000006\",\"title\":\"Drinks at the square\",\"locationName\":\"Grote Markt, Bruges\",\"startDate\":\"Jun 5 2026, 20h00\",\"weather\":\"☀️ 22°C\"}",
   "payload_encoding": "string"
 }
 

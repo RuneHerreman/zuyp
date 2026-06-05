@@ -23,6 +23,12 @@ interface HangoutDao {
     suspend fun insert(item: HangoutEntity)
 
     @Transaction
+    suspend fun insertHangoutWithAttendees(hangout: HangoutEntity, mapping: List<HangoutUsersMapping>) {
+        insert(hangout)
+        insertAttendees(mapping)
+    }
+
+    @Transaction
     @Query("SELECT * FROM hangouts")
     fun getAll(): Flow<List<HangoutWithDetails>>
 
