@@ -34,6 +34,7 @@ import be.runeherreman.zuyp.ui.navigation.ZuypNavGraph
 import be.runeherreman.zuyp.ui.permissions.AppPermission
 import be.runeherreman.zuyp.ui.permissions.PermissionViewModel
 import be.runeherreman.zuyp.ui.theme.ZuypTheme
+import be.runeherreman.zuyp.ui.utils.openMapsForHangout
 
 @Composable
 fun ZuypApp(
@@ -103,6 +104,7 @@ fun ZuypApp(
                         },
                         onToggleGoing = { discoverViewModel.toggleAttendance(AttendanceStatus.GOING) },
                         onToggleNotInterested = { discoverViewModel.toggleAttendance(AttendanceStatus.NOT_INTERESTED) },
+                        onLocationClick = { openMapsForHangout(it, context) },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }

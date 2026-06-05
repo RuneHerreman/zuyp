@@ -52,6 +52,7 @@ import be.runeherreman.zuyp.ui.hangout.components.DeleteButton
 import be.runeherreman.zuyp.ui.hangout.components.HangoutActionButtons
 import be.runeherreman.zuyp.ui.hangout.components.HangoutHeader
 import be.runeherreman.zuyp.ui.hangout.components.PrivateBadge
+import be.runeherreman.zuyp.ui.utils.openMapsForHangout
 import be.runeherreman.zuyp.ui.hangout.components.ShareHangoutPopup
 import be.runeherreman.zuyp.ui.friends.components.UserProfileDialog
 import be.runeherreman.zuyp.ui.hangout.components.expenses.ExpenseDetailDialog
@@ -170,7 +171,8 @@ fun HangoutScreen(
 
         HangoutHeader(
             hangout = uiState.hangout,
-            uiState = uiState
+            uiState = uiState,
+            onLocationClick = { openMapsForHangout(it, context) }
         )
 
         Spacer(modifier = Modifier.height(24.dp))

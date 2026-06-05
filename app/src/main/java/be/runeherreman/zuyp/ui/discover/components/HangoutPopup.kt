@@ -47,6 +47,7 @@ fun HangoutPopup(
     onOpenDetails: () -> Unit,
     onToggleGoing: () -> Unit,
     onToggleNotInterested: () -> Unit,
+    onLocationClick: (Hangout) -> Unit = { _ -> },
     modifier: Modifier = Modifier
 ) {
     val formattedDate = remember(hangout.startDate) {
@@ -101,7 +102,11 @@ fun HangoutPopup(
             // Date + location
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 InfoRow(icon = Icons.Filled.CalendarToday, text = formattedDate)
-                InfoRow(icon = Icons.Filled.LocationOn, text = hangout.locationName)
+                InfoRow(
+                    icon = Icons.Filled.LocationOn,
+                    text = hangout.locationName,
+                    onClick = { onLocationClick(hangout) }
+                )
             }
 
             Spacer(modifier = Modifier.height(14.dp))
@@ -166,9 +171,15 @@ fun HangoutPopup(
 @Composable
 private fun InfoRow(
     icon: ImageVector,
-    text: String
+    text: String,
+    onClick: (() -> Unit)? = null
 ) {
     Row(
+        modifier = if (onClick != null) {
+            Modifier.clickable(onClick = onClick)
+        } else {
+            Modifier
+        },
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

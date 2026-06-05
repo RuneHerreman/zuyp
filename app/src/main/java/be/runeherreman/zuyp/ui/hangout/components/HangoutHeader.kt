@@ -1,6 +1,7 @@
 package be.runeherreman.zuyp.ui.hangout.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,7 +29,11 @@ import be.runeherreman.zuyp.ui.hangout.HangoutUiState
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun HangoutHeader(hangout: Hangout, uiState: HangoutUiState) {
+fun HangoutHeader(
+    hangout: Hangout,
+    uiState: HangoutUiState,
+    onLocationClick: (Hangout) -> Unit = { _ -> }
+) {
     Text(
         text = hangout.title,
         style = MaterialTheme.typography.displaySmall,
@@ -49,7 +54,8 @@ fun HangoutHeader(hangout: Hangout, uiState: HangoutUiState) {
     Spacer(modifier = Modifier.height(4.dp))
     InfoRow(
         icon = Icons.Default.LocationOn,
-        text = hangout.locationName
+        text = hangout.locationName,
+        onClick = { onLocationClick(hangout) }
     )
     Spacer(modifier = Modifier.height(4.dp))
     if (uiState.isLoadingWeather) {
@@ -71,8 +77,15 @@ fun HangoutHeader(hangout: Hangout, uiState: HangoutUiState) {
 }
 
 @Composable
-private fun InfoRow(icon: ImageVector, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+private fun InfoRow(icon: ImageVector, text: String, onClick: (() -> Unit)? = null) {
+    Row(
+        modifier = if (onClick != null) {
+            Modifier.clickable(onClick = onClick)
+        } else {
+            Modifier
+        },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = text, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)

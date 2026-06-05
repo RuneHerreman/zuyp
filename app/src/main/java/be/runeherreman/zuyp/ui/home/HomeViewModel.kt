@@ -1,8 +1,6 @@
 package be.runeherreman.zuyp.ui.home
 
 import android.content.Context
-import android.content.Intent
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.runeherreman.zuyp.domain.model.AddressSuggestion
@@ -19,6 +17,7 @@ import be.runeherreman.zuyp.domain.useCases.utils.ResolveAddressUseCase
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.domain.useCases.utils.SearchAddressesUseCase
 import be.runeherreman.zuyp.domain.useCases.notification.SendZuypAlertUseCase
+import be.runeherreman.zuyp.ui.utils.openMapsForHangout
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -146,14 +145,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun openMapsForHangout(hangout: Hangout, context: android.content.Context) {
-        val uri =
-            "geo:${hangout.latitude},${hangout.longitude}?q=${hangout.latitude},${hangout.longitude}(${hangout.title})"
-            .toUri()
-
-        val mapIntent = Intent(Intent.ACTION_VIEW, uri)
-        val chooser = Intent.createChooser(mapIntent, "Navigate to ${hangout.title}")
-
-        context.startActivity(chooser)
+        be.runeherreman.zuyp.ui.utils.openMapsForHangout(hangout, context)
     }
 
     // ======================================
