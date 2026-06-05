@@ -21,6 +21,12 @@ interface ExpenseDao {
     suspend fun insertShares(shares: List<ExpenseShareEntity>)
 
     @Transaction
+    suspend fun insertExpenseWithShares(expense: ExpenseEntity, shares: List<ExpenseShareEntity>) {
+        insertExpense(expense)
+        insertShares(shares)
+    }
+
+    @Transaction
     @Query("SELECT * FROM expenses WHERE hangoutId = :hangoutId ORDER BY createdAt DESC")
     fun getExpensesForHangout(hangoutId: UUID): Flow<List<ExpenseWithDetails>>
 

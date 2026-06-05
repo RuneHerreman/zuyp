@@ -29,8 +29,10 @@ class ExpenseRepositoryRoomImpl @Inject constructor(
         expenseDao.getExpenseById(id)?.toDomain()
 
     override suspend fun addExpense(expense: Expense) {
-        expenseDao.insertExpense(expense.toEntity())
-        expenseDao.insertShares(expense.shares.map { ExpenseShareEntity(expense.id, it.user.id, it.amount) })
+        expenseDao.insertExpenseWithShares(
+            expense = expense.toEntity(),
+            shares = expense.shares.map { ExpenseShareEntity(expense.id, it.user.id, it.amount) }
+        )
     }
 
     override suspend fun deleteExpense(id: UUID, requesterId: UUID) {
