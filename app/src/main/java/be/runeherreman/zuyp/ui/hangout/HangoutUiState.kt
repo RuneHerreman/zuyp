@@ -62,6 +62,7 @@ sealed interface HangoutEvent {
     data object AddExpenseOpen : HangoutEvent
     data object CameraClicked : HangoutEvent
     data object GalleryClicked : HangoutEvent
+    data class ExpenseImageCaptured(val path: String) : HangoutEvent
     data object ExpenseDetailClose : HangoutEvent
 
     data object SendInvites: HangoutEvent

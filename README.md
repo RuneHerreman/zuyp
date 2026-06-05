@@ -141,7 +141,7 @@ project week (Apr 10 – May 31).
   - Selecting a group in the member picker adds all group members at once.
 
 - **Permissions architecture:**
-  - Extracted `MainViewModel` and `PermissionManager` out of `MainActivity` so
+  - Extracted `PermissionViewModel` and `PermissionManager` out of `MainActivity` so
     runtime permission requests are driven by Compose state rather than
     imperative Activity code.
 

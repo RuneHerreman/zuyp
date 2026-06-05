@@ -402,6 +402,8 @@ class HangoutViewModel @Inject constructor(
             is HangoutEvent.ToggleInvitee   -> toggleInvitee(event.id)
             is HangoutEvent.Form            -> onAddExpenseEvent(event.event)
 
+            is HangoutEvent.ExpenseImageCaptured -> onExpenseImageCaptured(event.path)
+
             HangoutEvent.CameraClicked,
             HangoutEvent.GalleryClicked,
             HangoutEvent.ShareExternal -> Unit

@@ -1,6 +1,9 @@
 package be.runeherreman.zuyp.ui.hangout
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -25,10 +28,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import be.runeherreman.zuyp.ui.hangout.utils.copyImageIntoAppStorage
+import be.runeherreman.zuyp.ui.hangout.utils.expenseImageUri
+import be.runeherreman.zuyp.ui.hangout.utils.newExpenseImageFile
+import be.runeherreman.zuyp.ui.permissions.AppPermission
+import be.runeherreman.zuyp.ui.permissions.PermissionViewModel
+import java.io.File
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import be.runeherreman.zuyp.ui.hangout.components.AddExpenseDialog
 import be.runeherreman.zuyp.ui.hangout.components.AttendeesSection
@@ -46,8 +61,39 @@ import java.util.UUID
 @Composable
 fun HangoutOverlay(
     uiState: HangoutUiState,
+    permissionViewModel: PermissionViewModel,
     onEvent: (HangoutEvent) -> Unit = {},
 ) {
+    val context = LocalContext.current
+    var pendingPhotoFile by remember { mutableStateOf<File?>(null) }
+
+    val takePictureLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
+        if (ok) pendingPhotoFile?.absolutePath?.let { onEvent(HangoutEvent.ExpenseImageCaptured(it)) }
+    }
+
+    val pickImageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        uri?.let { onEvent(HangoutEvent.ExpenseImageCaptured(copyImageIntoAppStorage(context, it))) }
+    }
+
+    LaunchedEffect(Unit) {
+        permissionViewModel.permissionResults.collect { (permission, granted) ->
+            if (permission == AppPermission.CAMERA && granted) {
+                val file = newExpenseImageFile(context)
+                pendingPhotoFile = file
+                takePictureLauncher.launch(expenseImageUri(context, file))
+            }
+        }
+    }
+
+    val handleEvent: (HangoutEvent) -> Unit = { event ->
+        when (event) {
+            HangoutEvent.GalleryClicked -> pickImageLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+            else -> onEvent(event)
+        }
+    }
+
     AnimatedVisibility(
         visible = uiState.selectedHangoutId != null,
         enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
@@ -60,7 +106,7 @@ fun HangoutOverlay(
             HangoutScreen(
                 modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
                 uiState = uiState,
-                onEvent = onEvent
+                onEvent = handleEvent
             )
         }
     }
@@ -70,11 +116,11 @@ fun HangoutOverlay(
             users = uiState.allUsers,
             selectedIds = uiState.selectedInviteeIds,
             isSending = uiState.isSendingInvites,
-            onToggle = { onEvent(HangoutEvent.ToggleInvitee(it)) },
-            onInvite = { onEvent(HangoutEvent.SendInvites) },
-            onClearSelection = { onEvent(HangoutEvent.ClearInvitees) },
-            onShareExternal = { onEvent(HangoutEvent.ShareExternal) },
-            onDismiss = { onEvent(HangoutEvent.CloseShare) }
+            onToggle = { handleEvent(HangoutEvent.ToggleInvitee(it)) },
+            onInvite = { handleEvent(HangoutEvent.SendInvites) },
+            onClearSelection = { handleEvent(HangoutEvent.ClearInvitees) },
+            onShareExternal = { handleEvent(HangoutEvent.ShareExternal) },
+            onDismiss = { handleEvent(HangoutEvent.CloseShare) }
         )
     }
 }

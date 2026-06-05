@@ -22,8 +22,8 @@ import be.runeherreman.zuyp.ui.home.HomeEvent
 import be.runeherreman.zuyp.ui.home.HomeScreen
 import be.runeherreman.zuyp.ui.home.HomeViewModel
 import be.runeherreman.zuyp.ui.permissions.AppPermission
-import be.runeherreman.zuyp.ui.permissions.MainViewModel
 import be.runeherreman.zuyp.ui.permissions.PermissionManager
+import be.runeherreman.zuyp.ui.permissions.PermissionViewModel
 import be.runeherreman.zuyp.ui.profile.ProfileScreen
 import be.runeherreman.zuyp.ui.profile.ProfileViewModel
 
@@ -37,13 +37,13 @@ fun ZuypNavGraph(
     profileViewModel: ProfileViewModel = viewModel(),
     hangoutViewModel: HangoutViewModel = viewModel(),
     startupViewModel: StartupViewModel = viewModel(),
-    mainViewModel: MainViewModel = viewModel()
+    permissionViewModel: PermissionViewModel = viewModel()
 ) {
     val homeUiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val discoverUiState by discoverViewModel.uiState.collectAsStateWithLifecycle()
     val friendsUiState by friendsViewModel.uiState.collectAsStateWithLifecycle()
     val profileUiState by profileViewModel.uiState.collectAsStateWithLifecycle()
-    val permissionRequest by mainViewModel.permissionRequest.collectAsStateWithLifecycle()
+    val permissionRequest by permissionViewModel.permissionRequest.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
 
@@ -57,12 +57,12 @@ fun ZuypNavGraph(
     PermissionManager(
         permissionRequest = permissionRequest,
         onPermissionResult = { permission, granted ->
-            mainViewModel.onPermissionResult(permission, granted)
+            permissionViewModel.onPermissionResult(permission, granted)
         }
     )
 
     LaunchedEffect(loadedRoute) {
-        mainViewModel.requestPermission(AppPermission.NOTIFICATION)
+        permissionViewModel.requestPermission(AppPermission.NOTIFICATION)
     }
 
     NavHost(
@@ -83,8 +83,8 @@ fun ZuypNavGraph(
         }
         composable(Screen.Discover.route) {
             LaunchedEffect(Unit) {
-                mainViewModel.requestPermission(AppPermission.LOCATION)
-//                mainViewModel.requestPermission(AppPermission.BACKGROUND_LOCATION)
+                permissionViewModel.requestPermission(AppPermission.LOCATION)
+//                permissionViewModel.requestPermission(AppPermission.BACKGROUND_LOCATION)
             }
 
             DiscoverScreen(
