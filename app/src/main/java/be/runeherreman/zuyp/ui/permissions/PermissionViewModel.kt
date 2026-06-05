@@ -9,22 +9,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-/** Outcome of a single permission request, delivered as a one-shot event. */
 data class PermissionResult(val permission: AppPermission, val granted: Boolean)
 
-/**
- * Single source of truth for runtime permission requests.
- *
- * Callers express intent via [requestPermission]; the [PermissionManager] mounted in the
- * nav graph observes [permissionRequest], launches the system dialog and reports back through
- * [onPermissionResult]. Callers that need to act on a grant collect [permissionResults] rather
- * than touching the Android permission APIs themselves.
- */
 class PermissionViewModel : ViewModel() {
     private val _permissionRequest = MutableStateFlow<AppPermission?>(null)
     val permissionRequest: StateFlow<AppPermission?> = _permissionRequest
 
-    // One-shot events: a grant happens once, it is not state that persists.
     private val _permissionResults = MutableSharedFlow<PermissionResult>()
     val permissionResults: SharedFlow<PermissionResult> = _permissionResults
 

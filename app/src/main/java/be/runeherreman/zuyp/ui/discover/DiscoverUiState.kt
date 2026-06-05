@@ -10,6 +10,7 @@ data class DiscoverUiState (
     val markers: List<Marker> = emptyList(),
     val selectedHangout: Hangout? = null,
     val hangoutPopupOpen: Boolean = false,
+    val showBackgroundLocationRationale: Boolean = false,
     val currentUserId: UUID = CurrentUser.id,
     val viewportState: MapViewportState = MapViewportState()
 )

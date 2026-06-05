@@ -1,6 +1,5 @@
 package be.runeherreman.zuyp.ui.navigation
 
-import android.Manifest
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,6 +21,7 @@ import be.runeherreman.zuyp.ui.home.HomeEvent
 import be.runeherreman.zuyp.ui.home.HomeScreen
 import be.runeherreman.zuyp.ui.home.HomeViewModel
 import be.runeherreman.zuyp.ui.permissions.AppPermission
+import be.runeherreman.zuyp.ui.permissions.BackgroundLocationRationaleDialog
 import be.runeherreman.zuyp.ui.permissions.PermissionManager
 import be.runeherreman.zuyp.ui.permissions.PermissionViewModel
 import be.runeherreman.zuyp.ui.profile.ProfileScreen
@@ -84,7 +84,24 @@ fun ZuypNavGraph(
         composable(Screen.Discover.route) {
             LaunchedEffect(Unit) {
                 permissionViewModel.requestPermission(AppPermission.LOCATION)
-//                permissionViewModel.requestPermission(AppPermission.BACKGROUND_LOCATION)
+            }
+
+            LaunchedEffect(Unit) {
+                permissionViewModel.permissionResults.collect { (permission, granted) ->
+                    if (permission == AppPermission.LOCATION && granted) {
+                        discoverViewModel.showBackgroundLocationRationale()
+                    }
+                }
+            }
+
+            if (discoverUiState.showBackgroundLocationRationale) {
+                BackgroundLocationRationaleDialog(
+                    onConfirm = {
+                        discoverViewModel.dismissBackgroundLocationRationale()
+                        permissionViewModel.requestPermission(AppPermission.BACKGROUND_LOCATION)
+                    },
+                    onDismiss = discoverViewModel::dismissBackgroundLocationRationale
+                )
             }
 
             DiscoverScreen(
