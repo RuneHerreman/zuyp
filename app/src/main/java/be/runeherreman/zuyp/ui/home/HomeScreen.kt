@@ -120,7 +120,7 @@ fun HomeScreen(
             onClick = { onEvent(HomeEvent.CreateHangoutOpen) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(6.dp),
+                .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer
