@@ -14,6 +14,7 @@ import be.runeherreman.zuyp.domain.usecases.groups.GetUserGroupsUseCase
 import be.runeherreman.zuyp.domain.usecases.hangouts.GetHangoutsUseCase
 import be.runeherreman.zuyp.domain.usecases.api.ResolveAddressUseCase
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.domain.usecases.api.SearchAddressesUseCase
 import be.runeherreman.zuyp.domain.usecases.notification.SendZuypAlertUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -302,7 +303,7 @@ class HomeViewModel @Inject constructor(
             longitude = address.longitude,
             startDate = finalStart,
             endDate = finalEnd,
-            attendees = emptyList(),
+            attendees = listOf(CurrentUser.user.copy(attendanceStatus = AttendanceStatus.GOING)),
             creator = creator,
             private = form.isPrivate
         )
@@ -334,7 +335,7 @@ class HomeViewModel @Inject constructor(
             longitude = address.longitude,
             startDate = finalStart,
             endDate = end,
-            attendees = emptyList(),
+            attendees = listOf(CurrentUser.user.copy(attendanceStatus = AttendanceStatus.GOING)),
             creator = creator,
             private = form.isPrivate
         )

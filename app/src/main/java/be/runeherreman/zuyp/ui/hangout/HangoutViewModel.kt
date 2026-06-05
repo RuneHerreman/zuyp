@@ -72,6 +72,7 @@ class HangoutViewModel @Inject constructor(
 ): ViewModel() {
     val currentUser = CurrentUser.user
     private var shakeJob: Job? = null;
+    private var expensesJob: Job? = null
 
     private val _uiState = MutableStateFlow(HangoutUiState())
     val uiState: StateFlow<HangoutUiState> = _uiState
@@ -100,6 +101,7 @@ class HangoutViewModel @Inject constructor(
     }
 
     fun loadHangoutExpenses(hangoutId: String) {
+        expensesJob?.cancel()
         viewModelScope.launch {
             combine(
                 getHangoutExpensesUseCase(UUID.fromString(hangoutId)),
