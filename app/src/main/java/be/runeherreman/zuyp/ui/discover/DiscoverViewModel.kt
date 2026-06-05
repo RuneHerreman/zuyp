@@ -84,18 +84,10 @@ class DiscoverViewModel @Inject constructor(
         _uiState.update { it.copy(hangoutPopupOpen = false) }
     }
 
-    fun showBackgroundLocationRationale() {
-        _uiState.update { it.copy(showBackgroundLocationRationale = true) }
-    }
 
-    fun dismissBackgroundLocationRationale() {
-        _uiState.update { it.copy(showBackgroundLocationRationale = false) }
-    }
+    fun showBackgroundLocationRationale() = _uiState.update { it.copy(showBackgroundLocationRationale = true) }
+    fun dismissBackgroundLocationRationale() = _uiState.update { it.copy(showBackgroundLocationRationale = false) }
 
-    /**
-     * Toggles the current user's attendance for the selected hangout. Tapping the
-     * status the user already holds clears it (mirrors HangoutViewModel.toggleGoing).
-     */
     fun toggleAttendance(target: AttendanceStatus) {
         val hangout = _uiState.value.selectedHangout ?: return
         val current = hangout.attendees
