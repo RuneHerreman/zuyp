@@ -2,7 +2,8 @@ package be.runeherreman.zuyp
 
 import android.app.Application
 import android.content.Intent
-import be.runeherreman.zuyp.data.geofence.GeofenceSyncCoordinator
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import be.runeherreman.zuyp.data.local.room.database.DatabaseSeeder
 import be.runeherreman.zuyp.data.services.MessagingService
 import be.runeherreman.zuyp.data.workers.NotificationHelper
@@ -11,10 +12,15 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltAndroidApp
-class ZuypApplication : Application() {
+class ZuypApplication : Application(), Configuration.Provider {
 
     @Inject lateinit var databaseSeeder: DatabaseSeeder
-    @Inject lateinit var geofenceSyncCoordinator: GeofenceSyncCoordinator
+    @Inject lateinit var workerFactory: HiltWorkerFactory
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     override fun onCreate() {
         super.onCreate()
@@ -27,6 +33,5 @@ class ZuypApplication : Application() {
         } catch (_: Exception) {
             // startForegroundService is not allowed when launched from background (Android 12+)
         }
-        geofenceSyncCoordinator.start()
     }
 }

@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.domain.useCases.api.geofencing
+package be.runeherreman.zuyp.domain.useCases.geofencing
 
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
@@ -15,6 +15,7 @@ import javax.inject.Inject
 class GetActiveGeofenceZonesUseCase @Inject constructor(
     private val hangoutRepository: HangoutRepository,
 ) {
+    // emits when data changes
     fun getActiveGeofenceZones(): Flow<List<GeoFence>> =
         hangoutRepository.getAllHangouts().map { hangouts -> toZones(hangouts) }
 

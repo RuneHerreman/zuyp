@@ -1,31 +1,25 @@
 package be.runeherreman.zuyp.data.workers.geofencing
 
 import android.content.Context
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import be.runeherreman.zuyp.domain.repository.GeoFenceRepository
-import be.runeherreman.zuyp.domain.useCases.api.geofencing.GetActiveGeofenceZonesUseCase
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.components.SingletonComponent
+import be.runeherreman.zuyp.domain.useCases.geofencing.GetActiveGeofenceZonesUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 
-class GeofenceSyncWorker(
-    context: Context,
-    params: WorkerParameters,
+@HiltWorker
+class GeofenceSyncWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted params: WorkerParameters,
+    private val getActiveGeofenceZonesUseCase: GetActiveGeofenceZonesUseCase,
+    private val geoFenceRepository: GeoFenceRepository,
 ) : CoroutineWorker(context, params) {
 
-    @EntryPoint
-    @InstallIn(SingletonComponent::class)
-    interface Dependencies {
-        fun getActiveGeofenceZonesUseCase(): GetActiveGeofenceZonesUseCase
-        fun geoFenceRepository(): GeoFenceRepository
-    }
-
     override suspend fun doWork(): Result {
-        val deps = EntryPointAccessors.fromApplication(applicationContext, Dependencies::class.java)
-        val zones = deps.getActiveGeofenceZonesUseCase().getSnapshot()
-        deps.geoFenceRepository().replaceZones(zones)
+        val zones = getActiveGeofenceZonesUseCase.getSnapshot()
+        geoFenceRepository.replaceZones(zones)
         return Result.success()
     }
 

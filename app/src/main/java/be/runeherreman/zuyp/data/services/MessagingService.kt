@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import be.runeherreman.zuyp.R
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
+import be.runeherreman.zuyp.data.geofence.GeofenceSyncCoordinator
 import be.runeherreman.zuyp.data.messaging.MessageConsumer
 import be.runeherreman.zuyp.data.messaging.NotificationMessage
 import be.runeherreman.zuyp.data.workers.NotificationHelper
@@ -24,6 +25,7 @@ import javax.inject.Inject
 class MessagingService : Service() {
 
     @Inject lateinit var messageConsumer: MessageConsumer
+    @Inject lateinit var geofenceSyncCoordinator: GeofenceSyncCoordinator
 
     private val job   = SupervisorJob()
     private val scope = CoroutineScope(Dispatchers.IO + job)
@@ -32,19 +34,22 @@ class MessagingService : Service() {
         super.onCreate()
         startForeground(NOTIFICATION_ID, buildForegroundNotification())
 
+        // Start message broker consumer
         val userId = CurrentUser.id.toString()
-
         messageConsumer.onMessageReceived = { raw ->
             scope.launch {
                 val message = NotificationMessage.fromJson(raw)
                 if (message != null) {
                     NotificationHelper.handle(this@MessagingService, userId, message)
                 } else {
-                    Log.w("MessagingService", "Unknown message: $raw")
+                    Log.w(TAG, "Unknown message: $raw")
                 }
             }
         }
         messageConsumer.startConsuming(userId)
+
+        // Start geofence coordinator
+        geofenceSyncCoordinator.start(scope)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
@@ -74,5 +79,6 @@ class MessagingService : Service() {
     companion object {
         private const val NOTIFICATION_ID = 9999
         private const val CHANNEL_ID      = "zuyp_service"
+        private const val TAG             = "MessagingService"
     }
 }
