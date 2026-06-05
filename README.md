@@ -230,22 +230,82 @@ project week (Apr 10 – May 31).
   - `HomeScreen` simplified — passes the full `uiState` object to
     `CreateHangoutPopup` and `ZuypHangoutOverlay` instead of individual fields.
 
+- **Geofencing — auto-mark present (background task + sensor-driven action):**
+  - Domain: `GeofenceRepository` interface + `MarkPresentUseCase`,
+    `GetHangoutsInRadiusUseCase`.
+  - Data: `GeofenceRepositoryMapboxImpl` using the Mapbox Turf library for
+    circle geometry; registers/unregisters Mapbox geofences for all upcoming
+    hangouts within 50 km.
+  - `GeofenceCoordinator` — scoped to the foreground `MessagingService`,
+    subscribes to the hangout list and keeps geofences in sync.
+  - `MarkPresentWorker` (WorkManager `CoroutineWorker`) — triggered on geofence
+    entry; marks the current user `PRESENT` and starts the
+    `HydrationReminderScheduler`.
+  - `HydrationReminderScheduler` — schedules a periodic WorkManager task that
+    fires a notification every 30 minutes while the user is at an event.
+  - Added `PRESENT` attendance status separate from `GOING`; shake and manual
+    RSVP are blocked once `PRESENT`.
+  - `BackgroundLocationRationaleDialog` shown once on Discover if foreground
+    location is granted but background location is not; "Continue" triggers the
+    `ACCESS_BACKGROUND_LOCATION` runtime request.
+
+- **Permission architecture refactor:**
+  - Removed all direct `ContextCompat.checkSelfPermission` / launcher calls
+    from `ZuypApp` and scattered composables.
+  - Single `PermissionViewModel` with a `requestPermission()` entry point and a
+    `SharedFlow<PermissionResult>` for one-shot grant events — all permission
+    requests now flow through the nav graph's `PermissionManager`.
+  - `AppPermission.isGranted(context)` extension checks all underlying Android
+    permissions at once.
+  - Camera launcher moved into `HangoutOverlay` (where it belongs); result
+    collected via the permission results flow so no state polling is needed.
+
+- **Discover / Map polish:**
+  - All upcoming hangouts now shown on the map (was only showing a subset).
+  - Fixed time-range filter: `isAfter(now − 12h) AND isBefore(now + 30d)` (was
+    OR, so it matched everything).
+  - Seed hangout dates converted to relative (`inDays(n)`) helpers so they
+    never expire between app launches.
+  - Map markers: `allowOverlap`, `allowOverlapWithPuck`, `ignoreCameraPadding`
+    and `annotationAnchor(BOTTOM)` added — pins now visible at all zoom levels
+    and not hidden by the location puck or camera padding.
+  - Marker icon: dark blue `LocationOn` with a matching filled circle behind it
+    to plug the transparent hole; click ripple removed for a cleaner tap.
+  - Shake-to-go extended to the map popup — shaking while a hangout popup is
+    open marks you as going, same as in the full detail screen.
+
+- **Navigation & UX consistency:**
+  - Location field in the home screen card, the map popup, and the hangout
+    detail header are all now tappable and fire a maps chooser intent
+    (`geo:lat,lng`).
+  - `openMapsForHangout()` extracted to a shared utility (`ui/utils/`) so the
+    three call sites share one implementation.
+  - `InfoRow` composable extracted to `ui/components/` — previously duplicated
+    across `HangoutCard`, `HangoutPopup` and `HangoutHeader`.
+  - "Mark as paid" confirmation dialog restyled to match project standard:
+    `Dialog` + `Surface(RoundedCornerShape(28.dp))` with `Button` / `OutlinedButton`
+    footer instead of a plain `AlertDialog` with text buttons.
+  - FAB padding aligned to `16.dp` on both Home and Discover screens.
+  - Seeded user names updated to reflect real project group members.
+
 ## What I still need to do
 
 Against the project requirement checklist:
 
 **Must have**
-- [ ] Background task: `NotificationWorker` is wired up but currently a
-      placeholder — still need hourly hydration reminders while at an event and
-      a post-event reminder to settle expenses.
+- [x] Background task: `HydrationReminderScheduler` fires a WorkManager
+      periodic notification every 30 minutes while the user is at an event.
+      Post-event expense reminder still outstanding.
 - [x] Second sensor: shake (accelerometer) for 1 second → auto-joins the
-      hangout you're viewing. Threshold-based with gravity subtraction and a
-      grace period.
+      hangout you're viewing. Works from both the full detail screen and the
+      map popup.
 - [ ] Unit tests (only example stubs exist for now).
 
 **Intermediate**
 - [ ] Publish more message-broker data types (e.g. "arrived" / "can't come").
-- [ ] Geofencing — notify the group when someone enters an event's area.
+- [x] Geofencing — Mapbox geofences registered for all nearby upcoming
+      hangouts; entry fires `MarkPresentWorker` which marks the user `PRESENT`
+      and starts hydration reminders.
 - [x] Trigger actions automatically from sensor data — shaking auto-joins the
       hangout without any button press.
 - [x] Camera: attach a photo of the receipt to an expense.
@@ -256,7 +316,9 @@ Against the project requirement checklist:
       vault.
 - [ ] Filtering — filter incoming MessageBroker messages (e.g. mute certain
       notification types per user preference).
-- [ ] GPS navigation — navigate to a hangout location from the detail screen.
+- [x] GPS navigation — tapping the location field in the hangout card, map
+      popup, or detail screen opens a maps chooser intent with the exact
+      coordinates.
 
 **Feature work still open**
 - [x] Expenses tracking — add/delete, equal & custom splits (with Tricount-style
@@ -269,6 +331,9 @@ Against the project requirement checklist:
 - [x] Notification grouping — multiple hangout notifications collapse under a
       summary.
 - [x] User profile popup reused from hangout attendee list.
+- [x] Geofencing with auto-present and hydration reminders.
+- [x] Shake-to-go from both hangout detail and map popup.
+- [x] Tappable location field → maps navigation intent.
 - [ ] Profile: edit profile photo and IBAN.
 - [ ] Fix crash when joining an event from a push notification.
-- [ ] Hydration reminder background task (WorkManager periodic work).
+- [ ] Post-event reminder to settle expenses (WorkManager periodic work).
