@@ -15,6 +15,7 @@ class LavinMQMessagePublisher @Inject constructor(
             try {
                 val connection = factory.newConnection()
                 val channel = connection.createChannel()
+                channel.exchangeDeclare(exchange, "direct", true)
                 channel.basicPublish(
                     exchange,
                     "user-$recipientId",

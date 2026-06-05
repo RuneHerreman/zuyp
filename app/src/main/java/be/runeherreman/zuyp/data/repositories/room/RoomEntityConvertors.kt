@@ -4,7 +4,7 @@ import be.runeherreman.zuyp.data.local.room.entity.expenses.ExpenseEntity
 import be.runeherreman.zuyp.data.local.room.entity.expenses.ExpenseWithDetails
 import be.runeherreman.zuyp.data.local.room.entity.groups.GroupEntity
 import be.runeherreman.zuyp.data.local.room.entity.groups.GroupWithMembers
-import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutEntity
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutWithDetails
 import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity

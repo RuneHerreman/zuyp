@@ -2,7 +2,7 @@ package be.runeherreman.zuyp.ui.navigation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import be.runeherreman.zuyp.domain.useCases.users.GetStartupScreenUseCase
+import be.runeherreman.zuyp.domain.usecases.users.GetStartupScreenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

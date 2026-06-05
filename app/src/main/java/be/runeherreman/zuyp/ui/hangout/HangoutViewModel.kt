@@ -10,32 +10,32 @@ import androidx.compose.material.icons.filled.WbSunny
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
-import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Expense
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.PersonBalance
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.model.generateWeatherPrediction
 import be.runeherreman.zuyp.domain.utils.ExpenseSplitter
-import be.runeherreman.zuyp.domain.useCases.expenses.AddExpenseUseCase
-import be.runeherreman.zuyp.domain.useCases.expenses.DeleteExpenseUseCase
-import be.runeherreman.zuyp.domain.useCases.expenses.GetEventBalancesUseCase
-import be.runeherreman.zuyp.domain.useCases.expenses.GetHangoutExpensesUseCase
-import be.runeherreman.zuyp.domain.useCases.expenses.SettleDebtUseCase
-import be.runeherreman.zuyp.domain.useCases.friendship.AddFriendshipUseCase
-import be.runeherreman.zuyp.domain.useCases.friendship.AreFriendsUseCase
-import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
-import be.runeherreman.zuyp.domain.useCases.hangouts.DeleteHangoutUseCase
-import be.runeherreman.zuyp.domain.useCases.users.GetAllUsersUseCase
+import be.runeherreman.zuyp.domain.usecases.expenses.AddExpenseUseCase
+import be.runeherreman.zuyp.domain.usecases.expenses.DeleteExpenseUseCase
+import be.runeherreman.zuyp.domain.usecases.expenses.GetEventBalancesUseCase
+import be.runeherreman.zuyp.domain.usecases.expenses.GetHangoutExpensesUseCase
+import be.runeherreman.zuyp.domain.usecases.expenses.SettleDebtUseCase
+import be.runeherreman.zuyp.domain.usecases.friendship.AddFriendshipUseCase
+import be.runeherreman.zuyp.domain.usecases.friendship.AreFriendsUseCase
+import be.runeherreman.zuyp.domain.usecases.friendship.GetFriendsUseCase
+import be.runeherreman.zuyp.domain.usecases.hangouts.DeleteHangoutUseCase
+import be.runeherreman.zuyp.domain.usecases.users.GetAllUsersUseCase
 import be.runeherreman.zuyp.ui.friends.UserProfile
-import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutByIdUseCase
-import be.runeherreman.zuyp.domain.useCases.api.GetWeatherForecastUseCase
-import be.runeherreman.zuyp.domain.useCases.friendship.RemoveFriendshipUseCase
-import be.runeherreman.zuyp.domain.useCases.notification.SendHangoutInviteUseCase
-import be.runeherreman.zuyp.domain.useCases.hangouts.UpdateAttendanceUseCase
-import be.runeherreman.zuyp.domain.useCases.users.DetectShakeUseCase
-import be.runeherreman.zuyp.domain.useCases.users.StartShakeDetectionUseCase
-import be.runeherreman.zuyp.domain.useCases.users.StopShakeDetectionUseCase
+import be.runeherreman.zuyp.domain.usecases.hangouts.GetHangoutByIdUseCase
+import be.runeherreman.zuyp.domain.usecases.api.GetWeatherForecastUseCase
+import be.runeherreman.zuyp.domain.usecases.friendship.RemoveFriendshipUseCase
+import be.runeherreman.zuyp.domain.usecases.notification.SendHangoutInviteUseCase
+import be.runeherreman.zuyp.domain.usecases.hangouts.UpdateAttendanceUseCase
+import be.runeherreman.zuyp.domain.usecases.users.DetectShakeUseCase
+import be.runeherreman.zuyp.domain.usecases.users.StartShakeDetectionUseCase
+import be.runeherreman.zuyp.domain.usecases.users.StopShakeDetectionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -347,7 +347,7 @@ class HangoutViewModel @Inject constructor(
     fun openShareSheet() {
         _uiState.update { it.copy(isShareSheetOpen = true) }
         viewModelScope.launch {
-            val attendeeIds = _uiState.value.hangout.attendees.map { it.id }.toSet()
+            val attendeeIds = _uiState.value.hangout!!.attendees.map { it.id }.toSet()
             val allUsers = getAllUsersUseCase().filter {
                 it.id != currentUser.id && it.id !in attendeeIds
             }
@@ -380,7 +380,7 @@ class HangoutViewModel @Inject constructor(
             _uiState.value.selectedInviteeIds.forEach { inviteeId ->
                 sendHangoutInviteUseCase(
                     inviteeId,
-                    _uiState.value.hangout.id
+                    _uiState.value.hangout!!.id
                 )
             }
             _uiState.update { it.copy(isSendingInvites = false) }
@@ -409,7 +409,7 @@ class HangoutViewModel @Inject constructor(
     //                                      EXPENSES
     // =================================================================================
     private fun expenseCandidates(state: HangoutUiState): List<User> =
-        (listOf(state.currentUser) + state.hangout.attendees).distinctBy { it.id }
+        (listOf(state.currentUser) + state.hangout!!.attendees).distinctBy { it.id }
 
     private fun loadExpenseForm(form: AddExpenseForm, candidates: List<User>): AddExpenseForm {
         val paidBy = resolvePaidBy(form.paidById, candidates)
@@ -513,7 +513,7 @@ class HangoutViewModel @Inject constructor(
             detectShakeUseCase().collect {
                 val status = _uiState.value.currentUserAttendanceStatus
                 if (status != AttendanceStatus.GOING && status != AttendanceStatus.PRESENT) {
-                    toggleGoing(_uiState.value.hangout, AttendanceStatus.GOING)
+                    toggleGoing(_uiState.value.hangout!!, AttendanceStatus.GOING)
                 }
             }
         }

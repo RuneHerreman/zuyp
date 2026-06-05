@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
-import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.ui.components.InfoRow
 import coil.compose.AsyncImage
 import java.time.format.DateTimeFormatter

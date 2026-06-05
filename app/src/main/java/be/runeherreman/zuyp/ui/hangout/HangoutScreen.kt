@@ -44,7 +44,7 @@ import be.runeherreman.zuyp.ui.hangout.utils.newExpenseImageFile
 import be.runeherreman.zuyp.ui.permissions.AppPermission
 import be.runeherreman.zuyp.ui.permissions.PermissionViewModel
 import java.io.File
-import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.ui.hangout.components.AddExpenseDialog
 import be.runeherreman.zuyp.ui.hangout.components.AttendeesSection
 import be.runeherreman.zuyp.ui.hangout.components.BackButton
@@ -158,7 +158,7 @@ fun HangoutScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
         ){
             BackButton(onBackClick = { onEvent( HangoutEvent.BackClicked) })
-            if (uiState.hangout.creator.id == uiState.currentUser.id) {
+            if (uiState.hangout!!.creator.id == uiState.currentUser.id) {
                 DeleteButton(onDeleteClick = { onEvent(HangoutEvent.DeleteHangout(uiState.hangout.id)) })
             }
         }
@@ -166,7 +166,7 @@ fun HangoutScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (uiState.hangout.private) {
+        if (uiState.hangout!!.private) {
             PrivateBadge()
         }
 

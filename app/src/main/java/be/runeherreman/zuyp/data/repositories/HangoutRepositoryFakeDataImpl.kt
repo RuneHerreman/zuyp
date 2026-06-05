@@ -2,7 +2,7 @@ package be.runeherreman.zuyp.data.repositories
 
 import be.runeherreman.zuyp.data.fake.data.FakeDataSource
 import be.runeherreman.zuyp.data.fake.dto.HangoutDto
-import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
 import kotlinx.coroutines.flow.Flow

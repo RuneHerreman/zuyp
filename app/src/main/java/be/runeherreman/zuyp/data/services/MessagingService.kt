@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -32,7 +33,7 @@ class MessagingService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        startForeground(NOTIFICATION_ID, buildForegroundNotification())
+        startForeground(NOTIFICATION_ID, buildForegroundNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_REMOTE_MESSAGING)
 
         // Start message broker consumer
         val userId = CurrentUser.id.toString()
@@ -72,7 +73,6 @@ class MessagingService : Service() {
             .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setOngoing(true)
             .setSilent(true)
-            .setTimeoutAfter(5_000L)
             .build()
     }
 

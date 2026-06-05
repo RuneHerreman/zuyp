@@ -2,6 +2,7 @@ package be.runeherreman.zuyp.data.local.room.entity.expenses
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutEntity
 import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
@@ -14,6 +15,11 @@ import java.util.UUID
         ForeignKey(HangoutEntity::class, ["id"], ["hangoutId"], onDelete = ForeignKey.CASCADE),
         ForeignKey(UserEntity::class, ["id"], ["fromUserId"], onDelete = ForeignKey.CASCADE),
         ForeignKey(UserEntity::class, ["id"], ["toUserId"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [
+        Index("hangoutId"),
+        Index("fromUserId"),
+        Index("toUserId"),
     ]
 )
 

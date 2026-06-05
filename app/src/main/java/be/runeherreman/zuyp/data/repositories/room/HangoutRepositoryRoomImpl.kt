@@ -1,7 +1,7 @@
 package be.runeherreman.zuyp.data.repositories.room
 
 import be.runeherreman.zuyp.data.local.room.dao.HangoutDao
-import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutEntity
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutUsersMapping
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutWithDetails

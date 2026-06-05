@@ -1,6 +1,6 @@
 package be.runeherreman.zuyp.domain.model
 
-import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import java.time.LocalDate
 import java.util.UUID
 

@@ -1,6 +1,6 @@
 package be.runeherreman.zuyp.domain.repository
 
-import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Hangout
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID

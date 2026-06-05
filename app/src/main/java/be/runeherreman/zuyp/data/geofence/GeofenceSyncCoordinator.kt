@@ -11,9 +11,9 @@ import be.runeherreman.zuyp.data.workers.geofencing.HydrationReminderScheduler
 import be.runeherreman.zuyp.data.workers.geofencing.MarkPresentWorker
 import be.runeherreman.zuyp.domain.model.GeofenceEvent
 import be.runeherreman.zuyp.domain.repository.GeoFenceRepository
-import be.runeherreman.zuyp.domain.useCases.geofencing.GetActiveGeofenceZonesUseCase
-import be.runeherreman.zuyp.domain.useCases.geofencing.ReplaceZonesUseCase
-import be.runeherreman.zuyp.domain.useCases.hangouts.MarkLeftUseCase
+import be.runeherreman.zuyp.domain.usecases.geofencing.GetActiveGeofenceZonesUseCase
+import be.runeherreman.zuyp.domain.usecases.geofencing.ReplaceZonesUseCase
+import be.runeherreman.zuyp.domain.usecases.hangouts.MarkLeftUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch

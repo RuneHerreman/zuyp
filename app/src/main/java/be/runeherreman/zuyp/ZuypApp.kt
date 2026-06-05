@@ -23,7 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.ui.discover.DiscoverViewModel
 import be.runeherreman.zuyp.ui.discover.components.HangoutPopup
 import be.runeherreman.zuyp.ui.hangout.HangoutEvent
@@ -117,7 +117,7 @@ fun ZuypApp(
                 onEvent = { event ->
                     when (event) {
                         HangoutEvent.CameraClicked -> permissionViewModel.requestPermission(AppPermission.CAMERA)
-                        HangoutEvent.ShareExternal -> hangoutViewModel.shareHangoutExternally(hangoutUiState.hangout, context)
+                        HangoutEvent.ShareExternal -> hangoutViewModel.shareHangoutExternally(hangoutUiState.hangout!!, context)
                         else -> hangoutViewModel.onEvent(event)
                     }
                 }

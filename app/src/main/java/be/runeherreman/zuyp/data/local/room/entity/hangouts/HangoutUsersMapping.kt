@@ -4,13 +4,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import java.util.UUID
-
-enum class AttendanceStatus {
-    GOING,
-    NOT_INTERESTED,
-    PRESENT
-}
 
 @Entity(
     tableName = "hangouts_users",

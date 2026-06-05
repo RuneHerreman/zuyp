@@ -2,10 +2,10 @@ package be.runeherreman.zuyp.ui.alert
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import be.runeherreman.zuyp.domain.useCases.hangouts.UpdateAttendanceUseCase
+import be.runeherreman.zuyp.domain.usecases.hangouts.UpdateAttendanceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +21,7 @@ class ZuypAlertViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(ZuypAlertUiState())
     val uiState: StateFlow<ZuypAlertUiState> = _uiState
+
 
     fun loadFromIntent(hangoutId: String, title: String, locationName: String, startDate: String, weather: String?) {
         _uiState.update {

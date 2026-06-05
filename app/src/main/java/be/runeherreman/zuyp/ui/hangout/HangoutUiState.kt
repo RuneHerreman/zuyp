@@ -4,7 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.ui.graphics.vector.ImageVector
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
-import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.Expense
 import be.runeherreman.zuyp.domain.model.ExpenseShare
 import be.runeherreman.zuyp.domain.model.Hangout
@@ -16,19 +16,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 data class HangoutUiState(
-    val hangout: Hangout = Hangout(
-        id = UUID.randomUUID(),
-        title = "Example hangout",
-        description = "This is an example hangout description",
-        locationName = "Frankelstraat 28",
-        latitude = 50.7,
-        longitude = 3.785,
-        startDate = LocalDateTime.of(2026, 4, 18, 14, 0),
-        endDate = LocalDateTime.of(2026, 4, 18, 23, 0),
-        attendees = emptyList(),
-        creator = User(UUID.randomUUID(), "KoenK", LocalDate.of(2002, 7, 20), "koen@gmail.com"),
-        private = false,
-    ),
+    val hangout: Hangout? = null,
     val currentUser: User = CurrentUser.user,
     val friendShipMapping: Map<UUID, Boolean> = emptyMap(),
     val weatherPrediction: String = "",
