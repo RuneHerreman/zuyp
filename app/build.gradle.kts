@@ -113,4 +113,7 @@ dependencies {
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-turf:7.10.0")
     implementation(libs.mapbox.search)
     implementation(libs.mapbox.search.autocomplete)
+
+    // Key store
+    implementation(libs.androidx.security.crypto)
 }
