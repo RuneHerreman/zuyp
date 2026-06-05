@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.domain.useCases.utils.geofencing
+package be.runeherreman.zuyp.domain.useCases.api.geofencing
 
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus

@@ -3,7 +3,7 @@ package be.runeherreman.zuyp.domain.useCases.notification
 import be.runeherreman.zuyp.data.messaging.MessagePublisher
 import be.runeherreman.zuyp.domain.model.generateWeatherPrediction
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
-import be.runeherreman.zuyp.domain.useCases.utils.GetWeatherForecastUseCase
+import be.runeherreman.zuyp.domain.useCases.api.GetWeatherForecastUseCase
 import org.json.JSONObject
 import java.time.format.DateTimeFormatter
 import java.util.UUID

@@ -34,9 +34,7 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
     private val currentUserId: UUID = CurrentUser.id
 
-    private val _uiState = MutableStateFlow(
-        ProfileUiState(user = CurrentUser.user, isLoading = true)
-    )
+    private val _uiState = MutableStateFlow(ProfileUiState(user = CurrentUser.user, isLoading = true))
     val uiState: StateFlow<ProfileUiState> = _uiState
 
     init {
@@ -46,21 +44,12 @@ class ProfileViewModel @Inject constructor(
             getAllHangoutsUseCase().collect { hangouts ->
                 val now = LocalDateTime.now()
 
-                val owned = hangouts.filter { it.creator.id == currentUserId }
-                val upcoming = hangouts.filter {
-                    it.startDate.isAfter(now) && isAttendingOrCreator(it)
-                }
-                val previous = hangouts.filter {
-                    it.endDate.isBefore(now) && isAttendingOrCreator(it)
-                }
-                val eventsCount = hangouts.count(::isAttendingOrCreator)
-
-                _uiState.update {
+                _uiState.update { it ->
                     it.copy(
-                        ownedHangouts = owned,
-                        upcomingHangouts = upcoming,
-                        previousHangouts = previous,
-                        eventsCount = eventsCount,
+                        ownedHangouts = hangouts.filter { it.creator.id == currentUserId },
+                        upcomingHangouts = hangouts.filter { it.startDate.isAfter(now) && isAttendingOrCreator(it) },
+                        previousHangouts = hangouts.filter { it.endDate.isBefore(now) && isAttendingOrCreator(it) },
+                        eventsCount = hangouts.count(::isAttendingOrCreator),
                         isLoading = false
                     )
                 }
@@ -68,9 +57,7 @@ class ProfileViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            getStartupScreenUseCase().collect { route ->
-                _uiState.update { it.copy(startupRoute = route) }
-            }
+            getStartupScreenUseCase().collect { route -> _uiState.update { it.copy(startupRoute = route) } }
         }
     }
 
@@ -89,14 +76,13 @@ class ProfileViewModel @Inject constructor(
         _uiState.update { it.copy(user = user, friendsCount = friendCount, groupsCount = groupCount) }
     }
 
-    // Persists which screen the app should open on launch
+    // What screen does the app open on?
     fun setStartupScreen(route: String) {
         viewModelScope.launch {
             setStartupScreenUseCase(route)
         }
     }
 
-    // A hangout the current user created or is on the attendee list
     private fun isAttendingOrCreator(hangout: Hangout): Boolean =
         hangout.creator.id == currentUserId ||
         hangout.attendees.any { it.id == currentUserId }

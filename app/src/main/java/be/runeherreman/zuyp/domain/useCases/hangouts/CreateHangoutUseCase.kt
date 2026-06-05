@@ -5,7 +5,7 @@ import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.model.generateWeatherPrediction
 import be.runeherreman.zuyp.domain.repository.HangoutRepository
-import be.runeherreman.zuyp.domain.useCases.utils.GetWeatherForecastUseCase
+import be.runeherreman.zuyp.domain.useCases.api.GetWeatherForecastUseCase
 import org.json.JSONObject
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject

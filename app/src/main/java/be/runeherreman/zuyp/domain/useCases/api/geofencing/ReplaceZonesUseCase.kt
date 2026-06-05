@@ -1,4 +1,4 @@
-package be.runeherreman.zuyp.domain.useCases.utils.geofencing
+package be.runeherreman.zuyp.domain.useCases.api.geofencing
 
 import be.runeherreman.zuyp.domain.model.GeoFence
 import be.runeherreman.zuyp.domain.repository.GeoFenceRepository

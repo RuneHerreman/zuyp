@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.runeherreman.zuyp.domain.model.AddressSuggestion
 import be.runeherreman.zuyp.domain.model.Hangout
-import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.useCases.hangouts.CreateHangoutUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendsUseCase
@@ -13,11 +12,10 @@ import be.runeherreman.zuyp.domain.useCases.users.GetAllUsersUseCase
 import be.runeherreman.zuyp.domain.useCases.friendship.GetFriendAttendeesByHangoutUseCase
 import be.runeherreman.zuyp.domain.useCases.groups.GetUserGroupsUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutsUseCase
-import be.runeherreman.zuyp.domain.useCases.utils.ResolveAddressUseCase
+import be.runeherreman.zuyp.domain.useCases.api.ResolveAddressUseCase
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
-import be.runeherreman.zuyp.domain.useCases.utils.SearchAddressesUseCase
+import be.runeherreman.zuyp.domain.useCases.api.SearchAddressesUseCase
 import be.runeherreman.zuyp.domain.useCases.notification.SendZuypAlertUseCase
-import be.runeherreman.zuyp.ui.utils.openMapsForHangout
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow

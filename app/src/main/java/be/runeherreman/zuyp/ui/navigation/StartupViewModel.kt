@@ -15,11 +15,7 @@ class StartupViewModel @Inject constructor(
     getStartupScreen: GetStartupScreenUseCase
 ) : ViewModel() {
 
-    /**
-     * Route to open on launch. Falls back to [Screen.Home] when nothing has
-     * been stored. Stays null until DataStore has emitted, so the NavHost can
-     * wait for the real value before picking a start destination.
-     */
+    // where to boot -> falls back to home
     val startDestination: StateFlow<String?> =
         getStartupScreen()
             .map { route -> route ?: Screen.Home.route }

@@ -4,8 +4,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import be.runeherreman.zuyp.data.workers.geofencing.GeofenceSyncWorker
-import be.runeherreman.zuyp.domain.useCases.utils.geofencing.GetActiveGeofenceZonesUseCase
-import be.runeherreman.zuyp.domain.useCases.utils.geofencing.ReplaceZonesUseCase
+import be.runeherreman.zuyp.domain.useCases.api.geofencing.GetActiveGeofenceZonesUseCase
+import be.runeherreman.zuyp.domain.useCases.api.geofencing.ReplaceZonesUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

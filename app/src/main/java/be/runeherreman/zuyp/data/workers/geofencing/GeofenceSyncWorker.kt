@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import be.runeherreman.zuyp.domain.repository.GeoFenceRepository
-import be.runeherreman.zuyp.domain.useCases.utils.geofencing.GetActiveGeofenceZonesUseCase
+import be.runeherreman.zuyp.domain.useCases.api.geofencing.GetActiveGeofenceZonesUseCase
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
