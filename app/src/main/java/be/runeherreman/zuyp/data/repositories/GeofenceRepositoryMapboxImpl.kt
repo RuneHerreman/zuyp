@@ -90,6 +90,6 @@ class GeofenceRepositoryMapboxImpl @Inject constructor(
 
     companion object {
         private const val TAG           = "GeofenceRepository"
-        private const val DWELL_MINUTES = 1
+        private const val DWELL_MINUTES = 0
     }
 }

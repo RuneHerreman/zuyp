@@ -1,6 +1,7 @@
 package be.runeherreman.zuyp.data.workers.geofencing
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
@@ -29,6 +30,7 @@ class MarkPresentWorker(
 
         val deps = EntryPointAccessors.fromApplication(applicationContext, Dependencies::class.java)
         val markedPresent = deps.markPresentUseCase()(hangoutId, CurrentUser.id)
+        Log.d(TAG, "hangout=$hangoutId markedPresent=$markedPresent")
         if (markedPresent) deps.hydrationReminderScheduler().start(hangoutId)
 
         return Result.success()
@@ -36,5 +38,6 @@ class MarkPresentWorker(
 
     companion object {
         const val KEY_HANGOUT_ID = "hangoutId"
+        private const val TAG = "MarkPresentWorker"
     }
 }
