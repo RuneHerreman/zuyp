@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import be.runeherreman.zuyp.domain.model.Hangout
 import be.runeherreman.zuyp.ui.hangout.HangoutUiState
+import be.runeherreman.zuyp.ui.components.InfoRow
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -76,21 +77,6 @@ fun HangoutHeader(
     }
 }
 
-@Composable
-private fun InfoRow(icon: ImageVector, text: String, onClick: (() -> Unit)? = null) {
-    Row(
-        modifier = if (onClick != null) {
-            Modifier.clickable(onClick = onClick)
-        } else {
-            Modifier
-        },
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = text, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodyMedium)
-    }
-}
 
 @Composable
 fun PrivateBadge() {

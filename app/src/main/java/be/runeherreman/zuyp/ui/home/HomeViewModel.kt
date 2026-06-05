@@ -144,7 +144,7 @@ class HomeViewModel @Inject constructor(
         _uiState.update { it.copy(searchQuery = query, searchResults = results) }
     }
 
-    fun openMapsForHangout(hangout: Hangout, context: android.content.Context) {
+    fun openMapsForHangout(hangout: Hangout, context: Context) {
         be.runeherreman.zuyp.ui.utils.openMapsForHangout(hangout, context)
     }
 

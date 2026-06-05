@@ -57,7 +57,6 @@ import be.runeherreman.zuyp.ui.hangout.components.ShareHangoutPopup
 import be.runeherreman.zuyp.ui.friends.components.UserProfileDialog
 import be.runeherreman.zuyp.ui.hangout.components.expenses.ExpenseDetailDialog
 import be.runeherreman.zuyp.ui.hangout.components.expenses.ExpensesSection
-import java.util.UUID
 
 @Composable
 fun HangoutOverlay(
