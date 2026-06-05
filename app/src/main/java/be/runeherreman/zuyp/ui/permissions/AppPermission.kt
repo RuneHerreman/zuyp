@@ -1,6 +1,9 @@
 package be.runeherreman.zuyp.ui.permissions
 
 import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 
 enum class AppPermission {
     NOTIFICATION,
@@ -9,6 +12,11 @@ enum class AppPermission {
     CAMERA,
     BACKGROUND_LOCATION
 }
+
+fun AppPermission.isGranted(context: Context): Boolean =
+    toAndroidPermissions().all {
+        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    }
 
 fun AppPermission.toAndroidPermissions(): List<String> {
     return when (this) {

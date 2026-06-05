@@ -24,6 +24,7 @@ import be.runeherreman.zuyp.ui.permissions.AppPermission
 import be.runeherreman.zuyp.ui.permissions.BackgroundLocationRationaleDialog
 import be.runeherreman.zuyp.ui.permissions.PermissionManager
 import be.runeherreman.zuyp.ui.permissions.PermissionViewModel
+import be.runeherreman.zuyp.ui.permissions.isGranted
 import be.runeherreman.zuyp.ui.profile.ProfileScreen
 import be.runeherreman.zuyp.ui.profile.ProfileViewModel
 
@@ -88,27 +89,24 @@ fun ZuypNavGraph(
 
             LaunchedEffect(Unit) {
                 permissionViewModel.permissionResults.collect { (permission, granted) ->
-                    if (permission == AppPermission.LOCATION && granted) {
+                    if (permission == AppPermission.LOCATION && granted &&
+                        !AppPermission.BACKGROUND_LOCATION.isGranted(context)
+                    ) {
                         discoverViewModel.showBackgroundLocationRationale()
                     }
                 }
-            }
-
-            if (discoverUiState.showBackgroundLocationRationale) {
-                BackgroundLocationRationaleDialog(
-                    onConfirm = {
-                        discoverViewModel.dismissBackgroundLocationRationale()
-                        permissionViewModel.requestPermission(AppPermission.BACKGROUND_LOCATION)
-                    },
-                    onDismiss = discoverViewModel::dismissBackgroundLocationRationale
-                )
             }
 
             DiscoverScreen(
                 uiState = discoverUiState,
                 onLocationChanged = discoverViewModel::onUserLocationUpdates,
                 onMarkerClick = discoverViewModel::openHangoutPopup,
-                onMapClick = discoverViewModel::closeHangoutPopup
+                onMapClick = discoverViewModel::closeHangoutPopup,
+                onBackgroundLocationConfirmed = {
+                    discoverViewModel.dismissBackgroundLocationRationale()
+                    permissionViewModel.requestPermission(AppPermission.BACKGROUND_LOCATION)
+                },
+                onBackgroundLocationDismiss = discoverViewModel::dismissBackgroundLocationRationale,
             )
         }
         composable(Screen.Friends.route) {
