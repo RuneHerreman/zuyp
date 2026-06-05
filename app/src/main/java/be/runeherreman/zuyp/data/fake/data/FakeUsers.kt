@@ -7,10 +7,10 @@ import java.util.UUID
 object FakeUsers {
     val userJan = User(
         UUID.fromString("20000000-0000-0000-0000-000000000001"),
-        "Jan Ketelman",
+        "Ann Audenaert",
         LocalDate.of(2006, 8, 20),
-        "jan.ketelman@gmail.com",
-        "https://i.pravatar.cc/150?u=jan.ketelman@gmail.com"
+        "ann.audenaert@gmail.com",
+        "https://i.pravatar.cc/150?u=ann.audenaert@gmail.com"
     )
     val userKoen = User(
         UUID.fromString("01234566-8f09-4567-4af8-def000000014"),
@@ -21,157 +21,157 @@ object FakeUsers {
     )
     val userLotte = User(
         UUID.fromString("20000000-0000-0000-0000-000000000002"),
-        "Lotte Van Damme",
+        "Ilias Claeys",
         LocalDate.of(2004, 3, 14),
-        "lotte.vandamme@gmail.com",
-        "https://i.pravatar.cc/150?u=lotte.vandamme@gmail.com"
+        "ilias.claeys@gmail.com",
+        "https://i.pravatar.cc/150?u=ilias.claeys@gmail.com"
     )
     val userMilan = User(
         UUID.fromString("20000000-0000-0000-0000-000000000003"),
-        "Milan De Smet",
+        "Victor Vega Corrales",
         LocalDate.of(2001, 11, 5),
-        "milan.desmet@gmail.com",
-        "https://i.pravatar.cc/150?u=milan.desmet@gmail.com"
+        "victor.vegacorrales@gmail.com",
+        "https://i.pravatar.cc/150?u=victor.vegacorrales@gmail.com"
     )
     val userNora = User(
         UUID.fromString("20000000-0000-0000-0000-000000000004"),
-        "Nora Peeters",
+        "Simon Cornelissis",
         LocalDate.of(2005, 1, 27),
-        "nora.peeters@gmail.com",
-        "https://i.pravatar.cc/150?u=nora.peeters@gmail.com"
+        "simon.cornelissis@gmail.com",
+        "https://i.pravatar.cc/150?u=simon.cornelissis@gmail.com"
     )
     val userBram = User(
         UUID.fromString("20000000-0000-0000-0000-000000000005"),
-        "Bram Verdonck",
+        "Maurice De Kegel",
         LocalDate.of(2003, 6, 9),
-        "bram.verdonck@gmail.com",
-        "https://i.pravatar.cc/150?u=bram.verdonck@gmail.com"
+        "maurice.dekegel@gmail.com",
+        "https://i.pravatar.cc/150?u=maurice.dekegel@gmail.com"
     )
     val userElise = User(
         UUID.fromString("20000000-0000-0000-0000-000000000006"),
-        "Elise Maes",
+        "Rune Herreman",
         LocalDate.of(2004, 12, 1),
-        "elise.maes@gmail.com",
-        "https://i.pravatar.cc/150?u=elise.maes@gmail.com"
+        "rune.herreman@gmail.com",
+        "https://i.pravatar.cc/150?u=rune.herreman@gmail.com"
     )
     val userTibo = User(
         UUID.fromString("20000000-0000-0000-0000-000000000007"),
-        "Tibo Claes",
+        "Mathias Blomme",
         LocalDate.of(2002, 4, 18),
-        "tibo.claes@gmail.com",
-        "https://i.pravatar.cc/150?u=tibo.claes@gmail.com"
+        "mathias.blomme@gmail.com",
+        "https://i.pravatar.cc/150?u=mathias.blomme@gmail.com"
     )
     val userMila = User(
         UUID.fromString("20000000-0000-0000-0000-000000000008"),
-        "Mila Janssens",
+        "Dimitri Cassier",
         LocalDate.of(2004, 2, 11),
-        "mila.janssens@gmail.com",
-        "https://i.pravatar.cc/150?u=mila.janssens@gmail.com"
+        "dimitri.cassier@gmail.com",
+        "https://i.pravatar.cc/150?u=dimitri.cassier@gmail.com"
     )
     val userRuben = User(
         UUID.fromString("20000000-0000-0000-0000-000000000009"),
-        "Ruben Claeys",
+        "Olivier Sourie",
         LocalDate.of(2002, 5, 7),
-        "ruben.claeys@gmail.com",
-        "https://i.pravatar.cc/150?u=ruben.claeys@gmail.com"
+        "olivier.sourie@gmail.com",
+        "https://i.pravatar.cc/150?u=olivier.sourie@gmail.com"
     )
     val userNoor = User(
         UUID.fromString("20000000-0000-0000-0000-000000000010"),
-        "Noor De Wilde",
+        "Lars Patrouille",
         LocalDate.of(2005, 10, 22),
-        "noor.dewilde@gmail.com",
-        "https://i.pravatar.cc/150?u=noor.dewilde@gmail.com"
+        "lars.patrouille@gmail.com",
+        "https://i.pravatar.cc/150?u=lars.patrouille@gmail.com"
     )
     val userSanne = User(
         UUID.fromString("20000000-0000-0000-0000-000000000011"),
-        "Sanne Desmet",
+        "Niels Clarysse",
         LocalDate.of(2004, 7, 14),
-        "sanne.desmet@gmail.com",
-        "https://i.pravatar.cc/150?u=sanne.desmet@gmail.com"
+        "niels.clarysse@gmail.com",
+        "https://i.pravatar.cc/150?u=niels.clarysse@gmail.com"
     )
     val userDaan = User(
         UUID.fromString("20000000-0000-0000-0000-000000000012"),
-        "Daan Heylen",
+        "Mattias De Wael",
         LocalDate.of(2003, 9, 3),
-        "daan.heylen@gmail.com",
-        "https://i.pravatar.cc/150?u=daan.heylen@gmail.com"
+        "mattias.dewael@gmail.com",
+        "https://i.pravatar.cc/150?u=mattias.dewael@gmail.com"
     )
     val userLuna = User(
         UUID.fromString("20000000-0000-0000-0000-000000000013"),
-        "Luna Smets",
+        "Matisse Van Wassenhove",
         LocalDate.of(2005, 5, 19),
-        "luna.smets@gmail.com",
-        "https://i.pravatar.cc/150?u=luna.smets@gmail.com"
+        "matisse.vanwassenhove@gmail.com",
+        "https://i.pravatar.cc/150?u=matisse.vanwassenhove@gmail.com"
     )
     val userMaxim = User(
         UUID.fromString("20000000-0000-0000-0000-000000000014"),
-        "Maxim Vercammen",
+        "Yoni Furniere",
         LocalDate.of(2002, 11, 11),
-        "maxim.vercammen@gmail.com",
-        "https://i.pravatar.cc/150?u=maxim.vercammen@gmail.com"
+        "yoni.furniere@gmail.com",
+        "https://i.pravatar.cc/150?u=yoni.furniere@gmail.com"
     )
     val userAva = User(
         UUID.fromString("20000000-0000-0000-0000-000000000015"),
-        "Ava Vermeersch",
+        "Ilise Garmyn",
         LocalDate.of(2004, 8, 26),
-        "ava.vermeersch@gmail.com",
-        "https://i.pravatar.cc/150?u=ava.vermeersch@gmail.com"
+        "ilise.garmyn@gmail.com",
+        "https://i.pravatar.cc/150?u=ilise.garmyn@gmail.com"
     )
     val userFelix = User(
         UUID.fromString("20000000-0000-0000-0000-000000000016"),
-        "Felix Vandebrouck",
+        "Noah Vandewalle Chang",
         LocalDate.of(2003, 1, 8),
-        "felix.vandebrouck@gmail.com",
-        "https://i.pravatar.cc/150?u=felix.vandebrouck@gmail.com"
+        "noah.vandewallechang@gmail.com",
+        "https://i.pravatar.cc/150?u=noah.vandewallechang@gmail.com"
     )
     val userZoe = User(
         UUID.fromString("20000000-0000-0000-0000-000000000017"),
-        "Zoe Vandersmissen",
+        "Noah Vandenberghe",
         LocalDate.of(2005, 3, 22),
-        "zoe.vandersmissen@gmail.com",
-        "https://i.pravatar.cc/150?u=zoe.vandersmissen@gmail.com"
+        "noah.vandenberghe@gmail.com",
+        "https://i.pravatar.cc/150?u=noah.vandenberghe@gmail.com"
     )
     val userJoren = User(
         UUID.fromString("20000000-0000-0000-0000-000000000018"),
-        "Joren Verlinden",
+        "Floris Delahaye",
         LocalDate.of(2002, 10, 5),
-        "joren.verlinden@gmail.com",
-        "https://i.pravatar.cc/150?u=joren.verlinden@gmail.com"
+        "floris.delahaye@gmail.com",
+        "https://i.pravatar.cc/150?u=floris.delahaye@gmail.com"
     )
     val userIsabella = User(
         UUID.fromString("20000000-0000-0000-0000-000000000019"),
-        "Isabella Verhaeghe",
+        "Mathieu Pinsart",
         LocalDate.of(2004, 6, 17),
-        "isabella.verhaeghe@gmail.com",
-        "https://i.pravatar.cc/150?u=isabella.verhaeghe@gmail.com"
+        "mathieu.pinsart@gmail.com",
+        "https://i.pravatar.cc/150?u=mathieu.pinsart@gmail.com"
     )
     val userSebastian = User(
         UUID.fromString("20000000-0000-0000-0000-000000000020"),
-        "Sebastian Lampe",
+        "Suman Adhikari",
         LocalDate.of(2001, 12, 30),
-        "sebastian.lampe@gmail.com",
-        "https://i.pravatar.cc/150?u=sebastian.lampe@gmail.com"
+        "suman.adhikari@gmail.com",
+        "https://i.pravatar.cc/150?u=suman.adhikari@gmail.com"
     )
     val userNatasja = User(
         UUID.fromString("20000000-0000-0000-0000-000000000021"),
-        "Natasja Vos",
+        "Sjoerd Frinkelum",
         LocalDate.of(2004, 4, 11),
-        "natasja.vos@gmail.com",
-        "https://i.pravatar.cc/150?u=natasja.vos@gmail.com"
+        "sjoerd.frinkelum@gmail.com",
+        "https://i.pravatar.cc/150?u=sjoerd.frinkelum@gmail.com"
     )
     val userThijs = User(
         UUID.fromString("20000000-0000-0000-0000-000000000022"),
-        "Thijs Daemen",
+        "Amadeus De Grote",
         LocalDate.of(2003, 7, 28),
-        "thijs.daemen@gmail.com",
-        "https://i.pravatar.cc/150?u=thijs.daemen@gmail.com"
+        "amadeus.degrote@gmail.com",
+        "https://i.pravatar.cc/150?u=amadeus.degrote@gmail.com"
     )
     val userStéphanie = User(
         UUID.fromString("20000000-0000-0000-0000-000000000023"),
-        "Stéphanie Devos",
+        "Poepman De Sjoemelaer",
         LocalDate.of(2004, 2, 9),
-        "stephanie.devos@gmail.com",
-        "https://i.pravatar.cc/150?u=stephanie.devos@gmail.com"
+        "poepman.desjoemelaer@gmail.com",
+        "https://i.pravatar.cc/150?u=poepman.desjoemelaer@gmail.com"
     )
     val userMarkus = User(
         UUID.fromString("20000000-0000-0000-0000-000000000024"),
