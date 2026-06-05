@@ -5,6 +5,12 @@ import be.runeherreman.zuyp.data.local.room.entity.hangouts.AttendanceStatus
 import java.time.LocalDateTime
 import java.util.UUID
 
+private fun inDays(days: Long, hourOfDay: Int = 20) =
+    LocalDateTime.now().plusDays(days).withHour(hourOfDay).withMinute(0).withSecond(0).withNano(0)
+
+private fun inDaysEnd(days: Long, hourOfDay: Int = 22) =
+    LocalDateTime.now().plusDays(days).withHour(hourOfDay).withMinute(0).withSecond(0).withNano(0)
+
 object FakeSeedingData {
     fun getHangouts(): List<HangoutDto> {
         return listOf(
@@ -54,8 +60,7 @@ object FakeSeedingData {
                 "VUB BSG",
                 50.8224,
                 4.3948,
-                LocalDateTime.of(2026, 3, 24, 20, 0),
-                LocalDateTime.of(2026, 3, 25, 4, 0),
+                inDays(2, 20), inDaysEnd(3, 4),
                 emptyList(),
                 FakeUsers.userMila,
                 true
@@ -67,8 +72,7 @@ object FakeSeedingData {
                 "Patersgat",
                 51.2093,
                 3.2247,
-                LocalDateTime.of(2026, 4, 9, 19, 30),
-                LocalDateTime.of(2026, 4, 10, 1, 30),
+                inDays(4, 19), inDaysEnd(5, 1),
                 emptyList(),
                 FakeUsers.userMila,
                 true
@@ -80,8 +84,7 @@ object FakeSeedingData {
                 "Cinema Lumiere Brugge",
                 51.2114,
                 3.2272,
-                LocalDateTime.of(2026, 4, 19, 19, 30),
-                LocalDateTime.of(2026, 4, 19, 22, 30),
+                inDays(5, 19), inDaysEnd(5, 22),
                 listOf(FakeUsers.userMila, FakeUsers.userRuben, FakeUsers.userLotte, FakeUsers.userNoor),
                 FakeUsers.userMila,
                 true
@@ -93,8 +96,7 @@ object FakeSeedingData {
                 "Fuse Bruxelles",
                 50.8500,
                 4.3632,
-                LocalDateTime.of(2026, 4, 18, 23, 0),
-                LocalDateTime.of(2026, 4, 19, 5, 0),
+                inDays(1, 23), inDaysEnd(2, 5),
                 listOf(FakeUsers.userSanne, FakeUsers.userDaan, FakeUsers.userThijs, FakeUsers.userRyan),
                 FakeUsers.userDaan,
                 false
@@ -106,8 +108,7 @@ object FakeSeedingData {
                 "Modul'air Arlon",
                 49.6833,
                 5.8000,
-                LocalDateTime.of(2026, 4, 20, 22, 0),
-                LocalDateTime.of(2026, 4, 21, 4, 0),
+                inDays(3, 22), inDaysEnd(4, 4),
                 listOf(FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva, FakeUsers.userFelix, FakeUsers.userZoe),
                 FakeUsers.userLuna,
                 false
@@ -119,8 +120,7 @@ object FakeSeedingData {
                 "Studentenkamer Leuven",
                 50.8798,
                 4.7005,
-                LocalDateTime.of(2026, 4, 17, 20, 0),
-                LocalDateTime.of(2026, 4, 18, 2, 0),
+                inDays(6, 20), inDaysEnd(7, 2),
                 listOf(FakeUsers.userJoren, FakeUsers.userIsabella, FakeUsers.userSebastian, FakeUsers.userNatasja),
                 FakeUsers.userJoren,
                 true
@@ -132,8 +132,7 @@ object FakeSeedingData {
                 "Café Puur Antwerpen",
                 51.2194,
                 4.4024,
-                LocalDateTime.of(2026, 4, 16, 19, 0),
-                LocalDateTime.of(2026, 4, 16, 23, 0),
+                inDays(7, 19), inDaysEnd(7, 23),
                 listOf(FakeUsers.userThijs, FakeUsers.userStéphanie, FakeUsers.userMarkus),
                 FakeUsers.userThijs,
                 false
@@ -145,8 +144,7 @@ object FakeSeedingData {
                 "Kompass Klub Gent",
                 51.0378,
                 3.7042,
-                LocalDateTime.of(2026, 4, 25, 23, 30),
-                LocalDateTime.of(2026, 4, 26, 5, 30),
+                inDays(8, 23), inDaysEnd(9, 5),
                 listOf(FakeUsers.userCamille, FakeUsers.userVictoria, FakeUsers.userDieter, FakeUsers.userLea, FakeUsers.userRyan),
                 FakeUsers.userCamille,
                 false
@@ -158,8 +156,7 @@ object FakeSeedingData {
                 "Loft Sint-Gillis",
                 50.8548,
                 4.3457,
-                LocalDateTime.of(2026, 4, 19, 21, 0),
-                LocalDateTime.of(2026, 4, 20, 3, 0),
+                inDays(2, 21), inDaysEnd(3, 3),
                 listOf(FakeUsers.userSophie, FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars),
                 FakeUsers.userSophie,
                 true
@@ -171,8 +168,7 @@ object FakeSeedingData {
                 "Brouwerij Oud Beersel",
                 51.0356,
                 3.7161,
-                LocalDateTime.of(2026, 4, 21, 20, 0),
-                LocalDateTime.of(2026, 4, 22, 2, 0),
+                inDays(4, 20), inDaysEnd(5, 2),
                 listOf(FakeUsers.userAnna, FakeUsers.userTom, FakeUsers.userEmilie),
                 FakeUsers.userTom,
                 false
@@ -184,8 +180,7 @@ object FakeSeedingData {
                 "Sportpaleis Antwerpen",
                 51.2183,
                 4.4141,
-                LocalDateTime.of(2026, 5, 1, 14, 0),
-                LocalDateTime.of(2026, 5, 1, 22, 0),
+                inDays(10, 14), inDaysEnd(10, 22),
                 listOf(FakeUsers.userPhilip, FakeUsers.userClaire, FakeUsers.userSven, FakeUsers.userBeat, FakeUsers.userLena),
                 FakeUsers.userPhilip,
                 false
@@ -197,8 +192,7 @@ object FakeSeedingData {
                 "Fuse Bruxelles",
                 50.8500,
                 4.3632,
-                LocalDateTime.of(2026, 4, 23, 23, 0),
-                LocalDateTime.of(2026, 4, 24, 5, 0),
+                inDays(6, 23), inDaysEnd(7, 5),
                 listOf(FakeUsers.userJulian, FakeUsers.userSienna, FakeUsers.userAlex),
                 FakeUsers.userJulian,
                 false
@@ -210,8 +204,7 @@ object FakeSeedingData {
                 "KU Leuven Campus",
                 50.8798,
                 4.7005,
-                LocalDateTime.of(2026, 4, 22, 19, 0),
-                LocalDateTime.of(2026, 4, 23, 1, 0),
+                inDays(5, 19), inDaysEnd(6, 1),
                 listOf(FakeUsers.userOliver, FakeUsers.userMaya, FakeUsers.userLuc, FakeUsers.userAnne),
                 FakeUsers.userOliver,
                 true
@@ -223,8 +216,7 @@ object FakeSeedingData {
                 "Bar Bram Bruxelles",
                 50.8487,
                 4.3572,
-                LocalDateTime.of(2026, 4, 20, 19, 30),
-                LocalDateTime.of(2026, 4, 21, 1, 30),
+                inDays(3, 19), inDaysEnd(4, 1),
                 listOf(FakeUsers.userDavid, FakeUsers.userFlorence),
                 FakeUsers.userDavid,
                 false
@@ -236,8 +228,7 @@ object FakeSeedingData {
                 "Modul'air Arlon",
                 49.6833,
                 5.8000,
-                LocalDateTime.of(2026, 4, 26, 22, 0),
-                LocalDateTime.of(2026, 4, 27, 4, 0),
+                inDays(9, 22), inDaysEnd(10, 4),
                 listOf(FakeUsers.userNico, FakeUsers.userGrace, FakeUsers.userChris, FakeUsers.userMaria),
                 FakeUsers.userNico,
                 false
@@ -249,8 +240,7 @@ object FakeSeedingData {
                 "Studentenhuis Antwerpen",
                 51.2194,
                 4.4024,
-                LocalDateTime.of(2026, 4, 18, 21, 0),
-                LocalDateTime.of(2026, 4, 19, 2, 0),
+                inDays(1, 21), inDaysEnd(2, 2),
                 listOf(FakeUsers.userSteve, FakeUsers.userJessica, FakeUsers.userPaul, FakeUsers.userRosa),
                 FakeUsers.userSteve,
                 true
@@ -262,8 +252,7 @@ object FakeSeedingData {
                 "Kompass Klub Gent",
                 51.0378,
                 3.7042,
-                LocalDateTime.of(2026, 4, 27, 23, 0),
-                LocalDateTime.of(2026, 4, 28, 5, 0),
+                inDays(11, 23), inDaysEnd(12, 5),
                 listOf(FakeUsers.userSanne, FakeUsers.userDaan, FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva),
                 FakeUsers.userDaan,
                 false
@@ -275,8 +264,7 @@ object FakeSeedingData {
                 "Whiskey Café Gent",
                 51.0519,
                 3.7176,
-                LocalDateTime.of(2026, 4, 19, 19, 0),
-                LocalDateTime.of(2026, 4, 19, 22, 0),
+                inDays(2, 19), inDaysEnd(2, 22),
                 listOf(FakeUsers.userFelix, FakeUsers.userZoe, FakeUsers.userJoren),
                 FakeUsers.userFelix,
                 false
@@ -288,8 +276,7 @@ object FakeSeedingData {
                 "VUB Campus Brussel",
                 50.8224,
                 4.3948,
-                LocalDateTime.of(2026, 4, 24, 18, 0),
-                LocalDateTime.of(2026, 4, 25, 2, 0),
+                inDays(7, 18), inDaysEnd(8, 2),
                 listOf(FakeUsers.userIsabella, FakeUsers.userSebastian, FakeUsers.userNatasja, FakeUsers.userThijs),
                 FakeUsers.userIsabella,
                 true
@@ -301,8 +288,7 @@ object FakeSeedingData {
                 "Pizzeria Napoli Leuven",
                 50.8798,
                 4.7005,
-                LocalDateTime.of(2026, 4, 21, 19, 30),
-                LocalDateTime.of(2026, 4, 22, 1, 30),
+                inDays(4, 19), inDaysEnd(5, 1),
                 listOf(FakeUsers.userStéphanie, FakeUsers.userMarkus, FakeUsers.userCamille, FakeUsers.userVictoria),
                 FakeUsers.userMarkus,
                 false
@@ -314,8 +300,7 @@ object FakeSeedingData {
                 "Flat Brussel",
                 50.8500,
                 4.3600,
-                LocalDateTime.of(2026, 4, 23, 20, 0),
-                LocalDateTime.of(2026, 4, 24, 2, 0),
+                inDays(6, 20), inDaysEnd(7, 2),
                 listOf(FakeUsers.userDieter, FakeUsers.userLea, FakeUsers.userRyan, FakeUsers.userSophie),
                 FakeUsers.userRyan,
                 true
@@ -327,8 +312,7 @@ object FakeSeedingData {
                 "Strand Knokke",
                 51.3557,
                 3.2796,
-                LocalDateTime.of(2026, 5, 2, 15, 0),
-                LocalDateTime.of(2026, 5, 2, 22, 0),
+                inDays(12, 15), inDaysEnd(12, 22),
                 listOf(FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars, FakeUsers.userAnna, FakeUsers.userTom),
                 FakeUsers.userQuentin,
                 false
@@ -340,8 +324,7 @@ object FakeSeedingData {
                 "Muziekclub Gent",
                 51.0432,
                 3.7299,
-                LocalDateTime.of(2026, 4, 25, 23, 0),
-                LocalDateTime.of(2026, 4, 26, 5, 0),
+                inDays(8, 23), inDaysEnd(9, 5),
                 listOf(FakeUsers.userEmilie, FakeUsers.userPhilip, FakeUsers.userClaire),
                 FakeUsers.userEmilie,
                 false
@@ -353,8 +336,7 @@ object FakeSeedingData {
                 "Thuis Leuven",
                 50.8798,
                 4.7005,
-                LocalDateTime.of(2026, 4, 28, 20, 0),
-                LocalDateTime.of(2026, 4, 29, 2, 0),
+                inDays(11, 20), inDaysEnd(12, 2),
                 listOf(FakeUsers.userSven, FakeUsers.userBeat, FakeUsers.userLena),
                 FakeUsers.userBeat,
                 true
@@ -366,8 +348,7 @@ object FakeSeedingData {
                 "Brouwerijen Route Brugge",
                 51.2105,
                 3.2223,
-                LocalDateTime.of(2026, 4, 22, 18, 0),
-                LocalDateTime.of(2026, 4, 23, 0, 0),
+                inDays(5, 18), inDaysEnd(6, 0),
                 listOf(FakeUsers.userJulian, FakeUsers.userSienna, FakeUsers.userAlex, FakeUsers.userOliver),
                 FakeUsers.userJulian,
                 false
@@ -379,8 +360,7 @@ object FakeSeedingData {
                 "Citadelpark Antwerpen",
                 51.2135,
                 4.4005,
-                LocalDateTime.of(2026, 5, 3, 14, 0),
-                LocalDateTime.of(2026, 5, 3, 22, 0),
+                inDays(13, 14), inDaysEnd(13, 22),
                 listOf(FakeUsers.userMaya, FakeUsers.userLuc, FakeUsers.userAnne, FakeUsers.userDavid),
                 FakeUsers.userMaya,
                 false
@@ -392,8 +372,7 @@ object FakeSeedingData {
                 "Fuse Bruxelles",
                 50.8500,
                 4.3632,
-                LocalDateTime.of(2026, 4, 24, 23, 30),
-                LocalDateTime.of(2026, 4, 25, 5, 30),
+                inDays(7, 23), inDaysEnd(8, 5),
                 listOf(FakeUsers.userFlorence, FakeUsers.userNico, FakeUsers.userGrace),
                 FakeUsers.userFlorence,
                 false
@@ -405,8 +384,7 @@ object FakeSeedingData {
                 "Huisje Gent",
                 51.0432,
                 3.7299,
-                LocalDateTime.of(2026, 4, 29, 21, 0),
-                LocalDateTime.of(2026, 4, 30, 3, 0),
+                inDays(12, 21), inDaysEnd(13, 3),
                 listOf(FakeUsers.userChris, FakeUsers.userMaria, FakeUsers.userSteve, FakeUsers.userJessica),
                 FakeUsers.userChris,
                 true
@@ -418,8 +396,7 @@ object FakeSeedingData {
                 "Modul'air Arlon",
                 49.6833,
                 5.8000,
-                LocalDateTime.of(2026, 4, 28, 22, 0),
-                LocalDateTime.of(2026, 4, 29, 4, 0),
+                inDays(11, 22), inDaysEnd(12, 4),
                 listOf(FakeUsers.userPaul, FakeUsers.userRosa, FakeUsers.userSanne),
                 FakeUsers.userPaul,
                 false
@@ -431,8 +408,7 @@ object FakeSeedingData {
                 "Terras UGent Gent",
                 51.0088,
                 3.7153,
-                LocalDateTime.of(2026, 4, 20, 16, 0),
-                LocalDateTime.of(2026, 4, 20, 22, 0),
+                inDays(3, 16), inDaysEnd(3, 22),
                 listOf(FakeUsers.userDaan, FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva, FakeUsers.userFelix, FakeUsers.userZoe),
                 FakeUsers.userZoe,
                 false
@@ -444,8 +420,7 @@ object FakeSeedingData {
                 "Kompass Klub Gent",
                 51.0378,
                 3.7042,
-                LocalDateTime.of(2026, 4, 30, 23, 0),
-                LocalDateTime.of(2026, 5, 1, 5, 0),
+                inDays(13, 23), inDaysEnd(14, 5),
                 listOf(FakeUsers.userJoren, FakeUsers.userIsabella, FakeUsers.userSebastian),
                 FakeUsers.userJoren,
                 false
@@ -457,8 +432,7 @@ object FakeSeedingData {
                 "Beachclub Ostende",
                 51.2247,
                 2.9267,
-                LocalDateTime.of(2026, 5, 4, 16, 0),
-                LocalDateTime.of(2026, 5, 5, 0, 0),
+                inDays(14, 16), inDaysEnd(15, 0),
                 listOf(FakeUsers.userNatasja, FakeUsers.userThijs, FakeUsers.userStéphanie, FakeUsers.userMarkus, FakeUsers.userCamille),
                 FakeUsers.userNatasja,
                 false
@@ -470,8 +444,7 @@ object FakeSeedingData {
                 "Loft Brussel",
                 50.8548,
                 4.3457,
-                LocalDateTime.of(2026, 4, 25, 3, 0),
-                LocalDateTime.of(2026, 4, 25, 8, 0),
+                inDays(8, 3), inDaysEnd(8, 8),
                 listOf(FakeUsers.userVictoria, FakeUsers.userDieter, FakeUsers.userLea),
                 FakeUsers.userVictoria,
                 true
@@ -483,8 +456,7 @@ object FakeSeedingData {
                 "Tuin VUB",
                 50.8224,
                 4.3948,
-                LocalDateTime.of(2026, 5, 10, 14, 0),
-                LocalDateTime.of(2026, 5, 10, 22, 0),
+                inDays(20, 14), inDaysEnd(20, 22),
                 listOf(FakeUsers.userRyan, FakeUsers.userSophie, FakeUsers.userQuentin, FakeUsers.userEva, FakeUsers.userLars),
                 FakeUsers.userEva,
                 false
@@ -496,8 +468,7 @@ object FakeSeedingData {
                 "Restaurant Bellini Antwerpen",
                 51.2194,
                 4.4024,
-                LocalDateTime.of(2026, 4, 26, 19, 0),
-                LocalDateTime.of(2026, 4, 27, 1, 0),
+                inDays(9, 19), inDaysEnd(10, 1),
                 listOf(FakeUsers.userAnna, FakeUsers.userTom, FakeUsers.userEmilie, FakeUsers.userPhilip),
                 FakeUsers.userAnna,
                 false
@@ -509,8 +480,7 @@ object FakeSeedingData {
                 "Woning Leuven",
                 50.8798,
                 4.7005,
-                LocalDateTime.of(2026, 4, 27, 5, 0),
-                LocalDateTime.of(2026, 4, 27, 10, 0),
+                inDays(10, 5), inDaysEnd(10, 10),
                 listOf(FakeUsers.userClaire, FakeUsers.userSven, FakeUsers.userBeat),
                 FakeUsers.userClaire,
                 true
