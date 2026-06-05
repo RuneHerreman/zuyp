@@ -288,52 +288,73 @@ project week (Apr 10 – May 31).
   - FAB padding aligned to `16.dp` on both Home and Discover screens.
   - Seeded user names updated to reflect real project group members.
 
+## Requirement checklist — status overview
+
+Legend: ✅ done · ⚠️ partly done · ❌ not started
+
+### Must have (12/20)
+
+| Requirement | Status | What I did |
+|---|---|---|
+| Building native UI (Jetpack Compose) | ✅ | Whole UI is Compose — screens, overlays, dialogs, custom components. |
+| Multi-screen app (min. 4 screens) | ✅ | Home, Discover, Friends, Profile + Hangout detail. |
+| Menu-based navigation | ✅ | Bottom navigation bar (`ZuypBottomBar`) across the main screens. |
+| Material design (custom theme/icon) | ✅ | Material 3 theme, custom colors, Noto Serif / Inter fonts, app icon. |
+| Android app architecture | ✅ | ViewModel + UiState, repositories, use cases, Hilt DI, clean domain/data/ui layering. |
+| Room database | ✅ | Users, hangouts, friendships, groups, expenses with FKs, unique constraints, seeded data. |
+| Retrofit (≥ 1 API) | ✅ | Weather API via Retrofit; Mapbox geocoding for addresses. |
+| WorkManager (background task) | ✅ | `MarkPresentWorker` + `HydrationReminderScheduler` (periodic notification every 30 min at an event). |
+| 2 intents | ✅ | Share intent (off-platform invite link) + maps `geo:` chooser intent + camera capture intent. |
+| MessageBroker | ✅ | CloudAMQP (RabbitMQ) consume over SSL/vhost via `LavinMQMessageConsumer`. |
+| GPS data (Mapbox map + current location) | ✅ | Discover screen Mapbox map with location puck and hangout markers. |
+| 2 sensors | ✅ | Accelerometer (shake → auto-join) + flashlight driven on urgent SOS alert. |
+| Notifications | ✅ | Heads-up + full-screen notifications, tap intent to open hangout. |
+| Unit tests | ❌ | Only `ExampleUnitTest` stub exists. |
+
+### Intermediate (14/20)
+
+| Requirement | Status | What I did |
+|---|---|---|
+| Multiple notifications via notification channel | ✅ | Separate channels (general hangout updates vs. urgent SOS), grouped summary notifications. |
+| More data types in MessageBroker (also publish) | ⚠️ | Publishing implemented (`LavinMQMessagePublisher`); 3 message types (`HangoutInvite`, `ZuypAlert`, `HangoutJoined`). More types (e.g. `arrived`, `cant_come`) still to add. |
+| Geofencing | ✅ | Mapbox geofences for nearby upcoming hangouts; entry fires `MarkPresentWorker`. |
+| Automatic actions from sensor data | ✅ | Shake auto-joins the viewed hangout; geofence entry auto-marks `PRESENT`. |
+| Camera | ✅ | Attach a receipt photo to an expense (camera or gallery). |
+| Unit & instrumented tests | ❌ | Only `ExampleInstrumentedTest` stub exists. |
+
+### Experienced (16/20)
+
+| Requirement | Status | What I did |
+|---|---|---|
+| Key vault | ❌ | Secrets currently only injected via `BuildConfig`. |
+| Filtering MessageBroker data | ❌ | Incoming messages not yet filtered by user preference. |
+| GPS navigation between locations | ✅ | Tapping the location field (card, map popup, detail) opens a maps chooser to the exact coordinates. |
+
+### Going for the extra mile (18+/20)
+
+| Requirement | Status | What I did |
+|---|---|---|
+| CI/CD → Firebase App Distribution | ❌ | No `.github/` workflow yet. |
+
+---
+
 ## What I still need to do
 
-Against the project requirement checklist:
-
 **Must have**
-- [x] Background task: `HydrationReminderScheduler` fires a WorkManager
-      periodic notification every 30 minutes while the user is at an event.
-      Post-event expense reminder still outstanding.
-- [x] Second sensor: shake (accelerometer) for 1 second → auto-joins the
-      hangout you're viewing. Works from both the full detail screen and the
-      map popup.
-- [ ] Unit tests (only example stubs exist for now).
+- [ ] Unit tests — currently only the example stub.
 
 **Intermediate**
-- [ ] Publish more message-broker data types (e.g. "arrived" / "can't come").
-- [x] Geofencing — Mapbox geofences registered for all nearby upcoming
-      hangouts; entry fires `MarkPresentWorker` which marks the user `PRESENT`
-      and starts hydration reminders.
-- [x] Trigger actions automatically from sensor data — shaking auto-joins the
-      hangout without any button press.
-- [x] Camera: attach a photo of the receipt to an expense.
-- [ ] Instrumented tests.
+- [ ] Instrumented tests — currently only the example stub.
+- [ ] Publish more message-broker data types (e.g. `arrived`, `cant_come`).
 
 **Experienced**
-- [ ] Key vault — store sensitive data (RabbitMQ credentials etc.) in a key
-      vault.
-- [ ] Filtering — filter incoming MessageBroker messages (e.g. mute certain
-      notification types per user preference).
-- [x] GPS navigation — tapping the location field in the hangout card, map
-      popup, or detail screen opens a maps chooser intent with the exact
-      coordinates.
+- [ ] Key vault — store sensitive data (RabbitMQ / Mapbox credentials) in a key vault instead of `BuildConfig`.
+- [ ] Filtering — filter incoming MessageBroker messages (e.g. mute certain notification types per user preference).
+
+**Extra mile**
+- [ ] CI/CD — GitHub Actions workflow to build and deploy to Firebase App Distribution.
 
 **Feature work still open**
-- [x] Expenses tracking — add/delete, equal & custom splits (with Tricount-style
-      cascade auto-fill), correct balance calculation, settle debts, bill photo.
-- [x] Profile screen: edit name, email and birthdate.
-- [x] Groups management on the Friends screen (create, edit/rename, leave).
-- [x] Invite entire group to a hangout in one tap.
-- [x] Discover map: tap a marker to preview the hangout and open its detail.
-- [x] Notifications survive app kill — foreground service with `START_STICKY`.
-- [x] Notification grouping — multiple hangout notifications collapse under a
-      summary.
-- [x] User profile popup reused from hangout attendee list.
-- [x] Geofencing with auto-present and hydration reminders.
-- [x] Shake-to-go from both hangout detail and map popup.
-- [x] Tappable location field → maps navigation intent.
 - [ ] Profile: edit profile photo and IBAN.
 - [ ] Fix crash when joining an event from a push notification.
 - [ ] Post-event reminder to settle expenses (WorkManager periodic work).

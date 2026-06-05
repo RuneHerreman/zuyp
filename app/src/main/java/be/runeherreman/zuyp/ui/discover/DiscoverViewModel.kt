@@ -10,6 +10,8 @@ import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutByIdUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.UpdateAttendanceUseCase
 import be.runeherreman.zuyp.domain.useCases.users.DetectShakeUseCase
+import be.runeherreman.zuyp.domain.useCases.users.StartShakeDetectionUseCase
+import be.runeherreman.zuyp.domain.useCases.users.StopShakeDetectionUseCase
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
@@ -28,6 +30,8 @@ class DiscoverViewModel @Inject constructor(
     private val getHangoutByIdUseCase: GetHangoutByIdUseCase,
     private val updateAttendanceUseCase: UpdateAttendanceUseCase,
     private val detectShakeUseCase: DetectShakeUseCase,
+    private val startShakeDetectionUseCase: StartShakeDetectionUseCase,
+    private val stopShakeDetectionUseCase: StopShakeDetectionUseCase,
 ): ViewModel() {
     private val currentUser = CurrentUser.user
     private val _uiState = MutableStateFlow(DiscoverUiState())
@@ -86,12 +90,13 @@ class DiscoverViewModel @Inject constructor(
     }
 
     fun closeHangoutPopup() {
-        shakeJob?.cancel()
+        stopListeningForShake()
         _uiState.update { it.copy(hangoutPopupOpen = false) }
     }
 
     private fun listenForShake() {
         shakeJob?.cancel()
+        startShakeDetectionUseCase()
         shakeJob = viewModelScope.launch {
             detectShakeUseCase().collect {
                 val current = _uiState.value.selectedHangout?.attendees
@@ -102,6 +107,17 @@ class DiscoverViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun stopListeningForShake() {
+        shakeJob?.cancel()
+        shakeJob = null
+        stopShakeDetectionUseCase()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopListeningForShake()
     }
 
 

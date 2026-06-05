@@ -35,6 +35,8 @@ import be.runeherreman.zuyp.domain.useCases.friendship.RemoveFriendshipUseCase
 import be.runeherreman.zuyp.domain.useCases.notification.SendHangoutInviteUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.UpdateAttendanceUseCase
 import be.runeherreman.zuyp.domain.useCases.users.DetectShakeUseCase
+import be.runeherreman.zuyp.domain.useCases.users.StartShakeDetectionUseCase
+import be.runeherreman.zuyp.domain.useCases.users.StopShakeDetectionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -65,6 +67,8 @@ class HangoutViewModel @Inject constructor(
     private val deleteExpenseUseCase: DeleteExpenseUseCase,
     private val settleDebtUseCase: SettleDebtUseCase,
     private val detectShakeUseCase: DetectShakeUseCase,
+    private val startShakeDetectionUseCase: StartShakeDetectionUseCase,
+    private val stopShakeDetectionUseCase: StopShakeDetectionUseCase,
     private val getFriendsUseCase: GetFriendsUseCase,
 ): ViewModel() {
     val currentUser = CurrentUser.user
@@ -170,7 +174,7 @@ class HangoutViewModel @Inject constructor(
     //       HANGOUTS
     // ===========================
     fun dismissHangout() = viewModelScope.launch {
-        shakeJob?.cancel()
+        stopListeningForShake()
         _uiState.update { it.copy(selectedHangoutId = null, isError = false) }
     }
 
@@ -503,6 +507,7 @@ class HangoutViewModel @Inject constructor(
     // SHAKE SENSOR
     private fun listenForShake() {
         shakeJob?.cancel()
+        startShakeDetectionUseCase()
 
         shakeJob = viewModelScope.launch {
             detectShakeUseCase().collect {
@@ -512,5 +517,16 @@ class HangoutViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun stopListeningForShake() {
+        shakeJob?.cancel()
+        shakeJob = null
+        stopShakeDetectionUseCase()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopListeningForShake()
     }
 }
