@@ -3,6 +3,7 @@ package be.runeherreman.zuyp.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,8 +36,8 @@ fun InfoRow(
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier.run {
-                if (text.length > 20) androidx.compose.foundation.layout.size(16.dp)
-                else androidx.compose.foundation.layout.size(16.dp)
+                if (text.length > 20) modifier.size(16.dp)
+                else modifier.size(16.dp)
             },
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )

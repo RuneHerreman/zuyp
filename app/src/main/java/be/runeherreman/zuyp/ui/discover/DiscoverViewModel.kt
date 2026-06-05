@@ -9,10 +9,12 @@ import be.runeherreman.zuyp.domain.model.Marker
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetAllHangoutsUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.GetHangoutByIdUseCase
 import be.runeherreman.zuyp.domain.useCases.hangouts.UpdateAttendanceUseCase
+import be.runeherreman.zuyp.domain.useCases.users.DetectShakeUseCase
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -24,11 +26,14 @@ import javax.inject.Inject
 class DiscoverViewModel @Inject constructor(
     private val getAllHangoutsUseCase: GetAllHangoutsUseCase,
     private val getHangoutByIdUseCase: GetHangoutByIdUseCase,
-    private val updateAttendanceUseCase: UpdateAttendanceUseCase
+    private val updateAttendanceUseCase: UpdateAttendanceUseCase,
+    private val detectShakeUseCase: DetectShakeUseCase,
 ): ViewModel() {
     private val currentUser = CurrentUser.user
     private val _uiState = MutableStateFlow(DiscoverUiState())
     val uiState: StateFlow<DiscoverUiState> = _uiState
+
+    private var shakeJob: Job? = null
 
     init {
         _uiState.value.viewportState.setCameraOptions {
@@ -76,11 +81,27 @@ class DiscoverViewModel @Inject constructor(
         viewModelScope.launch {
             val hangout = getHangoutByIdUseCase(marker.hangoutId.toString()) ?: return@launch
             _uiState.update { it.copy(selectedHangout = hangout, hangoutPopupOpen = true) }
+            listenForShake()
         }
     }
 
     fun closeHangoutPopup() {
+        shakeJob?.cancel()
         _uiState.update { it.copy(hangoutPopupOpen = false) }
+    }
+
+    private fun listenForShake() {
+        shakeJob?.cancel()
+        shakeJob = viewModelScope.launch {
+            detectShakeUseCase().collect {
+                val current = _uiState.value.selectedHangout?.attendees
+                    ?.firstOrNull { it.id == currentUser.id }
+                    ?.attendanceStatus
+                if (current != AttendanceStatus.GOING && current != AttendanceStatus.PRESENT) {
+                    toggleAttendance(AttendanceStatus.GOING)
+                }
+            }
+        }
     }
 
 
