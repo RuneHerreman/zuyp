@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.domain.model.Group
@@ -53,7 +54,7 @@ fun FriendsScreen(
     onFriendClick: (User) -> Unit = {},
     onDismissDialog: () -> Unit = {}
 ) {
-    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).testTag("friends_screen")) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
