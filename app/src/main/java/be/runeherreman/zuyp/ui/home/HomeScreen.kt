@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import be.runeherreman.zuyp.ui.home.components.CreateHangoutPopup
@@ -48,7 +49,7 @@ fun HomeScreen(
         PullToRefreshBox(
             isRefreshing = uiState.isRefreshing,
             onRefresh = { onEvent(HomeEvent.Refresh) },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().testTag("home_screen")
         ) {
             Column(
                 modifier = Modifier
@@ -120,7 +121,8 @@ fun HomeScreen(
             onClick = { onEvent(HomeEvent.CreateHangoutOpen) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp),
+                .padding(16.dp)
+                .testTag("create_hangout_btn"),
             shape = RoundedCornerShape(16.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer

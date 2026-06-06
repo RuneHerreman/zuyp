@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.preferences.datastore)
     implementation(libs.identity.jvm)
+    androidTestImplementation(libs.androidx.rules)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.hilt.compiler)
     androidTestImplementation(libs.hilt.android.testing)
@@ -132,15 +133,17 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.navigation.testing)
-    androidTestImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation(libs.androidx.test.core)
+
 
     // Hilt in instrumented tests (you already have these)
     androidTestImplementation(libs.hilt.android.testing)
-    kspAndroidTest(libs.hilt.compiler)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    androidTestImplementation(libs.androidx.test.runner)
 
+    kspAndroidTest(libs.hilt.compiler)
 
     // Key store
     implementation(libs.androidx.security.crypto)
