@@ -18,7 +18,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "be.runeherreman.zuyp.HiltTestRunner"
         
         buildConfigField("String", "WEATHER_API_BASE_URL", "\"${project.findProperty("WEATHER_API_BASE_URL")}\"")
         buildConfigField("String", "AMQP_USERNAME", "\"${project.findProperty("AMQPusername")}\"")
@@ -26,6 +26,11 @@ android {
         buildConfigField("String", "AMQP_URL", "\"${project.findProperty("AMQPurl")}\"")
         buildConfigField("String", "AMQP_EXCHANGE", "\"${project.findProperty("AMQPexchange")}\"")
         buildConfigField("String", "AMQP_VHOST", "\"${project.findProperty("AMQPvhost")}\"")
+    }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        animationsDisabled = true
     }
 
     buildTypes {
@@ -113,6 +118,28 @@ dependencies {
     implementation("com.mapbox.mapboxsdk:mapbox-sdk-turf:7.10.0")
     implementation(libs.mapbox.search)
     implementation(libs.mapbox.search.autocomplete)
+
+    // Unit tests (src/test)
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.androidx.core.testing)
+
+    // Instrumented tests (src/androidTest)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.navigation.testing)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+
+    // Hilt in instrumented tests (you already have these)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.compiler)
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
 
     // Key store
     implementation(libs.androidx.security.crypto)

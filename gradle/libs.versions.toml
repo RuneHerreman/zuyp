@@ -36,6 +36,11 @@ rabbitmq = "5.29.0"
 workmanager = "2.9.0"
 workRuntimeKtx = "2.10.0"
 
+# Testing
+coroutinesTest = "1.10.2"
+mockk = "1.13.13"
+coreTesting = "2.2.0"
+
 # Maps
 mapbox = "11.24.3"
 mapboxSearch = "2.24.3"
@@ -118,6 +123,13 @@ androidx-compose-ui-text-google-fonts = { group = "androidx.compose.ui", name = 
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtxVersion" }
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastoreCoreVersion" }
 identity-jvm = { group = "com.android.identity", name = "identity-jvm", version.ref = "identityJvm" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+mockk                    = { module = "io.mockk:mockk", version.ref = "mockk" }
+androidx-core-testing    = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
+
+androidx-navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "navigationTesting" }
+mockk-android               = { module = "io.mockk:mockk-android", version.ref = "mockk" }
+
 
 # Key Store
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
