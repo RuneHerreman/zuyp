@@ -17,8 +17,11 @@ import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -47,24 +50,31 @@ class DiscoverViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            getAllHangoutsUseCase().collect { hangouts ->
-                _uiState.update { state ->
-                    state.copy(
-                        markers = hangouts.filter(::isInTimeRange).map { hangout ->
-                            Marker(
-                                hangoutId = hangout.id,
-                                title = hangout.title,
-                                position = Point.fromLngLat(hangout.longitude, hangout.latitude)
-                            )
-                        }
-                    )
+            val ticker = flow {
+                while (true) {
+                    emit(Unit)
+                    delay(TIME_FILTER_REFRESH_MS)
                 }
             }
+            combine(getAllHangoutsUseCase(), ticker) { hangouts, _ -> hangouts }
+                .collect { hangouts ->
+                    _uiState.update { state ->
+                        state.copy(
+                            markers = hangouts.filter(::isInTimeRange).map { hangout ->
+                                Marker(
+                                    hangoutId = hangout.id,
+                                    title = hangout.title,
+                                    position = Point.fromLngLat(hangout.longitude, hangout.latitude)
+                                )
+                            }
+                        )
+                    }
+                }
         }
     }
 
     fun isInTimeRange(hangout: Hangout): Boolean {
-        return hangout.startDate.isAfter(LocalDateTime.now().minusHours(12)) &&
+        return hangout.endDate.isAfter(LocalDateTime.now().minusHours(12)) &&
                hangout.startDate.isBefore(LocalDateTime.now().plusDays(30))
     }
 
@@ -140,5 +150,9 @@ class DiscoverViewModel @Inject constructor(
             val updated = getHangoutByIdUseCase(hangout.id.toString()) ?: return@launch
             _uiState.update { it.copy(selectedHangout = updated) }
         }
+    }
+
+    companion object {
+        private const val TIME_FILTER_REFRESH_MS = 120_000L
     }
 }
