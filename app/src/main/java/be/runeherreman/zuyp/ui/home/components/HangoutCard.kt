@@ -57,7 +57,7 @@ fun HangoutCard(
     val isOneDay = hangout.startDate.toLocalDate() == hangout.endDate.toLocalDate()
 
     val goingAttendees = remember(hangout.attendees) {
-        hangout.attendees.filter { it.attendanceStatus == AttendanceStatus.GOING }
+        hangout.attendees.filter { it.attendanceStatus == AttendanceStatus.GOING || it.attendanceStatus == AttendanceStatus.PRESENT }
     }
 
     val attendeeText = remember(goingAttendees) {

@@ -16,6 +16,7 @@ import be.runeherreman.zuyp.domain.usecases.geofencing.ReplaceZonesUseCase
 import be.runeherreman.zuyp.domain.usecases.hangouts.MarkLeftUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -32,8 +33,16 @@ class GeofenceSyncCoordinator @Inject constructor(
     private val markLeftUseCase: MarkLeftUseCase,
 ) {
     fun start(scope: CoroutineScope) {
-        scope.launch { syncZones() }
-        scope.launch { handleGeofenceEvents() }
+        scope.launch {
+            geoFenceRepository.events()
+                .onSubscription { scope.launch { syncZones() } }
+                .collect { event ->
+                    when (event) {
+                        is GeofenceEvent.Entered -> onUserEntered(event.hangoutId)
+                        is GeofenceEvent.Exited  -> onUserLeft(event.hangoutId)
+                    }
+                }
+        }
         schedulePeriodicSync()
     }
 
@@ -42,16 +51,6 @@ class GeofenceSyncCoordinator @Inject constructor(
         getActiveGeofenceZonesUseCase.getActiveGeofenceZones()
             .distinctUntilChanged()
             .collect { zones -> replaceZonesUseCase(zones) }
-    }
-
-    // handles entry / exit
-    private suspend fun handleGeofenceEvents() {
-        geoFenceRepository.events().collect { event ->
-            when (event) {
-                is GeofenceEvent.Entered -> onUserEntered(event.hangoutId)
-                is GeofenceEvent.Exited  -> onUserLeft(event.hangoutId)
-            }
-        }
     }
 
     // mark present, start hydration reminders

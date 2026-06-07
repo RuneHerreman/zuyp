@@ -54,7 +54,7 @@ fun HangoutPopup(
         hangout.startDate.format(DateTimeFormatter.ofPattern("MMM d yyyy", Locale.getDefault()))
     }
     val goingCount = remember(hangout.attendees) {
-        hangout.attendees.count { it.attendanceStatus == AttendanceStatus.GOING }
+        hangout.attendees.count { it.attendanceStatus == AttendanceStatus.GOING || it.attendanceStatus == AttendanceStatus.PRESENT  }
     }
     val isGoing = currentUserStatus == AttendanceStatus.GOING
     val isNotInterested = currentUserStatus == AttendanceStatus.NOT_INTERESTED

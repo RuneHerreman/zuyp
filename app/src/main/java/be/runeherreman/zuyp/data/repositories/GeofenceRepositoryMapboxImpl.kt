@@ -1,24 +1,24 @@
 package be.runeherreman.zuyp.data.repositories
 
 import android.content.Context
+import android.location.LocationManager
 import android.util.Log
 import be.runeherreman.zuyp.domain.model.GeoFence
 import be.runeherreman.zuyp.domain.model.GeofenceEvent
 import be.runeherreman.zuyp.domain.repository.GeoFenceRepository
-import com.google.gson.JsonPrimitive
 import com.mapbox.annotation.MapboxExperimental
 import com.mapbox.common.geofencing.GeofencingError
 import com.mapbox.common.geofencing.GeofencingEvent
 import com.mapbox.common.geofencing.GeofencingFactory
 import com.mapbox.common.geofencing.GeofencingObserver
-import com.mapbox.common.geofencing.GeofencingPropertiesKeys
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
 import com.mapbox.turf.TurfConstants
+import com.mapbox.turf.TurfMeasurement
 import com.mapbox.turf.TurfTransformation
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import java.util.UUID
 import javax.inject.Inject
@@ -31,17 +31,21 @@ class GeofenceRepositoryMapboxImpl @Inject constructor(
 ) : GeoFenceRepository {
 
     private val _events = MutableSharedFlow<GeofenceEvent>(extraBufferCapacity = 16)
-    override fun events(): Flow<GeofenceEvent> = _events.asSharedFlow()
+    override fun events(): SharedFlow<GeofenceEvent> = _events.asSharedFlow()
 
     private val geofencing by lazy { GeofencingFactory.getOrCreate() }
+    private val locationManager = context.getSystemService(LocationManager::class.java)
     private val registeredIds = mutableSetOf<String>()
 
     private val observer = object : GeofencingObserver {
-        override fun onEntry(event: GeofencingEvent) = Unit
-        override fun onDwell(event: GeofencingEvent) {
+        // Fires on boundary crossing AND immediately on addFeature when the
+        // device is already inside the zone (e.g. an event created on your
+        // current location), which is the case dwell never covers.
+        override fun onEntry(event: GeofencingEvent) {
             val id = event.feature.id() ?: return
             _events.tryEmit(GeofenceEvent.Entered(UUID.fromString(id)))
         }
+        override fun onDwell(event: GeofencingEvent) = Unit
         override fun onExit(event: GeofencingEvent) {
             val id = event.feature.id() ?: return
             _events.tryEmit(GeofenceEvent.Exited(UUID.fromString(id)))
@@ -56,19 +60,39 @@ class GeofenceRepositoryMapboxImpl @Inject constructor(
 
     override suspend fun replaceZones(zones: List<GeoFence>) {
         val newIds = zones.map { it.hangoutId.toString() }.toSet()
+        val newZones = zones.filter { it.hangoutId.toString() !in registeredIds }
 
         (registeredIds - newIds).forEach { id ->
             geofencing.removeFeature(id) { error -> Log.w(TAG, "removeFeature $id failed: $error") }
         }
 
-        zones.filter { it.hangoutId.toString() !in registeredIds }.forEach { zone ->
+        newZones.forEach { zone ->
             geofencing.addFeature(zone.toFeature()) { error ->
                 Log.w(TAG, "addFeature failed: $error")
             }
         }
 
+        emitEnteredForZonesContainingDevice(newZones)
+
         registeredIds.clear()
         registeredIds.addAll(newIds)
+    }
+
+    private fun emitEnteredForZonesContainingDevice(zones: List<GeoFence>) {
+        val loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+            ?: return
+        val devicePoint = Point.fromLngLat(loc.longitude, loc.latitude)
+        zones.forEach { zone ->
+            val dist = TurfMeasurement.distance(
+                devicePoint,
+                Point.fromLngLat(zone.longitude, zone.latitude),
+                TurfConstants.UNIT_METERS,
+            )
+            if (dist <= zone.radiusMeters) {
+                _events.tryEmit(GeofenceEvent.Entered(zone.hangoutId))
+            }
+        }
     }
 
     private fun GeoFence.toFeature(): Feature {
@@ -78,13 +102,10 @@ class GeofenceRepositoryMapboxImpl @Inject constructor(
             64,
             TurfConstants.UNIT_METERS,
         )
-        return Feature.fromGeometry(circle, null, hangoutId.toString()).apply {
-            addProperty(GeofencingPropertiesKeys.DWELL_TIME_KEY, JsonPrimitive(DWELL_MINUTES))
-        }
+        return Feature.fromGeometry(circle, null, hangoutId.toString())
     }
 
     companion object {
-        private const val TAG           = "GeofenceRepository"
-        private const val DWELL_MINUTES = 0
+        private const val TAG = "GeofenceRepository"
     }
 }
