@@ -196,7 +196,7 @@ fun HangoutScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         val goingAttendees = hangout.attendees.filter {
-            it.attendanceStatus == AttendanceStatus.GOING
+            it.attendanceStatus == AttendanceStatus.GOING || it.attendanceStatus == AttendanceStatus.PRESENT
         }
 
         AttendeesSection(
