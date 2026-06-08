@@ -12,6 +12,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
+import kotlin.collections.get
 
 @HiltAndroidTest
 class HomeViewModelTest {
@@ -27,9 +28,10 @@ class HomeViewModelTest {
     @Before
     fun setup() {
         hiltRule.inject()
-        composeTestRule.activity.runOnUiThread {
-            viewModel = ViewModelProvider(composeTestRule.activity)[HomeViewModel::class.java]
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            viewModel = ViewModelProvider(activity)[HomeViewModel::class.java]
         }
+        composeTestRule.waitForIdle()
     }
 
     @Test
