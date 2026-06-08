@@ -1,19 +1,16 @@
 package be.runeherreman.zuyp.data.geofence
 
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.workDataOf
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
 import be.runeherreman.zuyp.data.workers.geofencing.GeofenceSyncWorker
 import be.runeherreman.zuyp.data.workers.geofencing.HydrationReminderScheduler
-import be.runeherreman.zuyp.data.workers.geofencing.MarkPresentWorker
 import be.runeherreman.zuyp.domain.model.GeofenceEvent
 import be.runeherreman.zuyp.domain.repository.GeoFenceRepository
 import be.runeherreman.zuyp.domain.usecases.geofencing.GetActiveGeofenceZonesUseCase
-import be.runeherreman.zuyp.domain.usecases.geofencing.ReplaceZonesUseCase
 import be.runeherreman.zuyp.domain.usecases.hangouts.MarkLeftUseCase
+import be.runeherreman.zuyp.domain.usecases.hangouts.MarkPresentUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onSubscription
@@ -26,10 +23,10 @@ import javax.inject.Singleton
 @Singleton
 class GeofenceSyncCoordinator @Inject constructor(
     private val getActiveGeofenceZonesUseCase: GetActiveGeofenceZonesUseCase,
-    private val replaceZonesUseCase: ReplaceZonesUseCase,
     private val geoFenceRepository: GeoFenceRepository,
     private val workManager: WorkManager,
     private val hydrationScheduler: HydrationReminderScheduler,
+    private val markPresentUseCase: MarkPresentUseCase,
     private val markLeftUseCase: MarkLeftUseCase,
 ) {
     fun start(scope: CoroutineScope) {
@@ -50,21 +47,18 @@ class GeofenceSyncCoordinator @Inject constructor(
     private suspend fun syncZones() {
         getActiveGeofenceZonesUseCase.getActiveGeofenceZones()
             .distinctUntilChanged()
-            .collect { zones -> replaceZonesUseCase(zones) }
+            .collect { zones -> geoFenceRepository.replaceZones(zones) }
     }
 
-    // mark present, start hydration reminders
-    private fun onUserEntered(hangoutId: UUID) {
-        workManager.enqueue(
-            OneTimeWorkRequestBuilder<MarkPresentWorker>()
-                .setInputData(workDataOf(MarkPresentWorker.KEY_HANGOUT_ID to hangoutId.toString()))
-                .build()
-        )
+    private suspend fun onUserEntered(hangoutId: UUID) {
+        if (markPresentUseCase(hangoutId, CurrentUser.id)) {
+            hydrationScheduler.start(hangoutId)
+        }
     }
 
     private suspend fun onUserLeft(hangoutId: UUID) {
-        hydrationScheduler.stop(hangoutId)
         markLeftUseCase(hangoutId, CurrentUser.id)
+        hydrationScheduler.stop(hangoutId)
     }
 
     private fun schedulePeriodicSync() {

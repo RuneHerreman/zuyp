@@ -10,7 +10,7 @@ import javax.inject.Inject
 class MarkPresentUseCase @Inject constructor(
     private val hangoutRepository: HangoutRepository,
 ) {
-    /** Returns true if the user was marked PRESENT. */
+    // True if user present
     suspend operator fun invoke(hangoutId: UUID, userId: UUID): Boolean {
         val hangout = hangoutRepository.getHangoutById(hangoutId) ?: return false
         if (!hangout.isLive() || !hangout.isGoingFor(userId)) return false

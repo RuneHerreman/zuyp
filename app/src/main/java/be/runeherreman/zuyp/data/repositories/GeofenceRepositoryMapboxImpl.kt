@@ -1,11 +1,13 @@
 package be.runeherreman.zuyp.data.repositories
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.location.LocationManager
 import android.util.Log
 import be.runeherreman.zuyp.domain.model.GeoFence
 import be.runeherreman.zuyp.domain.model.GeofenceEvent
 import be.runeherreman.zuyp.domain.repository.GeoFenceRepository
+import be.runeherreman.zuyp.ui.permissions.AppPermission
 import be.runeherreman.zuyp.ui.permissions.isGranted
 import com.mapbox.annotation.MapboxExperimental
 import com.mapbox.common.geofencing.GeofencingError
@@ -79,10 +81,9 @@ class GeofenceRepositoryMapboxImpl @Inject constructor(
         registeredIds.addAll(newIds)
     }
 
+    @SuppressLint("MissingPermission")
     private fun emitEnteredForZonesContainingDevice(zones: List<GeoFence>) {
-        if (!be.runeherreman.zuyp.ui.permissions.AppPermission.LOCATION.isGranted(context)) {
-            return
-        }
+        if (!AppPermission.LOCATION.isGranted(context)) return
 
         val loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)

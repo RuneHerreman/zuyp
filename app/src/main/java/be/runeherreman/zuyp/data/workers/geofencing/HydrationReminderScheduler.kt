@@ -15,7 +15,7 @@ class HydrationReminderScheduler @Inject constructor(
 ) {
     fun start(hangoutId: UUID) {
         val request = PeriodicWorkRequestBuilder<HydrationReminderWorker>(1, TimeUnit.HOURS)
-            .setInputData(workDataOf(MarkPresentWorker.KEY_HANGOUT_ID to hangoutId.toString()))
+            .setInputData(workDataOf(HydrationReminderWorker.KEY_HANGOUT_ID to hangoutId.toString()))
             .build()
 
         workManager.enqueueUniquePeriodicWork(

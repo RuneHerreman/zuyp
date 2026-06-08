@@ -19,7 +19,7 @@ class HydrationReminderWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        val hangoutId = inputData.getString(MarkPresentWorker.KEY_HANGOUT_ID)
+        val hangoutId = inputData.getString(KEY_HANGOUT_ID)
             ?: return Result.failure()
 
         val hangout = getHangoutByIdUseCase(hangoutId) ?: return Result.success()
@@ -32,5 +32,9 @@ class HydrationReminderWorker @AssistedInject constructor(
 
         NotificationHelper.showHydrationReminder(applicationContext, hangoutId)
         return Result.success()
+    }
+
+    companion object {
+        const val KEY_HANGOUT_ID = "hangoutId"
     }
 }
