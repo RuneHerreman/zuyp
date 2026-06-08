@@ -29,7 +29,7 @@ import be.runeherreman.zuyp.data.local.room.entity.hangouts.HangoutUsersMapping
         ExpenseShareEntity::class,
         SettlementEntity::class
    ],
-    version = 14,
+    version = 15,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
