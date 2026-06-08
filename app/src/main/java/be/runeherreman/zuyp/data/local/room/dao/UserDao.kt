@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import be.runeherreman.zuyp.data.local.room.entity.users.FriendshipEntity
 import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
+import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
 @Dao
@@ -20,7 +21,7 @@ interface UserDao {
     suspend fun getUserById(id: UUID): UserEntity?
 
     @Query("SELECT * FROM users")
-    suspend fun getAllUsers(): List<UserEntity>
+    fun getAllUsers(): Flow<List<UserEntity>>
 
     @Query("DELETE FROM users WHERE id = :id")
     suspend fun deleteUserById(id: UUID)
