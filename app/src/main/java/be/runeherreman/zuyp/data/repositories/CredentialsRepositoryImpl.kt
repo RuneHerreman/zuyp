@@ -9,6 +9,7 @@ class CredentialsRepositoryImpl @Inject constructor(
     private val secureStorage: SecureStorage
 ) : CredentialsRepository {
 
+    // This will still show the raw credentials in the APK. I do not have time for doing this with a pipeline. But you get the point dawg
     override fun getAmqpCredentials(): AmqpCredentials? {
         val username = secureStorage.getString(SecureStorage.KEY_AMQP_USERNAME) ?: return null
         val password = secureStorage.getString(SecureStorage.KEY_AMQP_PASSWORD) ?: return null
