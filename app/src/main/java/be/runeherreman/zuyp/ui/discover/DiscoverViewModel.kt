@@ -78,10 +78,6 @@ class DiscoverViewModel @Inject constructor(
                hangout.startDate.isBefore(LocalDateTime.now().plusDays(30))
     }
 
-//    fun onUserLocationUpdates(point: Point) {
-//        _userlocation.value = point
-//    }
-
     fun openHangoutPopup(marker: Marker) {
         _uiState.value.viewportState.flyTo(
             CameraOptions.Builder()
@@ -128,7 +124,6 @@ class DiscoverViewModel @Inject constructor(
         super.onCleared()
         stopListeningForShake()
     }
-
 
     fun showBackgroundLocationRationale() = _uiState.update { it.copy(showBackgroundLocationDialog = true) }
     fun dismissBackgroundLocationRationale() = _uiState.update { it.copy(showBackgroundLocationDialog = false) }

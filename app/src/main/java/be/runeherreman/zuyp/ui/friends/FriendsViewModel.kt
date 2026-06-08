@@ -115,7 +115,7 @@ class FriendsViewModel @Inject constructor(
     fun openAddFriend() {
         viewModelScope.launch {
             val friendIds = _uiState.value.friends.mapTo(mutableSetOf()) { it.id }
-            val candidates = getAllUsersUseCase()
+            val candidates = getAllUsersUseCase().first()
                 .filter { it.id != currentUserId && it.id !in friendIds }
             _uiState.update { it.copy(dialog = FriendsDialog.AddFriend(candidates)) }
         }

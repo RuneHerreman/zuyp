@@ -41,6 +41,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -350,7 +351,7 @@ class HangoutViewModel @Inject constructor(
         _uiState.update { it.copy(isShareSheetOpen = true) }
         viewModelScope.launch {
             val attendeeIds = _uiState.value.hangout!!.attendees.map { it.id }.toSet()
-            val allUsers = getAllUsersUseCase().filter {
+            val allUsers = getAllUsersUseCase().first().filter {
                 it.id != currentUser.id && it.id !in attendeeIds
             }
             _uiState.update { it.copy(allUsers = allUsers) }

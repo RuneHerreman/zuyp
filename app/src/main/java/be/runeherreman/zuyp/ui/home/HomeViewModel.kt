@@ -153,7 +153,7 @@ class HomeViewModel @Inject constructor(
     fun openCreateHangout() {
         val nowRounded = LocalDateTime.now().withSecond(0).withNano(0).withMinute(0).plusHours(1)
         viewModelScope.launch {
-            val allUsers = getAllUsersUseCase().filter { it.id != currentUserId }
+            val allUsers = getAllUsersUseCase().first().filter { it.id != currentUserId }
             val groups = getUserGroupsUseCase(currentUserId).first()
             _uiState.update {
                 it.copy(
