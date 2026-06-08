@@ -44,7 +44,7 @@ import com.mapbox.maps.viewannotation.viewAnnotationOptions
 @Composable
 fun DiscoverScreen(
     uiState: DiscoverUiState,
-    onLocationChanged: (Point) -> Unit,
+//    onLocationChanged: (Point) -> Unit,
     onMarkerClick: (Marker) -> Unit,
     onMapClick: () -> Unit,
     onBackgroundLocationConfirmed: () -> Unit,
@@ -77,9 +77,9 @@ fun DiscoverScreen(
                         enabled = true
                         locationPuck = createDefault2DPuck(withBearing = true)
                     }
-                    addOnIndicatorPositionChangedListener { point ->
-                        onLocationChanged(point)
-                    }
+//                    addOnIndicatorPositionChangedListener { point ->
+//                        onLocationChanged(point)
+//                    }
                 }
                 uiState.viewportState.transitionToFollowPuckState(followPuckOptions)
             }

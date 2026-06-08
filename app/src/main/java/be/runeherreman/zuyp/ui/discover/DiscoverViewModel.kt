@@ -78,12 +78,11 @@ class DiscoverViewModel @Inject constructor(
                hangout.startDate.isBefore(LocalDateTime.now().plusDays(30))
     }
 
-    fun onUserLocationUpdates(point: Point) {
+//    fun onUserLocationUpdates(point: Point) {
 //        _userlocation.value = point
-    }
+//    }
 
     fun openHangoutPopup(marker: Marker) {
-        // Use flyTo for a smooth animated transition
         _uiState.value.viewportState.flyTo(
             CameraOptions.Builder()
                 .center(marker.position)

@@ -98,7 +98,7 @@ fun ZuypNavGraph(
 
             DiscoverScreen(
                 uiState = discoverUiState,
-                onLocationChanged = discoverViewModel::onUserLocationUpdates,
+//                onLocationChanged = discoverViewModel::onUserLocationUpdates,
                 onMarkerClick = discoverViewModel::openHangoutPopup,
                 onMapClick = discoverViewModel::closeHangoutPopup,
                 onBackgroundLocationConfirmed = {

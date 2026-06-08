@@ -25,7 +25,7 @@ class ShakeRepositoryImpl @Inject constructor(
 
     private var shakingStartedAt = 0L
     private var lastShakeAt = 0L
-    private var isListening = false
+    private var listenerCount = 0
 
     private val listener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
@@ -54,18 +54,25 @@ class ShakeRepositoryImpl @Inject constructor(
 
     override fun startListening() {
         val sensor = accelerometer ?: return
-        if (isListening) return
-
-        sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
-        isListening = true
+        synchronized(this) {
+            listenerCount++
+            if (listenerCount == 1) {
+                sensorManager.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_NORMAL)
+            }
+        }
     }
 
     override fun stopListening() {
-        if (!isListening) return
-        sensorManager.unregisterListener(listener)
-        isListening = false
-        shakingStartedAt = 0L
-        lastShakeAt = 0L
+        synchronized(this) {
+            if (listenerCount > 0) {
+                listenerCount--
+            }
+            if (listenerCount == 0) {
+                sensorManager.unregisterListener(listener)
+                shakingStartedAt = 0L
+                lastShakeAt = 0L
+            }
+        }
     }
 
     companion object {
