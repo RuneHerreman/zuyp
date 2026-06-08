@@ -1,16 +1,12 @@
 package be.runeherreman.zuyp.ui.alert
 
-import android.app.NotificationManager
-import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
-import be.runeherreman.zuyp.data.workers.NotificationHelper
 import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.domain.usecases.hangouts.UpdateAttendanceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -21,7 +17,6 @@ import javax.inject.Inject
 @HiltViewModel
 class ZuypAlertViewModel @Inject constructor(
     private val updateAttendanceUseCase: UpdateAttendanceUseCase,
-    @ApplicationContext private val context: Context,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -51,8 +46,6 @@ class ZuypAlertViewModel @Inject constructor(
     }
 
     fun dismiss() {
-        context.getSystemService(NotificationManager::class.java)
-            .cancel(NotificationHelper.ZUYP_ALERT_ID)
         _uiState.update { it.copy(isDismissed = true) }
     }
 }

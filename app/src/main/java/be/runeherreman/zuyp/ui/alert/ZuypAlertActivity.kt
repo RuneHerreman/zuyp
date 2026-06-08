@@ -1,10 +1,12 @@
 package be.runeherreman.zuyp.ui.alert
 
+import android.app.NotificationManager
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import be.runeherreman.zuyp.data.workers.NotificationHelper
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -69,7 +71,11 @@ class ZuypAlertActivity : ComponentActivity() {
                 val uiState by viewModel.uiState.collectAsState()
 
                 LaunchedEffect(uiState.isDismissed) {
-                    if (uiState.isDismissed) finish()
+                    if (uiState.isDismissed) {
+                        getSystemService(NotificationManager::class.java)
+                            .cancel(NotificationHelper.ZUYP_ALERT_ID)
+                        finish()
+                    }
                 }
 
                 ZuypAlertScreen(
