@@ -17,6 +17,6 @@ import java.util.UUID
 )
 data class ExpenseShareEntity(
     val expenseId: UUID,
-    var userId: UUID,
+    val userId: UUID,
     val shareAmount: Double
 )

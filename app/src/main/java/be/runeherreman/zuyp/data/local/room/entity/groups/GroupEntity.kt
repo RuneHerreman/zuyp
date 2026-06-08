@@ -9,7 +9,7 @@ import java.util.UUID
 
 @Entity(
     tableName = "groups",
-    indices = [Index(value = ["id"], unique = true)],
+    indices = [Index("creatorId")],
     foreignKeys = [
         ForeignKey(
             entity = UserEntity::class,
