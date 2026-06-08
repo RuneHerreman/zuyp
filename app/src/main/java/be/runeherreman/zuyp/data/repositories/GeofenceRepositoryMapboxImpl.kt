@@ -6,6 +6,7 @@ import android.util.Log
 import be.runeherreman.zuyp.domain.model.GeoFence
 import be.runeherreman.zuyp.domain.model.GeofenceEvent
 import be.runeherreman.zuyp.domain.repository.GeoFenceRepository
+import be.runeherreman.zuyp.ui.permissions.isGranted
 import com.mapbox.annotation.MapboxExperimental
 import com.mapbox.common.geofencing.GeofencingError
 import com.mapbox.common.geofencing.GeofencingEvent
@@ -79,6 +80,10 @@ class GeofenceRepositoryMapboxImpl @Inject constructor(
     }
 
     private fun emitEnteredForZonesContainingDevice(zones: List<GeoFence>) {
+        if (!be.runeherreman.zuyp.ui.permissions.AppPermission.LOCATION.isGranted(context)) {
+            return
+        }
+
         val loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
             ?: return
