@@ -23,6 +23,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import java.util.Collections
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -38,7 +39,7 @@ class GeofenceRepositoryMapboxImpl @Inject constructor(
 
     private val geofencing by lazy { GeofencingFactory.getOrCreate() }
     private val locationManager = context.getSystemService(LocationManager::class.java)
-    private val registeredIds = mutableSetOf<String>()
+    private val registeredIds: MutableSet<String> = Collections.synchronizedSet(mutableSetOf())
 
     private val observer = object : GeofencingObserver {
         // Fires on boundary crossing AND immediately on addFeature when the
@@ -63,9 +64,14 @@ class GeofenceRepositoryMapboxImpl @Inject constructor(
 
     override suspend fun replaceZones(zones: List<GeoFence>) {
         val newIds = zones.map { it.hangoutId.toString() }.toSet()
-        val newZones = zones.filter { it.hangoutId.toString() !in registeredIds }
+        val toRemove: Set<String>
+        val newZones: List<GeoFence>
+        synchronized(registeredIds) {
+            toRemove = registeredIds - newIds
+            newZones = zones.filter { it.hangoutId.toString() !in registeredIds }
+        }
 
-        (registeredIds - newIds).forEach { id ->
+        toRemove.forEach { id ->
             geofencing.removeFeature(id) { error -> Log.w(TAG, "removeFeature $id failed: $error") }
         }
 
@@ -77,8 +83,10 @@ class GeofenceRepositoryMapboxImpl @Inject constructor(
 
         emitEnteredForZonesContainingDevice(newZones)
 
-        registeredIds.clear()
-        registeredIds.addAll(newIds)
+        synchronized(registeredIds) {
+            registeredIds.clear()
+            registeredIds.addAll(newIds)
+        }
     }
 
     @SuppressLint("MissingPermission")

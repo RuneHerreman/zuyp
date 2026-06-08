@@ -4,6 +4,8 @@ import be.runeherreman.zuyp.data.fake.data.FakeFriendshipsDataSource
 import be.runeherreman.zuyp.data.fake.data.FakeUsers
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.repository.UserRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import java.util.UUID
 import javax.inject.Inject
 
@@ -14,8 +16,8 @@ class UserRepositoryFakeDataImpl @Inject constructor(
         return FakeUsers.allUsers.find { it.id == id }
     }
 
-    override suspend fun getAllUsers(): List<User> {
-        return FakeUsers.allUsers
+    override fun getAllUsers(): Flow<List<User>> {
+        return flowOf(FakeUsers.allUsers)
     }
 
     override suspend fun areFriends(userId1: UUID, userId2: UUID): Boolean {

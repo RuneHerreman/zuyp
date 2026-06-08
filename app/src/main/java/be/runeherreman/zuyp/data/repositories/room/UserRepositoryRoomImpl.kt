@@ -5,6 +5,8 @@ import be.runeherreman.zuyp.data.local.room.entity.users.FriendshipEntity
 import be.runeherreman.zuyp.data.local.room.entity.users.UserEntity
 import be.runeherreman.zuyp.domain.model.User
 import be.runeherreman.zuyp.domain.repository.UserRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.UUID
 import javax.inject.Inject
 
@@ -15,8 +17,8 @@ class UserRepositoryRoomImpl @Inject constructor(
         return userDao.getUserById(id)?.toDomain()
     }
 
-    override suspend fun getAllUsers(): List<User> {
-        return userDao.getAllUsers().map { it.toDomain() }
+    override fun getAllUsers(): Flow<List<User>> {
+        return userDao.getAllUsers().map { list -> list.map { it.toDomain() } }
     }
 
     override suspend fun areFriends(userId1: UUID, userId2: UUID): Boolean {
