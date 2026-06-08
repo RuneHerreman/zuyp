@@ -106,18 +106,10 @@ dependencies {
     // Messaging
     implementation(libs.rabbitmq.amqp.client)
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-
     // MapBox
     implementation(libs.mapbox.maps)
     implementation(libs.mapbox.maps.compose)
-    implementation("com.mapbox.mapboxsdk:mapbox-sdk-turf:7.10.0")
+    implementation(libs.mapbox.sdk.turf)
     implementation(libs.mapbox.search)
     implementation(libs.mapbox.search.autocomplete)
 
@@ -134,14 +126,11 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.navigation.testing)
     androidTestImplementation(libs.androidx.test.core)
-
-
-    // Hilt in instrumented tests (you already have these)
     androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.androidx.test.runner)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    androidTestImplementation(libs.androidx.test.runner)
 
     kspAndroidTest(libs.hilt.compiler)
 

@@ -47,6 +47,7 @@ androidxTestBom = "1.6.0"
 # Maps
 mapbox = "11.24.3"
 mapboxSearch = "2.24.3"
+mapboxTurf = "7.10.0"
 
 # Testing
 junit = "4.13.2"
@@ -118,6 +119,7 @@ mapbox-maps = { module = "com.mapbox.maps:android", version.ref = "mapbox" }
 mapbox-search = { module = "com.mapbox.search:mapbox-search-android", version.ref = "mapboxSearch" }
 mapbox-search-autocomplete = { module = "com.mapbox.search:place-autocomplete", version.ref = "mapboxSearch" }
 mapbox-maps-compose = { module = "com.mapbox.extension:maps-compose-ndk27", version.ref = "mapbox" }
+mapbox-sdk-turf = { group = "com.mapbox.mapboxsdk", name = "mapbox-sdk-turf", version.ref = "mapboxTurf" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }
