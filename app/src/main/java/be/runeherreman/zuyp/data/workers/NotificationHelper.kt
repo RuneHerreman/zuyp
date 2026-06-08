@@ -9,6 +9,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.hardware.camera2.CameraManager
 import android.media.AudioAttributes
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import be.runeherreman.zuyp.MainActivity
@@ -122,19 +123,25 @@ object NotificationHelper {
 
     @SuppressLint("FullScreenIntentPolicy")
     private fun showZuypAlert(context: Context, message: NotificationMessage.ZuypAlert) {
-        val manager     = context.getSystemService(NotificationManager::class.java)
+        val manager = context.getSystemService(NotificationManager::class.java)
+
+        val alertIntent = Intent(context, ZuypAlertActivity::class.java).apply {
+            putExtra("hangoutId",    message.hangoutId)
+            putExtra("title",        message.title)
+            putExtra("locationName", message.locationName)
+            putExtra("startDate",    message.startDate)
+            putExtra("weather",      message.weather)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
         val pendingIntent = PendingIntent.getActivity(
-            context, 0,
-            Intent(context, ZuypAlertActivity::class.java).apply {
-                putExtra("hangoutId",    message.hangoutId)
-                putExtra("title",        message.title)
-                putExtra("locationName", message.locationName)
-                putExtra("startDate",    message.startDate)
-                putExtra("weather",      message.weather)
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            },
+            context, 0, alertIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+
+        val canUseFullScreen = manager.canUseFullScreenIntent()
+        if (!canUseFullScreen) {
+            Log.w(TAG, "USE_FULL_SCREEN_INTENT not granted — ZuypAlert will show as heads-up only")
+        }
 
         manager.notify(
             ZUYP_ALERT_ID,
@@ -145,11 +152,14 @@ object NotificationHelper {
                 .setLargeIcon(BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher))
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setCategory(NotificationCompat.CATEGORY_CALL)
-                .setFullScreenIntent(pendingIntent, true)
+                .apply { if (canUseFullScreen) setFullScreenIntent(pendingIntent, true) }
+                .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build()
         )
     }
+
+    private const val TAG = "NotificationHelper"
 
     private fun showHangoutJoined(context: Context, message: NotificationMessage.HangoutJoined) {
         val manager = context.getSystemService(NotificationManager::class.java)
