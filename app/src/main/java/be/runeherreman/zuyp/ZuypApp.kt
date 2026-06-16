@@ -61,10 +61,6 @@ fun ZuypApp(
         val discoverUiState by discoverViewModel.uiState.collectAsStateWithLifecycle()
         val context = LocalContext.current
 
-        BackHandler(enabled = discoverUiState.hangoutPopupOpen) {
-            discoverViewModel.closeHangoutPopup()
-        }
-
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
@@ -95,6 +91,8 @@ fun ZuypApp(
                 modifier = Modifier.align(Alignment.BottomCenter)
             ) {
                 if (selectedHangout != null) {
+                    BackHandler { discoverViewModel.closeHangoutPopup() }
+
                     val currentUserStatus = selectedHangout.attendees
                         .firstOrNull { it.id == discoverUiState.currentUserId }
                         ?.attendanceStatus
