@@ -25,8 +25,7 @@ class HydrationReminderWorker @AssistedInject constructor(
 
         val hangout = getHangoutByIdUseCase(hangoutId) ?: return Result.success()
 
-        // auto-cancel when the hangout is over
-        if (hangout.endDate.isBefore(LocalDateTime.now())) {
+        if (hangout.endDate.isBefore(LocalDateTime.now())) { // auto-cancel when hangout is over
             hydrationReminderScheduler.stop(UUID.fromString(hangoutId))
             return Result.success()
         }

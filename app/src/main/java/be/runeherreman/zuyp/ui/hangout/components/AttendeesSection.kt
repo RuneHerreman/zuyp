@@ -31,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import be.runeherreman.zuyp.domain.model.AttendanceStatus
 import be.runeherreman.zuyp.domain.model.User
 import coil.compose.AsyncImage
 import java.util.UUID
@@ -104,6 +105,18 @@ private fun AttendeeItem(
         }
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = user.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+
+        if (user.attendanceStatus == AttendanceStatus.PRESENT) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = "Present",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(18.dp)
+                    .padding(end = 0.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+        }
 
         if (user.id == currentUserId) {
             YouButton()

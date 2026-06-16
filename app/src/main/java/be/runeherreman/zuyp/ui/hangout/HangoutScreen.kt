@@ -206,7 +206,7 @@ fun HangoutScreen(
             onUserClick = { onEvent(HangoutEvent.UserClicked(it)) }
         )
 
-        if (uiState.currentUserAttendanceStatus == AttendanceStatus.GOING) {
+        if (uiState.currentUserAttendanceStatus == AttendanceStatus.GOING || uiState.currentUserAttendanceStatus == AttendanceStatus.PRESENT) {
             Spacer(modifier = Modifier.height(32.dp))
 
             ExpensesSection(

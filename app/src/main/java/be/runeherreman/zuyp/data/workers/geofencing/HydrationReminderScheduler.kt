@@ -21,7 +21,7 @@ class HydrationReminderScheduler @Inject constructor(
 
         workManager.enqueueUniquePeriodicWork(
             workName(hangoutId.toString()),
-            ExistingPeriodicWorkPolicy.KEEP,  // don't restart the hourly clock if already running
+            ExistingPeriodicWorkPolicy.KEEP,  // don't restart hourly clock if already running
             request,
         )
     }

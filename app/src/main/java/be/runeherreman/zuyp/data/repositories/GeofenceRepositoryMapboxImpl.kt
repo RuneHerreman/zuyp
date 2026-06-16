@@ -42,9 +42,6 @@ class GeofenceRepositoryMapboxImpl @Inject constructor(
     private val registeredIds: MutableSet<String> = Collections.synchronizedSet(mutableSetOf())
 
     private val observer = object : GeofencingObserver {
-        // Fires on boundary crossing AND immediately on addFeature when the
-        // device is already inside the zone (e.g. an event created on your
-        // current location), which is the case dwell never covers.
         override fun onEntry(event: GeofencingEvent) {
             val id = event.feature.id() ?: return
             _events.tryEmit(GeofenceEvent.Entered(UUID.fromString(id)))
