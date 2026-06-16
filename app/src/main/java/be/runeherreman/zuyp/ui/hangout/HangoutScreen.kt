@@ -133,7 +133,6 @@ fun HangoutScreen(
 ) {
     val context = LocalContext.current
 
-    // Handle system back press
     BackHandler(onBack = { onEvent( HangoutEvent.BackClicked) })
 
     if (uiState.isError) {
