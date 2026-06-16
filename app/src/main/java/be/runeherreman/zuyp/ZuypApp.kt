@@ -1,5 +1,6 @@
 package be.runeherreman.zuyp
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -59,6 +60,10 @@ fun ZuypApp(
         val hangoutUiState by hangoutViewModel.uiState.collectAsStateWithLifecycle()
         val discoverUiState by discoverViewModel.uiState.collectAsStateWithLifecycle()
         val context = LocalContext.current
+
+        BackHandler(enabled = discoverUiState.hangoutPopupOpen) {
+            discoverViewModel.closeHangoutPopup()
+        }
 
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(

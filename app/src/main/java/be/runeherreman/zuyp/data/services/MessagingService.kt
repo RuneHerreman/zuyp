@@ -11,7 +11,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import be.runeherreman.zuyp.R
 import be.runeherreman.zuyp.data.fake.data.CurrentUser
-import be.runeherreman.zuyp.data.geofence.GeofenceSyncCoordinator
+import be.runeherreman.zuyp.domain.geofence.GeofenceSyncCoordinator
 import be.runeherreman.zuyp.data.messaging.MessageConsumer
 import be.runeherreman.zuyp.data.messaging.NotificationMessage
 import be.runeherreman.zuyp.data.workers.NotificationHelper
@@ -50,7 +50,7 @@ class MessagingService : Service() {
         messageConsumer.startConsuming(userId)
 
         // Start geofence coordinator
-        geofenceSyncCoordinator.start(scope)
+        geofenceSyncCoordinator.start(scope, CurrentUser.id)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY

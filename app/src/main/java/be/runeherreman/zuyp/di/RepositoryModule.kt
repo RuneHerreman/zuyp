@@ -1,5 +1,6 @@
 package be.runeherreman.zuyp.di
 
+import be.runeherreman.zuyp.data.geofence.GeofenceSyncSchedulerImpl
 import be.runeherreman.zuyp.data.repositories.AddressRepositoryMapboxImpl
 import be.runeherreman.zuyp.data.repositories.GeofenceRepositoryMapboxImpl
 import be.runeherreman.zuyp.data.repositories.WeatherRepositoryImpl
@@ -8,6 +9,9 @@ import be.runeherreman.zuyp.data.repositories.room.GroupRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.room.HangoutRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.room.UserRepositoryRoomImpl
 import be.runeherreman.zuyp.data.repositories.sensors.ShakeRepositoryImpl
+import be.runeherreman.zuyp.data.workers.geofencing.HydrationReminderScheduler
+import be.runeherreman.zuyp.domain.geofence.GeofenceSyncScheduler
+import be.runeherreman.zuyp.domain.geofence.HydrationScheduler
 import be.runeherreman.zuyp.domain.repository.AddressRepository
 import be.runeherreman.zuyp.domain.repository.ExpenseRepository
 import be.runeherreman.zuyp.domain.repository.GeoFenceRepository
@@ -56,4 +60,12 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindGeofenceRepository(impl: GeofenceRepositoryMapboxImpl): GeoFenceRepository
+
+    @Binds
+    @Singleton
+    fun bindHydrationScheduler(impl: HydrationReminderScheduler): HydrationScheduler
+
+    @Binds
+    @Singleton
+    fun bindGeofenceSyncScheduler(impl: GeofenceSyncSchedulerImpl): GeofenceSyncScheduler
 }

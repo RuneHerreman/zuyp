@@ -9,6 +9,7 @@ import be.runeherreman.zuyp.domain.usecases.hangouts.GetHangoutByIdUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import java.time.LocalDateTime
+import java.util.UUID
 
 @HiltWorker
 class HydrationReminderWorker @AssistedInject constructor(
@@ -26,7 +27,7 @@ class HydrationReminderWorker @AssistedInject constructor(
 
         // auto-cancel when the hangout is over
         if (hangout.endDate.isBefore(LocalDateTime.now())) {
-            hydrationReminderScheduler.stop(hangoutId)
+            hydrationReminderScheduler.stop(UUID.fromString(hangoutId))
             return Result.success()
         }
 
