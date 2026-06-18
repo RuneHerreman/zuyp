@@ -1,203 +1,180 @@
-# Zuyp – Drink & Social App
+# Zuyp — Plan hangouts, split the bill, get there safe
 
-Device Development project (Semester 4, Toegepaste Informatica).
-Zuyp is an Android app for quickly planning hangouts, staying connected with
-friends, and keeping nights out transparent and safe.
+> A native Android app for planning casual hangouts with friends, keeping nights
+> out transparent, and splitting shared expenses — with live maps, smart
+> notifications, and sensor-driven shortcuts.
 
-> A separate document explains the features in detail. This README is used to
-> **track progress** during the project week.
+<p align="left">
+  <img alt="Platform" src="https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white">
+  <img alt="Language" src="https://img.shields.io/badge/Kotlin-2.3-7F52FF?logo=kotlin&logoColor=white">
+  <img alt="UI" src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-4285F4?logo=jetpackcompose&logoColor=white">
+  <img alt="Min SDK" src="https://img.shields.io/badge/minSdk-34-555">
+  <img alt="Architecture" src="https://img.shields.io/badge/Architecture-Clean%20%2B%20MVVM-orange">
+</p>
 
-## Table of contents
-- [Before this week](#what-i-did-before-the-start-of-the-project-week)
-- [Day 1 (01/06/2026)](#01062026)
-- [Day 2 (02/06/2026)](#02062026)
-- [Day 3 (03/06/2026)](#03062026)
-- [Day 4 (04/06/2026)](#04062026)
-- [Day 5 (05/06/2026)](#05062026)
-- [Day 6 (06/06/2026)](#06062026)
-- [Day 7 (07/06/2026)](#07062026)
-- [Day 8 (08/06/2026)](#08062026)
-- [TO-DO](#what-i-still-need-to-do)
+Zuyp is a solo-built Android app from my *Device Development* course (Applied
+Computer Science, Howest). It started as a coursework brief and grew into a
+fully-featured social planning app exploring the breadth of the Android
+platform — local persistence, REST APIs, a message broker, GPS & maps,
+geofencing, hardware sensors, the camera, foreground services and background
+work.
 
 ---
 
-## What I did before the start of the project week
+## 📸 Screenshots
 
-Foundations and most of the core app were built in the weeks leading up to the
-project week (Apr 10 – May 31).
+> _Drop your images into `docs/screenshots/` using the filenames below and they
+> will render here automatically._
 
-**Project setup & architecture**
-- Android project with Hilt dependency injection and a clean
-  domain / data / ui layering (models, repositories, use cases).
-- Bottom navigation bar across the main screens (Home, Discover, Friends,
-  Profile) with Material 3 theming, custom fonts (Noto Serif / Inter) and colors.
+| Home — upcoming hangouts | Discover — live map | Hangout detail |
+|:---:|:---:|:---:|
+| ![Home screen](docs/screenshots/home.png) | ![Discover map](docs/screenshots/discover.png) | ![Hangout detail](docs/screenshots/hangout-detail.png) |
 
-**Data layer**
-- Room database for local storage (users, hangouts, friendships) with foreign
-  keys, unique constraints and stable seeded UUIDs.
-- Reactive data via Kotlin `Flow`, fake seed data for development.
+| Expenses & balances | Friends & groups | SOS "Zuyp Alert" |
+|:---:|:---:|:---:|
+| ![Expenses](docs/screenshots/expenses.png) | ![Friends](docs/screenshots/friends.png) | ![SOS alert](docs/screenshots/sos-alert.png) |
 
-**Hangouts (Home + details)**
-- Home list of upcoming hangouts, sorted by date, with hangout cards showing
-  location, time, attendee count and friend avatars.
-- Search overlay and pull-to-refresh.
+> _Optional: add a short screen-capture as `docs/screenshots/demo.gif` and link it here._
+
+---
+
+## ✨ Features
+
+### Plan & attend hangouts
+- Browse upcoming hangouts sorted by date, with location, time, attendee count
+  and friend avatars on each card.
+- Create hangouts with date/time pickers, an all-day switch and address search;
+  the owner can edit or delete their own events.
 - Hangout detail overlay with attendance status (going / not interested) and a
   "friends attending" filter.
-- Create-hangout flow.
+- **Privacy model:** the home feed shows public hangouts plus the private ones
+  you're actually part of.
+- Invite friends in-app, or share an off-platform link (GitHub Pages →
+  `zuyp://` deep link) that opens the event straight in the app.
 
-**Friends**
-- Friendship management (add/remove friends, see friends attending an event).
+### Split the bill
+- Add shared expenses to a hangout with a paid-by selector, an attached receipt
+  photo (camera or gallery) and reactive, cent-accurate balance calculation.
+- **Equal split** or **custom split** with Tricount-style cascade auto-fill and
+  validation, plus a settle-up flow.
 
-**Weather API (external API call)**
-- Integration with a weather service to show the forecast at the event location
-  and suggest what to wear (dresscode tip).
+### Discover (maps & location)
+- Mapbox map showing your live location puck and markers for nearby hangouts.
+- Tapping a marker animates and centres the camera, then slides up a popup that
+  links through to the full hangout detail.
+- Tap any location field (card, detail header, map popup) to open a maps
+  chooser routed to the exact coordinates (`geo:` intent).
 
-**Messaging & notifications (message broker)**
-- Messaging foundation over CloudAMQP (RabbitMQ) with SSL/vhost.
-- Heads-up and full-screen notifications with hangout info and notification
-  permissions.
-- SOS "Zuyp Alert" full-screen activity, flashlight on urgent alert, and a
-  receiver to join an event straight from the notification.
-- Separate notification channels (general hangout updates vs. urgent SOS
-  alerts), each with its own importance and sound.
+### Stay connected & safe
+- Friendship graph (add/remove friends, view profiles) and groups
+  (create / rename / leave, member avatar clusters).
+- **Heads-up & full-screen notifications** over a RabbitMQ message broker, with
+  separate channels for general hangout updates vs. urgent alerts.
+- **SOS "Zuyp Alert":** a full-screen alarm activity that also pulses the
+  device flashlight, with a one-tap action to join the event from the
+  notification.
 
-**Discover**
-- Mapbox map integration and location permissions for the Discover screen.
-
-## 01/06/2026
-
-- Notification tap intent + subtle alert sound.
-- Create-hangout: date/time pickers with all-day switch, address search, invite notification on create.
-- Owner can delete their own hangout.
-- In-app user invites; off-platform share link via GitHub Pages → `zuyp://` deep link.
-- Privacy filter: home list shows only public hangouts and private ones you're part of.
-- UX fixes (padding, keyboard, ordering); replaced repo calls with use cases; split large screens into components; centralized `CurrentUser`.
-
-## 02/06/2026
-
-- Profile screen: avatar/name/stats header, owned and upcoming activity sections, settings dialog, pull-to-refresh.
-- Edit profile dialog (name, email, birthdate) backed by Room via `EditProfileUseCase`.
-- DataStore settings + startup screen selector persisted in DataStore.
-- Groups end-to-end: Room entities, create/edit/rename/leave, group cards, member avatar clusters.
-- Friend management: add-friend dialog, friend rows, tap-to-view profile popups.
-- Moved use cases into per-feature folders; shared form components; color/button polish.
-
-## 03/06/2026
-
-- Expenses end-to-end: domain model, Room entities/DAO, reactive balance calculation, use cases (add/delete/settle), equal split (cent-accurate), custom split with validation, `AddExpenseDialog` (paid-by, split modes, photo), `ExpensesSection`, `ExpenseDetailDialog`.
-- Map: marker tap animates + centres camera, hangout popup slides up and links to full detail screen.
-- `MembersSelector`: invite-all button + group invite (adds all members at once).
-- `PermissionViewModel` and `PermissionManager` extracted from `MainActivity`.
-- Profile: past attended events added; UI and card styling improved.
-- Room entities reorganised into per-domain subdirectories; hangout UI events unified into one sealed interface; components split and cleaned up.
-
-## 04/06/2026
-
-- Shake sensor auto-joins viewed hangout (`ShakeRepository` → `DetectShakeUseCase` → `HangoutViewModel`).
-- `MessagingService` foreground service replaces `NotificationWorker`; keeps RabbitMQ alive after app kill. Notification grouping via `setGroup`/`setGroupSummary`.
-- Expense balance direction bug fixed; custom split gets cascade auto-fill (Tricount-style locking).
-- Full friendship graph seeded; `UserProfileDialog` reused in attendee list.
-- Create-hangout form state moved from composables into `HomeViewModel`.
-- Geofencing: `MarkPresentWorker` auto-marks `PRESENT` on entry; `HydrationReminderScheduler` pings every 30 min; `BackgroundLocationRationaleDialog` added.
-- Permission architecture unified — single `PermissionViewModel` with `SharedFlow<PermissionResult>`.
-- Map: all hangouts shown, time filter fixed (OR → AND), relative seed dates, marker and FAB polish; shake-to-go on map popup too; location fields tappable (`geo:` intent).
-
-## 05/06/2026
-
-- AMQP credentials stored in Android `EncryptedSharedPreferences` via `SecureStorage` / `CredentialsRepository` (wired with Hilt).
-- Adding an expense now executes in a single Room transaction.
-- Creating a hangout automatically adds yourself as `GOING`.
-- Shake listener updated to use explicit start/stop lifecycle methods.
-- Location field tappable in hangout card, detail header, and map popup; `openMapsForHangout()` extracted to shared utility.
-- Map marker style improved (filled hole); settle dialog restyled; FAB padding aligned.
-
-## 06/06/2026
-
-- Unit tests: `AddExpenseUseCaseTest`, `UpdateAttendanceUseCaseTest`, `PublishMessageTest`.
-- Instrumented tests: `ExpenseDaoTest`, `UserDaoTest`, `HomeScreenTest`, `FriendsScreenTest`, `NavigationTest`, `HomeViewModelTest`.
-- Geofence time-range filter fixed (events must be within active window).
-
-## 07/06/2026
-
-- Geofence registration bug fixed.
-- Present members are shown back in the attendees list.
-
-## 08/06/2026
-
-- Shake listener reference counting added; user location updates disabled when not actively needed.
-- Geofence logic cleaned up; permission guard added for when location is not granted.
-- Full-screen intent permission checked before displaying alert.
-- Database index changed and version bumped.
-- Present marking bug fixed.
-- Additional tests added.
-
-## Requirement checklist — status overview
-
-Legend: ✅ done · ⚠️ partly done · ❌ not started
-
-### Must have (12/20)
-
-| Requirement | Status | What I did |
-|---|---|---|
-| Building native UI (Jetpack Compose) | ✅ | Whole UI is Compose — screens, overlays, dialogs, custom components. |
-| Multi-screen app (min. 4 screens) | ✅ | Home, Discover, Friends, Profile + Hangout detail. |
-| Menu-based navigation | ✅ | Bottom navigation bar (`ZuypBottomBar`) across the main screens. |
-| Material design (custom theme/icon) | ✅ | Material 3 theme, custom colors, Noto Serif / Inter fonts, app icon. |
-| Android app architecture | ✅ | ViewModel + UiState, repositories, use cases, Hilt DI, clean domain/data/ui layering. |
-| Room database | ✅ | Users, hangouts, friendships, groups, expenses with FKs, unique constraints, seeded data. |
-| Retrofit (≥ 1 API) | ✅ | Weather API via Retrofit; Mapbox geocoding for addresses. |
-| WorkManager (background task) | ✅ | `MarkPresentWorker` + `HydrationReminderScheduler` (periodic notification every 30 min at an event). |
-| 2 intents | ✅ | Share intent (off-platform invite link) + maps `geo:` chooser intent + camera capture intent. |
-| MessageBroker | ✅ | CloudAMQP (RabbitMQ) consume over SSL/vhost via `LavinMQMessageConsumer`. |
-| GPS data (Mapbox map + current location) | ✅ | Discover screen Mapbox map with location puck and hangout markers. |
-| 2 sensors | ✅ | Accelerometer (shake → auto-join) + flashlight driven on urgent SOS alert. |
-| Notifications | ✅ | Heads-up + full-screen notifications, tap intent to open hangout. |
-| Unit tests | ✅ | `AddExpenseUseCaseTest`, `UpdateAttendanceUseCaseTest`, `PublishMessageTest`. |
-
-### Intermediate (14/20)
-
-| Requirement | Status | What I did |
-|---|---|---|
-| Multiple notifications via notification channel | ✅ | Separate channels (general hangout updates vs. urgent SOS), grouped summary notifications. |
-| More data types in MessageBroker (also publish) | ⚠️ | Publishing implemented (`LavinMQMessagePublisher`); 3 message types (`HangoutInvite`, `ZuypAlert`, `HangoutJoined`). More types (e.g. `arrived`, `cant_come`) still to add. |
-| Geofencing | ✅ | Mapbox geofences for nearby upcoming hangouts; entry fires `MarkPresentWorker`. |
-| Automatic actions from sensor data | ✅ | Shake auto-joins the viewed hangout; geofence entry auto-marks `PRESENT`. |
-| Camera | ✅ | Attach a receipt photo to an expense (camera or gallery). |
-| Unit & instrumented tests | ✅ | `ExpenseDaoTest`, `UserDaoTest`, `HomeScreenTest`, `FriendsScreenTest`, `NavigationTest`, `HomeViewModelTest`. |
-
-### Experienced (16/20)
-
-| Requirement | Status | What I did |
-|---|---|---|
-| Key vault | ⚠️ | AMQP credentials stored in `EncryptedSharedPreferences` via `SecureStorage`; credentials still ship in APK raw. |
-| Filtering MessageBroker data | ✅ | Filter data die binnenkomt via de MessageBroker. |
-| GPS navigation between locations | ✅ | Tapping the location field (card, map popup, detail) opens a maps chooser to the exact coordinates. |
-
-### Going for the extra mile (18+/20)
-
-| Requirement | Status | What I did |
-|---|---|---|
-| CI/CD → Firebase App Distribution | ❌ | No `.github/` workflow yet. |
+### Smart automation (sensors & background)
+- **Shake to join** — the accelerometer auto-joins the hangout you're viewing.
+- **Geofencing** — entering an event's area auto-marks you as `PRESENT` and a
+  periodic hydration reminder pings every 30 minutes while you're there.
+- **Foreground service** keeps the RabbitMQ connection alive after the app is
+  killed so notifications still arrive.
+- **Weather:** forecast at the event location with a "what to wear" dresscode
+  tip, fetched from an external weather API.
 
 ---
 
-## What I still need to do
+## 🏗️ Architecture
 
-**Must have**
-- [x] Unit tests — `AddExpenseUseCaseTest`, `UpdateAttendanceUseCaseTest`, `PublishMessageTest`.
+The app follows **Clean Architecture** with an **MVVM** presentation layer,
+organised into three layers under `be.runeherreman.zuyp`:
 
-**Intermediate**
-- [x] Instrumented tests — `ExpenseDaoTest`, `UserDaoTest`, `HomeScreenTest`, `FriendsScreenTest`, `NavigationTest`, `HomeViewModelTest`.
-- [ ] Publish more message-broker data types (e.g. `arrived`, `cant_come`).
+```
+ui/        Jetpack Compose screens, ViewModels and UiState
+            (home · discover · friends · profile · hangout · alert)
+domain/    Business logic — models, repository interfaces, use cases
+            (hangouts · expenses · friendship · groups · geofencing · …)
+data/      Implementations — Room, DataStore, Mapbox, RabbitMQ, Retrofit,
+            sensors, workers, foreground services, secure storage
+di/        Hilt modules wiring everything together
+```
 
-**Experienced**
-- [x] Key vault — AMQP credentials stored in `EncryptedSharedPreferences` via `SecureStorage` (credentials still ship in APK raw).
-- [x] Filtering — filter data die binnenkomt via de MessageBroker.
+- **Unidirectional data flow:** ViewModels expose immutable `UiState`; the data
+  layer is reactive end-to-end via Kotlin `Flow`.
+- **Use cases** isolate each piece of business logic from both the UI and the
+  repositories.
+- **Dependency injection** with Hilt across ViewModels, repositories, workers
+  and services.
 
-**Extra mile**
-- [ ] CI/CD — GitHub Actions workflow to build and deploy to Firebase App Distribution.
+---
 
-**Feature work still open**
-- [ ] Profile: edit profile photo and IBAN.
-- [ ] Fix crash when joining an event from a push notification.
-- [ ] Post-event reminder to settle expenses (WorkManager periodic work).
+## 🧰 Tech stack
+
+| Area | Technologies |
+|---|---|
+| Language & UI | Kotlin, Jetpack Compose, Material 3, custom theme (Noto Serif / Inter) |
+| Architecture | Clean Architecture, MVVM, Hilt (Dagger) DI |
+| Persistence | Room (users, hangouts, friendships, groups, expenses), DataStore (settings) |
+| Networking | Retrofit + Moshi + OkHttp (weather API), Coil (image loading) |
+| Maps & location | Mapbox Maps / Search / Turf, geofencing, GPS location puck |
+| Messaging | RabbitMQ (CloudAMQP) over SSL/vhost — consume **and** publish |
+| Background | WorkManager, foreground service, periodic workers |
+| Sensors & hardware | Accelerometer (shake), flashlight, camera |
+| Security | `EncryptedSharedPreferences` for broker credentials |
+| Testing | JUnit, MockK, coroutines-test, Compose UI test, Espresso, Hilt testing |
+
+---
+
+## 🧪 Testing
+
+- **Unit tests** for business logic: `AddExpenseUseCaseTest`,
+  `UpdateAttendanceUseCaseTest`, `PublishMessageTest`.
+- **Instrumented tests** for persistence and UI: `ExpenseDaoTest`,
+  `UserDaoTest`, `HomeScreenTest`, `FriendsScreenTest`, `NavigationTest`,
+  `HomeViewModelTest`.
+
+```bash
+./gradlew test                 # unit tests
+./gradlew connectedAndroidTest # instrumented tests (device/emulator)
+```
+
+---
+
+## 🚀 Getting started
+
+**Requirements:** Android Studio (latest), JDK 11+, an Android 14+ (API 34)
+device or emulator.
+
+1. Clone the repo and open it in Android Studio.
+2. Copy the example properties file and fill in your own keys:
+   ```bash
+   cp gradle.properties.example gradle.properties
+   ```
+   You'll need a **Mapbox** download token + access token, a **weather API**
+   base URL, and **CloudAMQP (RabbitMQ)** credentials. Put the Mapbox access
+   token in `app/src/main/res/values/mapbox_access_token.xml` (replace the
+   `YOUR_MAPBOX_TOKEN` placeholder).
+3. Run the app from Android Studio, or:
+   ```bash
+   ./gradlew installDebug
+   ```
+
+> The project ships with seeded fake data, so the app is fully explorable
+> without any backend running.
+
+---
+
+## 📐 Coursework context
+
+Built solo for the *Device Development* module to demonstrate native Android
+breadth — Compose UI, Room, Retrofit, a message broker, GPS/maps, geofencing,
+two sensors, the camera, notification channels, WorkManager, encrypted storage
+and an automated test suite. A detailed day-by-day development log is preserved
+in the project's git history.
+
+---
+
+## 👤 Author
+
+**Rune Herreman** — Applied Computer Science, Howest.
