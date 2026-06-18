@@ -21,6 +21,28 @@ work.
 
 ---
 
+## 💡 The idea
+
+Modern life is increasingly mediated by technology, yet what we actually want
+from a night out is human connection — and organising one is surprisingly
+painful:
+
+- **Communication fragmentation** — friends are spread across different apps and
+  don't all check them regularly.
+- **Planning chaos** — everyone has their own schedule and it's hard to line them up.
+- **Lost connection** — a message that goes unanswered means a good evening slips by.
+
+Zuyp tackles this with the philosophy of *"drinking with purpose"* — it's more
+than an event app, it's a small platform for **social interaction, safety and
+financial transparency**. It helps friends to:
+
+- **Plan fast** — spin up a hangout in under a minute, or hit the SOS button.
+- **Stay transparent** — shared expenses, settled fairly, no surprises.
+- **Stay happy & safe** — a weather indicator suggests an outfit, and urgent
+  alerts reach everyone instantly.
+
+---
+
 ## 📸 Screenshots
 
 > _Drop your images into `docs/screenshots/` using the filenames below and they
@@ -82,6 +104,32 @@ work.
   killed so notifications still arrive.
 - **Weather:** forecast at the event location with a "what to wear" dresscode
   tip, fetched from an external weather API.
+
+---
+
+## 🎨 Design & branding
+
+The visual language pairs **nostalgic, tactile warmth** with the clean lines of
+contemporary design, leaning on a grid with deliberate, intentional asymmetry.
+
+**Typography**
+- **Noto Serif** for headings and titles — the serif adds character and a
+  premium feel that fits the app's purpose.
+- **Inter** for everything else — modern and highly readable, giving the serif
+  headings room to breathe.
+
+**Palette**
+
+| | Hex | Role |
+|---|---|---|
+| 🟦 | `#002366` | Primary |
+| ⬜ | `#F5EFE0` | Secondary |
+| ⬜ | `#FAF9F9` | Neutral |
+| 🟦 | `#142A52` | Primary (faded) |
+| 🟦 | `#435270` | Text |
+| 🟦 | `#99BBFF` | Accent (40%) |
+| ⬛ | `#4D4D4D` | Dark grey |
+| ⬜ | `#E0E0E0` | Light grey |
 
 ---
 
