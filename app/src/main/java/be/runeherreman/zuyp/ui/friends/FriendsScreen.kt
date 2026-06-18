@@ -1,0 +1,215 @@
+package be.runeherreman.zuyp.ui.friends
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.GroupAdd
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonSearch
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import be.runeherreman.zuyp.domain.model.Group
+import be.runeherreman.zuyp.domain.model.User
+import be.runeherreman.zuyp.ui.friends.components.friends.AddFriendDialog
+import be.runeherreman.zuyp.ui.friends.components.groups.CreateGroupDialog
+import be.runeherreman.zuyp.ui.friends.components.groups.EditGroupDialog
+import be.runeherreman.zuyp.ui.friends.components.EmptyState
+import be.runeherreman.zuyp.ui.friends.components.friends.FriendRow
+import be.runeherreman.zuyp.ui.friends.components.groups.GroupCard
+import be.runeherreman.zuyp.ui.friends.components.groups.GroupMembersDialog
+import be.runeherreman.zuyp.ui.friends.components.SectionHeader
+import be.runeherreman.zuyp.ui.friends.components.UserProfileDialog
+
+@Composable
+fun FriendsScreen(
+    uiState: FriendsUiState,
+    modifier: Modifier = Modifier,
+    onCreateGroupOpen: () -> Unit = {},
+    onCreateGroup: (String, List<User>) -> Unit = { _, _ -> },
+    onEditGroupOpen: (Group) -> Unit = {},
+    onSaveGroupEdits: (Group, String, List<User>) -> Unit = { _, _, _ -> },
+    onLeaveGroup: (Group) -> Unit = {},
+    onDeleteGroup: (Group) -> Unit = {},
+    onAddFriendOpen: () -> Unit = {},
+    onAddFriend: (User) -> Unit = {},
+    onRemoveFriend: (User) -> Unit = {},
+    onGroupClick: (Group) -> Unit = {},
+    onFriendClick: (User) -> Unit = {},
+    onDismissDialog: () -> Unit = {}
+) {
+    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).testTag("friends_screen")) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            Text(
+                text = "Friends &\ngroups",
+                style = MaterialTheme.typography.displayMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            if (uiState.isLoading) {
+                LoadingState()
+            } else {
+                GroupsSection(
+                    groups = uiState.groups,
+                    currentUserId = uiState.user?.id,
+                    onCreateGroup = onCreateGroupOpen,
+                    onGroupClick = onGroupClick,
+                    onEditGroup = onEditGroupOpen,
+                    onLeaveGroup = onLeaveGroup,
+                    onDeleteGroup = onDeleteGroup
+                )
+
+                FriendsSection(
+                    friends = uiState.friends,
+                    onAddFriend = onAddFriendOpen,
+                    onFriendClick = onFriendClick,
+                    onRemoveFriend = onRemoveFriend
+                )
+
+                // Breathing room above the bottom navigation bar.
+                androidx.compose.foundation.layout.Spacer(Modifier.padding(bottom = 8.dp))
+            }
+        }
+    }
+
+    when (val dialog = uiState.dialog) {
+        FriendsDialog.CreateGroup -> CreateGroupDialog(
+            availableUsers = uiState.friends,
+            onDismiss = onDismissDialog,
+            onCreate = onCreateGroup
+        )
+
+        is FriendsDialog.AddFriend -> AddFriendDialog(
+            candidates = dialog.candidates,
+            onDismiss = onDismissDialog,
+            onAddFriend = onAddFriend
+        )
+
+        is FriendsDialog.EditGroup -> EditGroupDialog(
+            group = dialog.group,
+            friends = uiState.friends,
+            onDismiss = onDismissDialog,
+            onSave = { name, members -> onSaveGroupEdits(dialog.group, name, members) }
+        )
+
+        is FriendsDialog.GroupMembers -> GroupMembersDialog(
+            group = dialog.group,
+            ownerId = dialog.group.creatorId,
+            onDismiss = onDismissDialog,
+            onMemberClick = onFriendClick
+        )
+
+        is FriendsDialog.UserProfileDialog -> UserProfileDialog(
+            profile = dialog.profile,
+            onDismiss = onDismissDialog,
+            onAddFriend = { onAddFriend(it); onDismissDialog() },
+            onRemoveFriend = { onRemoveFriend(it); onDismissDialog() }
+        )
+
+        null -> Unit
+    }
+}
+
+@Composable
+private fun GroupsSection(
+    groups: List<Group>,
+    currentUserId: java.util.UUID?,
+    onCreateGroup: () -> Unit,
+    onGroupClick: (Group) -> Unit,
+    onEditGroup: (Group) -> Unit,
+    onLeaveGroup: (Group) -> Unit,
+    onDeleteGroup: (Group) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        SectionHeader(
+            title = "Groups",
+            leadingIcon = Icons.Default.Group,
+            actionLabel = "Create group",
+            actionIcon = Icons.Default.Add,
+            onActionClick = onCreateGroup
+        )
+        if (groups.isEmpty()) {
+            EmptyState(
+                icon = Icons.Default.GroupAdd,
+                title = "No groups yet",
+                message = "Create a group to plan things together."
+            )
+        } else {
+            groups.forEach { group ->
+                GroupCard(
+                    group = group,
+                    isOwner = group.creatorId == currentUserId,
+                    onClick = onGroupClick,
+                    onEdit = onEditGroup,
+                    onLeave = onLeaveGroup,
+                    onDelete = onDeleteGroup
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FriendsSection(
+    friends: List<User>,
+    onAddFriend: () -> Unit,
+    onFriendClick: (User) -> Unit,
+    onRemoveFriend: (User) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        SectionHeader(
+            title = "All friends",
+            leadingIcon = Icons.Default.Person,
+            actionLabel = "Add friend",
+            actionIcon = Icons.Default.PersonAdd,
+            onActionClick = onAddFriend
+        )
+        if (friends.isEmpty()) {
+            EmptyState(
+                icon = Icons.Default.PersonSearch,
+                title = "No friends yet",
+                message = "Find people and add them to get started."
+            )
+        } else {
+            friends.forEach { friend ->
+                FriendRow(friend = friend, onClick = onFriendClick, onRemove = onRemoveFriend)
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoadingState() {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(top = 48.dp),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+    }
+}

@@ -1,0 +1,38 @@
+package be.runeherreman.zuyp.data.local.room.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
+import be.runeherreman.zuyp.data.local.room.entity.groups.GroupEntity
+import be.runeherreman.zuyp.data.local.room.entity.groups.GroupUserMapping
+import be.runeherreman.zuyp.data.local.room.entity.groups.GroupWithMembers
+import kotlinx.coroutines.flow.Flow
+import java.util.UUID
+
+@Dao
+interface GroupDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun createGroup(group: GroupEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addMembers(members: List<GroupUserMapping>)
+    
+    @Query("DELETE FROM groups_users WHERE groupId = :groupId AND userId = :userId")
+    suspend fun removeMember(groupId: UUID, userId: UUID)
+
+    @Query("UPDATE `groups` SET name = :name WHERE id = :groupId")
+    suspend fun renameGroup(groupId: UUID, name: String)
+
+    @Query("DELETE FROM `groups` WHERE id = :groupId")
+    suspend fun deleteGroup(groupId: UUID)
+
+    @Transaction
+    @Query("SELECT * FROM `groups` WHERE id IN (SELECT groupId FROM groups_users WHERE userId = :userId)")
+    fun getGroupsForUser(userId: UUID): Flow<List<GroupWithMembers>>
+
+    @Transaction
+    @Query("SELECT * FROM `groups` WHERE id = :groupId")
+    suspend fun getGroupById(groupId: UUID): GroupWithMembers?
+}

@@ -1,0 +1,39 @@
+### Variables
+# CloudAMQP management API
+# vhost: gtbvjenp
+
+### Send hangout invite to userJan
+POST https://seal.lmq.cloudamqp.com/api/exchanges/gtbvjenp/zuyp.notifications/publish
+Authorization: Basic gtbvjenp LoRo_Eayh9R-k1zdq47nwpJa3vLUDj-t
+Content-Type: application/json
+
+{
+  "properties": {},
+  "routing_key": "user-01234566-8f09-4567-4af8-def000000014",
+  "payload": "{\"type\":\"hangout_invite\",\"hangoutId\":\"10000000-0000-0000-0001-000000000006\",\"title\":\"Drinks at the square\",\"locationName\":\"Grote Markt, Bruges\",\"startDate\":\"Jun 5 2026, 20h00\",\"weather\":\"☀️ 22°C\"}",
+  "payload_encoding": "string"
+}
+
+### Send zuyp alert to userJan
+POST https://seal.lmq.cloudamqp.com/api/exchanges/gtbvjenp/zuyp.notifications/publish
+Authorization: Basic gtbvjenp LoRo_Eayh9R-k1zdq47nwpJa3vLUDj-t
+Content-Type: application/json
+
+{
+  "properties": {},
+  "routing_key": "user-01234566-8f09-4567-4af8-def000000014",
+  "payload": "{\"type\":\"zuyp_alert\",\"hangoutId\":\"10000000-0000-0000-0000-000000000006\",\"title\":\"Drinks at the square\",\"locationName\":\"Grote Markt, Bruges\",\"startDate\":\"Jun 5 2026, 20h00\",\"weather\":\"☀️ 22°C\"}",
+  "payload_encoding": "string"
+}
+
+### Send hangout joined to userJan
+POST https://seal.lmq.cloudamqp.com/api/exchanges/gtbvjenp/zuyp.notifications/publish
+Authorization: Basic gtbvjenp LoRo_Eayh9R-k1zdq47nwpJa3vLUDj-t
+Content-Type: application/json
+
+{
+  "properties": {},
+  "routing_key": "user-01234566-8f09-4567-4af8-def000000014",
+  "payload": "{\"type\":\"hangout_joined\",\"hangoutId\":\"10000000-0000-0000-0000-000000000006\",\"username\":\"Thomas\",\"hangoutName\":\"Drinks at the square\",\"location\":\"Grote Markt, Bruges\"}",
+  "payload_encoding": "string"
+}

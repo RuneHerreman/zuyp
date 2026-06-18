@@ -1,0 +1,12 @@
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+android.useAndroidX=true
+kotlin.code.style=official
+android.nonTransitiveRClass=true
+
+WEATHER_API_BASE_URL=https://api.open-meteo.com
+AMQPusername=your_cloudamqp_username
+AMQPpassword=your_cloudamqp_password
+AMQPurl=your_host.lmq.cloudamqp.com:5672
+AMQPvhost=your_cloudamqp_username
+AMQPexchange=zuyp.notifications
+MAPBOX_DOWNLOADS_TOKEN=public_mapbox_token

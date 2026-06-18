@@ -1,0 +1,22 @@
+package be.runeherreman.zuyp.ui.profile
+
+import be.runeherreman.zuyp.domain.model.Hangout
+import be.runeherreman.zuyp.domain.model.User
+
+data class ProfileUiState(
+    val user: User? = null,
+    val friendsCount: Int = 0,
+    val groupsCount: Int = 0,
+    val eventsCount: Int = 0,
+    val ownedHangouts: List<Hangout> = emptyList(),
+    val upcomingHangouts: List<Hangout> = emptyList(),
+    val previousHangouts: List<Hangout> = emptyList(),
+    val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
+
+    // Settings popup
+    val isSettingsOpen: Boolean = false,
+    val isEditProfileOpen: Boolean = false,
+    // Route of the screen to open on launch (null = not set / default).
+    val startupRoute: String? = null
+)
