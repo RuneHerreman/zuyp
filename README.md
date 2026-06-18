@@ -10,7 +10,7 @@
   <img alt="Architecture" src="https://img.shields.io/badge/Architecture-Clean%20%2B%20MVVM-orange">
 </p>
 
-Zuyp is an Android app I built on my own for the *Device Development* course (Applied Computer Science, Howest). It started as a coursework brief and turned into a full social planning app that touches most of the Android platform: local storage, REST APIs, a message broker, GPS and maps, geofencing, hardware sensors, the camera, foreground services and background work.
+Zuyp is an Android app I built solo for the *Device Development* course (Applied Computer Science, Howest). What began as a coursework brief grew into a full social planning app: plan a night out, split the costs afterwards, and keep the group connected and safe while it happens.
 
 ---
 
@@ -22,27 +22,29 @@ We spend more time than ever on our phones, but what we actually want from a nig
 - **Schedules never line up.** Coordinating five friends turns into a planning project.
 - **Plans quietly die.** One unanswered message and a good evening just doesn't happen.
 
-Zuyp is built around the idea of drinking with a purpose. It's part event app, part safety net, part shared wallet. The goal is to let a group of friends:
-
-- Throw together a hangout in under a minute, or fire off an SOS when things go sideways.
-- Keep shared costs honest, so nobody's chasing anyone for money later.
-- Check the weather before heading out, with a quick tip on what to wear.
+Zuyp is built around drinking with a purpose: part event app, part safety net, part shared wallet. Spin up a hangout in under a minute, keep shared costs honest so nobody's chasing anyone for money later, and hit an SOS when a night goes sideways.
 
 ---
 
 ## 📸 Screenshots
 
-> _Drop your images into `docs/screenshots/` using the filenames below and they will show up here._
+**Planning**
 
-| Home (upcoming hangouts) | Discover (live map) | Hangout detail |
+| Home: upcoming events | Create a hangout | Discover map |
 |:---:|:---:|:---:|
-| ![Home screen](docs/screenshots/home.png) | ![Discover map](docs/screenshots/discover.png) | ![Hangout detail](docs/screenshots/hangout-detail.png) |
+| ![Home screen](docs/screenshots/home_screen.png) | ![Create hangout](docs/screenshots/create_hangout_screen.png) | ![Discover map](docs/screenshots/discover_screen.png) |
 
-| Expenses & balances | Friends & groups | SOS "Zuyp Alert" |
+**A hangout**
+
+| Tap a marker | Hangout detail | Joined: expenses & balances |
 |:---:|:---:|:---:|
-| ![Expenses](docs/screenshots/expenses.png) | ![Friends](docs/screenshots/friends.png) | ![SOS alert](docs/screenshots/sos-alert.png) |
+| ![Map marker popup](docs/screenshots/discover_screen_clicked.png) | ![Hangout detail](docs/screenshots/hangout_detail_screen.png) | ![Hangout with expenses](docs/screenshots/hangout_detail_joined_screen.png) |
 
-> _Optional: add a short screen capture as `docs/screenshots/demo.gif` and link it here._
+**Money & people**
+
+| Add an expense | Invite or share | Friends & groups | Profile |
+|:---:|:---:|:---:|:---:|
+| ![Add expense](docs/screenshots/add_expense_screen.png) | ![Invite people](docs/screenshots/share_hangout_screen.png) | ![Friends](docs/screenshots/friends_screen.png) | ![Profile](docs/screenshots/profile_screen.png) |
 
 ---
 
@@ -100,9 +102,9 @@ The look mixes a bit of nostalgic, tactile warmth with clean modern lines, built
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Under the hood
 
-The app uses Clean Architecture with an MVVM presentation layer, split into three layers under `be.runeherreman.zuyp`:
+Clean Architecture with an MVVM presentation layer, split into three layers under `be.runeherreman.zuyp`:
 
 ```
 ui/        Jetpack Compose screens, ViewModels and UiState
@@ -114,13 +116,9 @@ data/      Implementations: Room, DataStore, Mapbox, RabbitMQ, Retrofit,
 di/        Hilt modules wiring everything together
 ```
 
-- ViewModels expose immutable `UiState`, and the data layer is reactive end to end with Kotlin `Flow`.
-- Use cases keep each piece of business logic separate from both the UI and the repositories.
-- Hilt handles dependency injection across ViewModels, repositories, workers and services.
+ViewModels expose immutable `UiState`, the data layer is reactive end to end with Kotlin `Flow`, use cases keep business logic out of both the UI and the repositories, and Hilt handles dependency injection throughout.
 
----
-
-## 🧰 Tech stack
+**Tech stack**
 
 | Area | Technologies |
 |---|---|
@@ -133,14 +131,8 @@ di/        Hilt modules wiring everything together
 | Background | WorkManager, foreground service, periodic workers |
 | Sensors & hardware | Accelerometer (shake), flashlight, camera |
 | Security | `EncryptedSharedPreferences` for broker credentials |
-| Testing | JUnit, MockK, coroutines-test, Compose UI test, Espresso, Hilt testing |
 
----
-
-## 🧪 Testing
-
-- Unit tests for business logic: `AddExpenseUseCaseTest`, `UpdateAttendanceUseCaseTest`, `PublishMessageTest`.
-- Instrumented tests for persistence and UI: `ExpenseDaoTest`, `UserDaoTest`, `HomeScreenTest`, `FriendsScreenTest`, `NavigationTest`, `HomeViewModelTest`.
+**Testing.** Unit tests for business logic (`AddExpenseUseCaseTest`, `UpdateAttendanceUseCaseTest`, `PublishMessageTest`) and instrumented tests for persistence and UI (`ExpenseDaoTest`, `UserDaoTest`, `HomeScreenTest`, `FriendsScreenTest`, `NavigationTest`, `HomeViewModelTest`), with JUnit, MockK, Compose UI test and Espresso.
 
 ```bash
 ./gradlew test                 # unit tests
@@ -168,12 +160,6 @@ di/        Hilt modules wiring everything together
 
 ---
 
-## 📐 Coursework context
-
-I built this on my own for the *Device Development* module to cover a wide slice of native Android: Compose UI, Room, Retrofit, a message broker, GPS and maps, geofencing, two sensors, the camera, notification channels, WorkManager, encrypted storage and an automated test suite. The day-by-day development log is kept in the git history.
-
----
-
 ## 👤 Author
 
-**Rune Herreman**, Applied Computer Science, Howest.
+**Rune Herreman**, Applied Computer Science, Howest. The day-by-day development log is kept in the git history.
