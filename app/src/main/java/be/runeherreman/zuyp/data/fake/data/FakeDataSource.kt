@@ -15,7 +15,7 @@ class FakeDataSource @Inject constructor() {
 
     private val hangoutLiveTest = HangoutDto(
         UUID.fromString("00000000-0000-0000-0000-000000000099"),
-        "Geofence Test Hangout",
+        "Campus Pre-Drinks @ Howest",
         "",
         "Howest Brugge",
         51.2082,
@@ -27,22 +27,9 @@ class FakeDataSource @Inject constructor() {
         false
     )
 
-    private val hangoutOnlynumbers = HangoutDto(
-        UUID.fromString("10000000-0000-0000-0000-000000000001"),
-        "Onlynumbers, Vladimir Couchemar",
-        "",
-        "Kompass Klub Gent",
-        51.0378,
-        3.7042,
-        LocalDateTime.now().plusHours(2),
-        LocalDateTime.now().plusHours(4),
-        goingAttendees(FakeUsers.userJan, FakeUsers.userKoen, FakeUsers.userLotte, FakeUsers.userMilan, FakeUsers.userNora),
-        FakeUsers.userJan,
-        false
-    )
     private val hangoutKroegentoch = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000002"),
-        "Kroegentoch Brugge",
+        "Bruges Bar Crawl",
         "",
         "The Monk Brugge",
         51.2105,
@@ -55,7 +42,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutTropical = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000003"),
-        "Tropical TD",
+        "Tropical TD @ VUB",
         "",
         "VUB BSG",
         50.8224,
@@ -68,7 +55,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutPatersgat = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000004"),
-        "Patersgat Silme",
+        "Student Night at Patersgat",
         "",
         "Patersgat",
         51.2093,
@@ -81,7 +68,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutMovieNight = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000005"),
-        "No other choice - Movie Night",
+        "Cinema: One Battle After Another",
         "",
         "Cinema Lumiere Brugge",
         51.2114,
@@ -94,9 +81,9 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutFuseCrew = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000006"),
-        "Fuse Crew Night",
+        "End of year BBQ",
         "",
-        "Fuse Bruxelles",
+        "VUB Campus",
         50.8500,
         4.3632,
         LocalDateTime.now().plusDays(11).withHour(23).withMinute(0).withSecond(0).withNano(0),
@@ -105,22 +92,9 @@ class FakeDataSource @Inject constructor() {
         FakeUsers.userDaan,
         false
     )
-    private val hangoutModulair = HangoutDto(
-        UUID.fromString("10000000-0000-0000-0000-000000000007"),
-        "Modul'air Open Air",
-        "",
-        "Modul'air Arlon",
-        49.6833,
-        5.8000,
-        LocalDateTime.now().plusDays(13).withHour(22).withMinute(0).withSecond(0).withNano(0),
-        LocalDateTime.now().plusDays(14).withHour(4).withMinute(0).withSecond(0).withNano(0),
-        goingAttendees(FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva, FakeUsers.userFelix, FakeUsers.userZoe),
-        FakeUsers.userLuna,
-        false
-    )
     private val hangoutHuisfeestje = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000008"),
-        "Huisfeestje Leuven",
+        "House Party in Leuven",
         "",
         "Studentenkamer Leuven",
         50.8798,
@@ -133,7 +107,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutCafeUitstap = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000009"),
-        "Café Uitstap Antwerpen",
+        "Drinks at Café Puur",
         "",
         "Café Puur Antwerpen",
         51.2194,
@@ -144,22 +118,9 @@ class FakeDataSource @Inject constructor() {
         FakeUsers.userThijs,
         false
     )
-    private val hangoutKompassRave = HangoutDto(
-        UUID.fromString("10000000-0000-0000-0000-000000000010"),
-        "Kompass Rave Squad",
-        "",
-        "Kompass Klub Gent",
-        51.0378,
-        3.7042,
-        LocalDateTime.now().plusDays(20).withHour(23).withMinute(30).withSecond(0).withNano(0),
-        LocalDateTime.now().plusDays(21).withHour(5).withMinute(30).withSecond(0).withNano(0),
-        goingAttendees(FakeUsers.userCamille, FakeUsers.userVictoria, FakeUsers.userDieter, FakeUsers.userLea, FakeUsers.userRyan),
-        FakeUsers.userCamille,
-        false
-    )
     private val hangoutThuisfeestje = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000011"),
-        "Thuisfeestje Brussel",
+        "Loft House Party",
         "",
         "Loft Sint-Gillis",
         50.8548,
@@ -172,7 +133,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutKroegenTour = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000012"),
-        "Kroegentour Gent",
+        "Brewery Tour: Oud Beersel",
         "",
         "Brouwerij Oud Beersel",
         51.0356,
@@ -185,7 +146,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutFestivalCircuit = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000013"),
-        "Festival Circuit - Vrienden",
+        "Concert at Sportpaleis",
         "",
         "Sportpaleis Antwerpen",
         51.2183,
@@ -198,7 +159,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutFuseRaveCrew = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000014"),
-        "Fuse Rave Crew",
+        "Fuse After Dark",
         "",
         "Fuse Bruxelles",
         50.8500,
@@ -211,7 +172,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutStudentHuisfeest = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000015"),
-        "Student Huisfeest",
+        "Campus House Party",
         "",
         "KU Leuven Campus",
         50.8798,
@@ -224,7 +185,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutCafeNightOut = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000016"),
-        "Café Night Out Brussel",
+        "Night Out at Bar Bram",
         "",
         "Bar Bram Bruxelles",
         50.8487,
@@ -235,22 +196,9 @@ class FakeDataSource @Inject constructor() {
         FakeUsers.userDavid,
         false
     )
-    private val hangoutModulairFestival = HangoutDto(
-        UUID.fromString("10000000-0000-0000-0000-000000000017"),
-        "Modul'air Festival Crew",
-        "",
-        "Modul'air Arlon",
-        49.6833,
-        5.8000,
-        LocalDateTime.of(2026, 4, 26, 22, 0),
-        LocalDateTime.of(2026, 4, 27, 4, 0),
-        goingAttendees(FakeUsers.userNico, FakeUsers.userGrace, FakeUsers.userChris, FakeUsers.userMaria),
-        FakeUsers.userNico,
-        false
-    )
     private val hangoutPredrinks = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000018"),
-        "Predrinks Antwerpen",
+        "Pre-Drinks in Antwerp",
         "",
         "Studentenhuis Antwerpen",
         51.2194,
@@ -261,22 +209,9 @@ class FakeDataSource @Inject constructor() {
         FakeUsers.userSteve,
         true
     )
-    private val hangoutKompassGrandOpening = HangoutDto(
-        UUID.fromString("10000000-0000-0000-0000-000000000019"),
-        "Kompass Grand Opening",
-        "",
-        "Kompass Klub Gent",
-        51.0378,
-        3.7042,
-        LocalDateTime.of(2026, 4, 27, 23, 0),
-        LocalDateTime.of(2026, 4, 28, 5, 0),
-        goingAttendees(FakeUsers.userSanne, FakeUsers.userDaan, FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva),
-        FakeUsers.userDaan,
-        false
-    )
     private val hangoutWhiskeyTasting = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000020"),
-        "Whiskey Tasting Gent",
+        "Whiskey Tasting Night",
         "",
         "Whiskey Café Gent",
         51.0519,
@@ -289,7 +224,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutTuinfeestje = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000021"),
-        "Tuinfeestje VUB",
+        "Garden Party at VUB",
         "",
         "VUB Campus Brussel",
         50.8224,
@@ -315,7 +250,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutRaveVoorbereiding = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000023"),
-        "Rave Voorbereiding",
+        "Pre-Rave Warm-up",
         "",
         "Flat Brussel",
         50.8500,
@@ -328,7 +263,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutBeachParty = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000024"),
-        "Beach Party Knokke",
+        "Beach Party in Knokke",
         "",
         "Strand Knokke",
         51.3557,
@@ -341,7 +276,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutHouseMusic = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000025"),
-        "House Music Night Gent",
+        "House Music Night",
         "",
         "Muziekclub Gent",
         51.0432,
@@ -354,7 +289,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutStudentenkamer = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000026"),
-        "Studentenkamer Feestje",
+        "Dorm Room Party",
         "",
         "Thuis Leuven",
         50.8798,
@@ -380,7 +315,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutSpringFestival = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000028"),
-        "Spring Festival Squad",
+        "Spring Festival in the Park",
         "",
         "Citadelpark Antwerpen",
         51.2135,
@@ -393,7 +328,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutClubNight = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000029"),
-        "Club Night Brussel",
+        "Club Night at Fuse",
         "",
         "Fuse Bruxelles",
         50.8500,
@@ -406,7 +341,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutVibesAtHome = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000030"),
-        "Vibes at Home",
+        "Cozy Night In",
         "",
         "Huisje Gent",
         51.0432,
@@ -417,22 +352,9 @@ class FakeDataSource @Inject constructor() {
         FakeUsers.userChris,
         true
     )
-    private val hangoutModulairWeekend = HangoutDto(
-        UUID.fromString("10000000-0000-0000-0000-000000000031"),
-        "Modul'air Weekend Crew",
-        "",
-        "Modul'air Arlon",
-        49.6833,
-        5.8000,
-        LocalDateTime.of(2026, 4, 28, 22, 0),
-        LocalDateTime.of(2026, 4, 29, 4, 0),
-        goingAttendees(FakeUsers.userPaul, FakeUsers.userRosa, FakeUsers.userSanne),
-        FakeUsers.userPaul,
-        false
-    )
     private val hangoutSpontaneHang = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000032"),
-        "Spontane Campus Hang",
+        "Campus Terrace Hangout",
         "",
         "Terras UGent Gent",
         51.0088,
@@ -443,22 +365,9 @@ class FakeDataSource @Inject constructor() {
         FakeUsers.userZoe,
         false
     )
-    private val hangoutTechnoSession = HangoutDto(
-        UUID.fromString("10000000-0000-0000-0000-000000000033"),
-        "Techno Session Gent",
-        "",
-        "Kompass Klub Gent",
-        51.0378,
-        3.7042,
-        LocalDateTime.of(2026, 4, 30, 23, 0),
-        LocalDateTime.of(2026, 5, 1, 5, 0),
-        goingAttendees(FakeUsers.userJoren, FakeUsers.userIsabella, FakeUsers.userSebastian),
-        FakeUsers.userJoren,
-        false
-    )
     private val hangoutBeachclub = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000034"),
-        "Beachclub Zomer",
+        "Summer Beach Club",
         "",
         "Beachclub Ostende",
         51.2247,
@@ -471,7 +380,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutAfterparty = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000035"),
-        "Afterparty Bruxelles",
+        "Loft Afterparty",
         "",
         "Loft Brussel",
         50.8548,
@@ -497,7 +406,7 @@ class FakeDataSource @Inject constructor() {
     )
     private val hangoutWineDine = HangoutDto(
         UUID.fromString("10000000-0000-0000-0000-000000000037"),
-        "Wine & Dine Antwerpen",
+        "Wine & Dine at Bellini",
         "",
         "Restaurant Bellini Antwerpen",
         51.2194,
@@ -524,25 +433,20 @@ class FakeDataSource @Inject constructor() {
 
     fun getHangouts(): List<HangoutDto> {
         return listOf(
-            hangoutOnlynumbers,
             hangoutKroegentoch,
             hangoutTropical,
             hangoutPatersgat,
             hangoutMovieNight,
             hangoutFuseCrew,
-            hangoutModulair,
             hangoutHuisfeestje,
             hangoutCafeUitstap,
-            hangoutKompassRave,
             hangoutThuisfeestje,
             hangoutKroegenTour,
             hangoutFestivalCircuit,
             hangoutFuseRaveCrew,
             hangoutStudentHuisfeest,
             hangoutCafeNightOut,
-            hangoutModulairFestival,
             hangoutPredrinks,
-            hangoutKompassGrandOpening,
             hangoutWhiskeyTasting,
             hangoutTuinfeestje,
             hangoutPintPizza,
@@ -554,9 +458,7 @@ class FakeDataSource @Inject constructor() {
             hangoutSpringFestival,
             hangoutClubNight,
             hangoutVibesAtHome,
-            hangoutModulairWeekend,
             hangoutSpontaneHang,
-            hangoutTechnoSession,
             hangoutBeachclub,
             hangoutAfterparty,
             hangoutSummerKickoff,

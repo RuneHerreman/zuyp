@@ -16,7 +16,7 @@ object FakeSeedingData {
         return listOf(
             HangoutDto(
                 UUID.fromString("00000000-0000-0000-0000-000000000099"),
-                "Geofence Test Hangout",
+                "Campus Pre-Drinks @ Howest",
                 "",
                 "Howest Brugge",
                 51.2082,
@@ -29,20 +29,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Onlynumbers, Vladimir Couchemar",
-                "",
-                "Kompass Klub Gent",
-                51.0378,
-                3.7042,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusHours(2),
-                listOf(FakeUsers.userJan, FakeUsers.userKoen, FakeUsers.userLotte, FakeUsers.userMilan, FakeUsers.userNora),
-                FakeUsers.userJan,
-                false
-            ),
-            HangoutDto(
-                UUID.randomUUID(),
-                "Kroegentoch Brugge",
+                "Bruges Bar Crawl",
                 "",
                 "The Monk Brugge",
                 51.2105,
@@ -55,7 +42,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Tropical TD",
+                "Tropical TD @ VUB",
                 "",
                 "VUB BSG",
                 50.8224,
@@ -67,7 +54,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Patersgat Silme",
+                "Student Night at Patersgat",
                 "",
                 "Patersgat",
                 51.2093,
@@ -79,7 +66,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "No other choice - Movie Night",
+                "Movie Night at Cinéma Lumière",
                 "",
                 "Cinema Lumiere Brugge",
                 51.2114,
@@ -91,7 +78,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Fuse Crew Night",
+                "Fuse Saturday Night",
                 "",
                 "Fuse Bruxelles",
                 50.8500,
@@ -103,19 +90,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Modul'air Open Air",
-                "",
-                "Modul'air Arlon",
-                49.6833,
-                5.8000,
-                inDays(3, 22), inDaysEnd(4, 4),
-                listOf(FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva, FakeUsers.userFelix, FakeUsers.userZoe),
-                FakeUsers.userLuna,
-                false
-            ),
-            HangoutDto(
-                UUID.randomUUID(),
-                "Huisfeestje Leuven",
+                "House Party in Leuven",
                 "",
                 "Studentenkamer Leuven",
                 50.8798,
@@ -127,7 +102,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Café Uitstap Antwerpen",
+                "Drinks at Café Puur",
                 "",
                 "Café Puur Antwerpen",
                 51.2194,
@@ -139,19 +114,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Kompass Rave Squad",
-                "",
-                "Kompass Klub Gent",
-                51.0378,
-                3.7042,
-                inDays(8, 23), inDaysEnd(9, 5),
-                listOf(FakeUsers.userCamille, FakeUsers.userVictoria, FakeUsers.userDieter, FakeUsers.userLea, FakeUsers.userRyan),
-                FakeUsers.userCamille,
-                false
-            ),
-            HangoutDto(
-                UUID.randomUUID(),
-                "Thuisfeestje Brussel",
+                "Loft House Party",
                 "",
                 "Loft Sint-Gillis",
                 50.8548,
@@ -163,7 +126,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Kroegentour Gent",
+                "Brewery Tour: Oud Beersel",
                 "",
                 "Brouwerij Oud Beersel",
                 51.0356,
@@ -175,7 +138,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Festival Circuit - Vrienden",
+                "Concert at Sportpaleis",
                 "",
                 "Sportpaleis Antwerpen",
                 51.2183,
@@ -187,7 +150,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Fuse Rave Crew",
+                "Fuse After Dark",
                 "",
                 "Fuse Bruxelles",
                 50.8500,
@@ -199,7 +162,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Student Huisfeest",
+                "Campus House Party",
                 "",
                 "KU Leuven Campus",
                 50.8798,
@@ -211,7 +174,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Café Night Out Brussel",
+                "Night Out at Bar Bram",
                 "",
                 "Bar Bram Bruxelles",
                 50.8487,
@@ -223,19 +186,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Modul'air Festival Crew",
-                "",
-                "Modul'air Arlon",
-                49.6833,
-                5.8000,
-                inDays(9, 22), inDaysEnd(10, 4),
-                listOf(FakeUsers.userNico, FakeUsers.userGrace, FakeUsers.userChris, FakeUsers.userMaria),
-                FakeUsers.userNico,
-                false
-            ),
-            HangoutDto(
-                UUID.randomUUID(),
-                "Predrinks Antwerpen",
+                "Pre-Drinks in Antwerp",
                 "",
                 "Studentenhuis Antwerpen",
                 51.2194,
@@ -247,19 +198,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Kompass Grand Opening",
-                "",
-                "Kompass Klub Gent",
-                51.0378,
-                3.7042,
-                inDays(11, 23), inDaysEnd(12, 5),
-                listOf(FakeUsers.userSanne, FakeUsers.userDaan, FakeUsers.userLuna, FakeUsers.userMaxim, FakeUsers.userAva),
-                FakeUsers.userDaan,
-                false
-            ),
-            HangoutDto(
-                UUID.randomUUID(),
-                "Whiskey Tasting Gent",
+                "Whiskey Tasting Night",
                 "",
                 "Whiskey Café Gent",
                 51.0519,
@@ -271,7 +210,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Tuinfeestje VUB",
+                "Garden Party at VUB",
                 "",
                 "VUB Campus Brussel",
                 50.8224,
@@ -295,7 +234,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Rave Voorbereiding",
+                "Pre-Rave Warm-up",
                 "",
                 "Flat Brussel",
                 50.8500,
@@ -307,7 +246,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Beach Party Knokke",
+                "Beach Party in Knokke",
                 "",
                 "Strand Knokke",
                 51.3557,
@@ -319,7 +258,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "House Music Night Gent",
+                "House Music Night",
                 "",
                 "Muziekclub Gent",
                 51.0432,
@@ -331,7 +270,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Studentenkamer Feestje",
+                "Dorm Room Party",
                 "",
                 "Thuis Leuven",
                 50.8798,
@@ -355,7 +294,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Spring Festival Squad",
+                "Spring Festival in the Park",
                 "",
                 "Citadelpark Antwerpen",
                 51.2135,
@@ -367,7 +306,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Club Night Brussel",
+                "Club Night at Fuse",
                 "",
                 "Fuse Bruxelles",
                 50.8500,
@@ -379,7 +318,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Vibes at Home",
+                "Cozy Night In",
                 "",
                 "Huisje Gent",
                 51.0432,
@@ -391,19 +330,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Modul'air Weekend Crew",
-                "",
-                "Modul'air Arlon",
-                49.6833,
-                5.8000,
-                inDays(11, 22), inDaysEnd(12, 4),
-                listOf(FakeUsers.userPaul, FakeUsers.userRosa, FakeUsers.userSanne),
-                FakeUsers.userPaul,
-                false
-            ),
-            HangoutDto(
-                UUID.randomUUID(),
-                "Spontane Campus Hang",
+                "Campus Terrace Hangout",
                 "",
                 "Terras UGent Gent",
                 51.0088,
@@ -415,19 +342,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Techno Session Gent",
-                "",
-                "Kompass Klub Gent",
-                51.0378,
-                3.7042,
-                inDays(13, 23), inDaysEnd(14, 5),
-                listOf(FakeUsers.userJoren, FakeUsers.userIsabella, FakeUsers.userSebastian),
-                FakeUsers.userJoren,
-                false
-            ),
-            HangoutDto(
-                UUID.randomUUID(),
-                "Beachclub Zomer",
+                "Summer Beach Club",
                 "",
                 "Beachclub Ostende",
                 51.2247,
@@ -439,7 +354,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Afterparty Bruxelles",
+                "Loft Afterparty",
                 "",
                 "Loft Brussel",
                 50.8548,
@@ -463,7 +378,7 @@ object FakeSeedingData {
             ),
             HangoutDto(
                 UUID.randomUUID(),
-                "Wine & Dine Antwerpen",
+                "Wine & Dine at Bellini",
                 "",
                 "Restaurant Bellini Antwerpen",
                 51.2194,
